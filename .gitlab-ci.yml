@@ -1,0 +1,117 @@
+---
+image: debian:12
+
+variables:
+  TERM: xterm
+  GIT_STRATEGY: clone
+
+services:
+  # kics-scan ignore-line
+  - docker:dind # The rule [ce76b7d0-9e77-464d-b86f-c5c48e03e22d,698ed579-b239-4f8f-a388-baa4bcb13ef8,610e266e-6c12-4bca-9925-1ed0cd29742b] are ignored here because it causes false positives specifically related to the Docker-in-Docker service.
+
+before_script:
+  - echo 'source ~/.bashrc' >> ~/.bash_profile
+  - apt-get update && apt-get install -y curl sudo gnupg2 lsb-release git unzip python3-venv
+  - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )"
+  - eval $(ssh-agent -s)
+  - |
+    if [ -n "${CZ_DEPLOY_KEY}" ]; then
+      echo "${CZ_DEPLOY_KEY}" | tr -d '\r' | ssh-add - > /dev/null
+    else
+        echo "Skip: CZ_DEPLOY_KEY is not defined"
+    fi
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  - ssh-keyscan gitlabssh.forge.education.gouv.fr >> ~/.ssh/known_hosts
+  - git fetch --all
+  - |
+    git config --global --add safe.directory "*"
+
+    git config --local user.name "${GITLAB_USER_LOGIN}"
+    git config --local user.email "${GITLAB_USER_EMAIL}"
+    git config --local pull.rebase true
+    echo "Git name: $(git config --get user.name)"
+    echo "Git email: $(git config --get user.email)"
+  - |
+    if ! command -v task &> /dev/null; then
+      echo "Taskfile not found. Installation in progress..."
+      sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+    else
+      echo "Taskfile already installed."
+    fi
+
+    task --version
+  - task dev:setup-environment
+  - source ~/.bash_profile
+
+stages:
+  - plan
+  - code
+  - build
+  - test
+  - release
+  - deploy
+  - operate
+  - monitor
+  - feedback
+
+plan:
+  stage: plan
+  script:
+    - task plan
+
+code:
+  stage: code
+  retry: 2
+  script:
+    - task code
+
+build:
+  stage: build
+  script:
+    - task build
+
+test:
+  stage: test
+  script:
+    - task test
+
+release:
+  stage: release
+  script:
+    - task release
+    - |
+      if [ -n "${CZ_DEPLOY_KEY}" ]; then
+        git remote set-url origin git@gitlabssh.forge.education.gouv.fr:$CI_PROJECT_PATH.git
+
+        # Push tags
+        git push origin --tags
+
+        # When executing from the default branch, proceed with pushing the changes
+        if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
+          git push origin HEAD:$CI_DEFAULT_BRANCH
+        fi
+      else
+          echo "Skip: CZ_DEPLOY_KEY is not defined"
+      fi
+
+deploy:
+  stage: deploy
+  script:
+    - task deploy
+
+operate:
+  stage: operate
+  script:
+    - task operate
+
+monitor:
+  stage: monitor
+  script:
+    - task monitor
+
+feedback:
+  stage: feedback
+  script:
+    - task feedback
