@@ -1,0 +1,107 @@
+---
+# Taskfile.yml: Central hub for development operations.
+version: "3"
+
+# Includes: Specify necessary and additional components for development.
+# - Essential includes are required for a successful Docker build.
+# - Optional includes extras like tests and lint (not needed for Docker builds)
+includes:
+  # Essential includes (Required for Docker build and k3s)
+
+  # Optional includes (For dev, testing, linting, etc.)
+  bun:
+    taskfile: .config/bun/Taskfile.yml
+    optional: true
+  commitizen:
+    taskfile: .config/commitizen/Taskfile.yml
+    optional: true
+  commitlint:
+    taskfile: .config/commitlint/Taskfile.yml
+    optional: true
+  dev:
+    taskfile: .config/dev/Taskfile.yml
+    optional: true
+  docker:
+    taskfile: .config/docker/Taskfile.yml
+    optional: true
+  lizard:
+    taskfile: .config/lizard/Taskfile.yml
+    optional: true
+  megalinter:
+    taskfile: .config/megalinter/Taskfile.yml
+    optional: true
+  nodejs:
+    taskfile: .config/nodejs/Taskfile.yml
+    dir: .config/nodejs
+    optional: true
+  yamllint:
+    taskfile: .config/yamllint/Taskfile.yml
+    optional: true
+
+tasks:
+  default:
+    # Orchestrates DevSecOps workflows.
+    cmds:
+      - task: plan
+      - task: code
+      - task: build
+      - task: test
+      - task: release
+      - task: deploy
+      - task: operate
+      - task: monitor
+      - task: feedback
+
+  plan:
+    cmds:
+      - cmd: echo "♾️  Plan"
+        silent: true
+
+  code:
+    cmds:
+      - cmd: echo "♾️  Code"
+        silent: true
+      - task: commitlint
+      - task: commitizen:check
+      - task: commitizen:bump
+      - task: megalinter
+      - task: lizard
+
+  build:
+    cmds:
+      - cmd: echo "♾️  Build"
+        silent: true
+      - task: docker:build:all:dockerfile
+
+  test:
+    cmds:
+      - cmd: echo "♾️  Test"
+        silent: true
+      - task: docker:test
+
+  release:
+    cmds:
+      - cmd: echo "♾️  Release"
+        silent: true
+      - task: commitizen:bump
+        vars: { CZ_BUMP_DRY_RUN: "false", CZ_BUMP_YES: "true" }
+
+  deploy:
+    cmds:
+      - cmd: echo "♾️  Deploy"
+        silent: true
+
+  operate:
+    cmds:
+      - cmd: echo "♾️  Operate"
+        silent: true
+
+  monitor:
+    cmds:
+      - cmd: echo "♾️  Monitor"
+        silent: true
+
+  feedback:
+    cmds:
+      - cmd: echo "♾️  Feedback"
+        silent: true
