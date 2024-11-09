@@ -23,7 +23,7 @@ before_script:
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
   - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-  - ssh-keyscan gitlabssh.forge.education.gouv.fr >> ~/.ssh/known_hosts
+  - ssh-keyscan $CI_SERVER_HOST >> ~/.ssh/known_hosts
   - git fetch --all
   - |
     git config --global --add safe.directory "*"
@@ -83,7 +83,7 @@ release:
     - task release
     - |
       if [ -n "${CZ_DEPLOY_KEY}" ]; then
-        git remote set-url origin git@gitlabssh.forge.education.gouv.fr:$CI_PROJECT_PATH.git
+        git remote set-url origin git@$CI_SERVER_SHELL_SSH_HOST:$CI_PROJECT_PATH.git
 
         # Push tags
         git push origin --tags
