@@ -6,7 +6,6 @@ services:
       context: ../..
       dockerfile: .config/devcontainer/debian/Dockerfile
       args:
-        DOCKER_GROUP_ID: 995
         USERNAME: ${USER:-developer}
         http_proxy: ${http_proxy:-}
         HTTP_PROXY: ${HTTP_PROXY:-}
