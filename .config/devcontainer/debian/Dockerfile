@@ -6,7 +6,6 @@ ARG HTTPS_PROXY
 ARG FTP_PROXY
 ARG NO_PROXY
 ARG USERNAME=developer
-ARG DOCKER_GROUP_ID=999
 ARG TEMP_DIR=/tmp/project
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -20,7 +19,6 @@ RUN echo "export HTTP_PROXY=\"$HTTP_PROXY\"" > $TEMP_DIR/env_vars && \
   echo "export FTP_PROXY=\"$FTP_PROXY\"" >> $TEMP_DIR/env_vars && \
   echo "export NO_PROXY=\"$NO_PROXY\"" >> $TEMP_DIR/env_vars && \
   echo "export USERNAME=\"$USERNAME\"" >> $TEMP_DIR/env_vars && \
-  echo "export DOCKER_GROUP_ID=\"$DOCKER_GROUP_ID\"" >> $TEMP_DIR/env_vars && \
   echo "export TEMP_DIR=\"$TEMP_DIR\"" >> $TEMP_DIR/env_vars
 
 # Run main setup script
@@ -44,7 +42,7 @@ WORKDIR $TEMP_DIR
 RUN task dev:setup-environment
 
 # Run final scripts
-RUN ./.config/devcontainer/debian/scripts/setup-docker.sh "$USERNAME" "$DOCKER_GROUP_ID" \
+RUN ./.config/devcontainer/debian/scripts/setup-docker.sh "$USERNAME" \
   && ./.config/devcontainer/debian/scripts/cleanup.sh
 
 # Create the workspace directory
