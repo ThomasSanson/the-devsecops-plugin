@@ -1,0 +1,7 @@
+.mega-linter.yml
+*.log
+*megalinter*.txt
+/*.sh
+megalinter-reports
+node_modules
+venv
