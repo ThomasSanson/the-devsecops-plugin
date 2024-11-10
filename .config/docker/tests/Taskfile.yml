@@ -195,7 +195,7 @@ tasks:
           exit 1
         }
       - |
-        docker exec {{.CONTAINER_NAME}} docker run harbor.forge.education.gouv.fr/dockerhub-proxy-unsecured/hello-world || {
+        docker exec {{.CONTAINER_NAME}} docker run hello-world || {
           echo "❌ Docker hello-world test failed"
           exit 1
         }
