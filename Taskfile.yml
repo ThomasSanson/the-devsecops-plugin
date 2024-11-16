@@ -2,6 +2,23 @@
 # Taskfile.yml: Central hub for development operations.
 version: "3"
 
+vars:
+  # Environment variables for task control
+  TASK_BUN_ENABLED: '{{.TASK_BUN_ENABLED | default "true"}}'
+  TASK_COMMITIZEN_ENABLED: '{{.TASK_COMMITIZEN_ENABLED | default "true"}}'
+  TASK_COMMITLINT_ENABLED: '{{.TASK_COMMITLINT_ENABLED | default "true"}}'
+  TASK_DEV_ENABLED: '{{.TASK_DEV_ENABLED | default "true"}}'
+  TASK_DOCKER_ENABLED: '{{.TASK_DOCKER_ENABLED | default "true"}}'
+  TASK_LIZARD_ENABLED: '{{.TASK_LIZARD_ENABLED | default "true"}}'
+  TASK_MEGALINTER_ENABLED: '{{.TASK_MEGALINTER_ENABLED | default "true"}}'
+  TASK_NODEJS_ENABLED: '{{.TASK_NODEJS_ENABLED | default "true"}}'
+  TASK_YAMLLINT_ENABLED: '{{.TASK_YAMLLINT_ENABLED | default "true"}}'
+
+  # Simple separator
+  TASK_SEPARATOR: '{{.TASK_SEPARATOR | default (print (repeat 120 "-") "\n" (repeat 120 "-") "\n" (repeat 120 "-"))}}'
+  TASK_DEVSECOPS_ICON: '{{.TASK_DEVSECOPS_ICON | default "♾️"}}'
+
+
 # Includes: Specify necessary and additional components for development.
 # - Essential includes are required for a successful Docker build.
 # - Optional includes extras like tests and lint (not needed for Docker builds)
@@ -54,54 +71,111 @@ tasks:
 
   plan:
     cmds:
-      - cmd: echo "♾️  Plan"
+      - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Plan"
         silent: true
 
   code:
     cmds:
-      - cmd: echo "♾️  Code"
+      - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Code"
         silent: true
-      - task: commitlint
-      - task: commitizen:check
-      - task: commitizen:bump
-      - task: megalinter
-      - task: lizard
+      - cmd: |
+          if [[ "{{.TASK_COMMITLINT_ENABLED}}" == "true" ]]; then
+            echo "🔍 Running commitlint..."
+            task commitlint
+            echo "{{.TASK_SEPARATOR}}"
+          else
+            echo "⚠️ Skipping commitlint (disabled via TASK_COMMITLINT_ENABLED=false)"
+          fi
+        silent: true
+      - cmd: |
+          if [[ "{{.TASK_COMMITIZEN_ENABLED}}" == "true" ]]; then
+            echo "🔍 Running commitizen checks..."
+            task commitizen:check
+            echo "{{.TASK_SEPARATOR}}"
+            echo "📝 Running commitizen bump..."
+            task commitizen:bump
+            echo "{{.TASK_SEPARATOR}}"
+          else
+            echo "⚠️ Skipping commitizen (disabled via TASK_COMMITIZEN_ENABLED=false)"
+          fi
+        silent: true
+      - cmd: |
+          if [[ "{{.TASK_MEGALINTER_ENABLED}}" == "true" ]]; then
+            echo "🔍 Running megalinter..."
+            task megalinter
+            echo "{{.TASK_SEPARATOR}}"
+          else
+            echo "⚠️ Skipping megalinter (disabled via TASK_MEGALINTER_ENABLED=false)"
+          fi
+        silent: true
+      - cmd: |
+          if [[ "{{.TASK_LIZARD_ENABLED}}" == "true" ]]; then
+            echo "🔍 Running lizard code analysis..."
+            task lizard
+            echo "{{.TASK_SEPARATOR}}"
+          else
+            echo "⚠️ Skipping lizard (disabled via TASK_LIZARD_ENABLED=false)"
+          fi
+        silent: true
 
   build:
     cmds:
-      - cmd: echo "♾️  Build"
+      - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Build"
         silent: true
-      - task: docker:build:all:dockerfile
+      - cmd: |
+          if [[ "{{.TASK_DOCKER_ENABLED}}" == "true" ]]; then
+            echo "🐳 Building Docker images..."
+            task docker:build:all:dockerfile
+            echo "{{.TASK_SEPARATOR}}"
+          else
+            echo "⚠️ Skipping docker build (disabled via TASK_DOCKER_ENABLED=false)"
+          fi
+        silent: true
 
   test:
     cmds:
-      - cmd: echo "♾️  Test"
+      - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Test"
         silent: true
-      - task: docker:test
+      - cmd: |
+          if [[ "{{.TASK_DOCKER_ENABLED}}" == "true" ]]; then
+            echo "🧪 Running Docker tests..."
+            task docker:test
+            echo "{{.TASK_SEPARATOR}}"
+          else
+            echo "⚠️ Skipping docker test (disabled via TASK_DOCKER_ENABLED=false)"
+          fi
+        silent: true
 
   release:
     cmds:
-      - cmd: echo "♾️  Release"
+      - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Release"
         silent: true
-      - task: commitizen:bump
-        vars: { CZ_BUMP_DRY_RUN: "false", CZ_BUMP_YES: "true" }
+      - cmd: |
+          if [[ "{{.TASK_COMMITIZEN_ENABLED}}" == "true" ]]; then
+            echo "📦 Running commitizen bump for release..."
+            CZ_BUMP_DRY_RUN="false" CZ_BUMP_YES="true" task commitizen:bump
+            echo "{{.TASK_SEPARATOR}}"
+          else
+            echo "⚠️ Skipping commitizen bump (disabled via TASK_COMMITIZEN_ENABLED=false)"
+          fi
+        silent: true
 
   deploy:
     cmds:
-      - cmd: echo "♾️  Deploy"
+      - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Deploy"
         silent: true
 
   operate:
     cmds:
-      - cmd: echo "♾️  Operate"
+      - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Operate"
         silent: true
 
   monitor:
     cmds:
-      - cmd: echo "♾️  Monitor"
+      - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Monitor"
         silent: true
 
   feedback:
     cmds:
-      - cmd: echo "♾️  Feedback"
+      - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Feedback"
         silent: true
