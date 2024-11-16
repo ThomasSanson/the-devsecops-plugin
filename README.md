@@ -109,7 +109,7 @@ task docker:test    # Run Docker-related tests
 
 The plugin is organized into a modular structure:
 
-```
+```bash
 .
 ├── .config/              # Configuration files for all tools
 │   ├── bun/             # Bun runtime configuration
