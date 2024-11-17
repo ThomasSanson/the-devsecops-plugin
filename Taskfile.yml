@@ -55,6 +55,9 @@ includes:
   commitlint:
     taskfile: .config/commitlint/Taskfile.yml
     optional: true
+  copier:
+    taskfile: .config/copier/Taskfile.yml
+    optional: true
   dev:
     taskfile: .config/dev/Taskfile.yml
     optional: true
