@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0 (2024-11-17)
+
+### Feat
+
+- **Taskfile**: add environment variable support for task control and enhance task commands with conditional execution
+
 ## 0.1.0 (2024-11-10)
 
 ### Feat
