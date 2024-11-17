@@ -24,6 +24,26 @@ vars:
 # - Optional includes extras like tests and lint (not needed for Docker builds)
 includes:
   # Essential includes (Required for Docker build and k3s)
+  devsecops:plan:
+    taskfile: .config/devsecops/Taskfile.plan.yml
+  devsecops:code:
+    taskfile: .config/devsecops/Taskfile.code.yml
+  devsecops:build:
+    taskfile: .config/devsecops/Taskfile.build.yml
+  devsecops:test:
+    taskfile: .config/devsecops/Taskfile.test.yml
+  devsecops:release:
+    taskfile: .config/devsecops/Taskfile.release.yml
+  devsecops:deploy:
+    taskfile: .config/devsecops/Taskfile.deploy.yml
+  devsecops:operate:
+    taskfile: .config/devsecops/Taskfile.operate.yml
+  devsecops:monitor:
+    taskfile: .config/devsecops/Taskfile.monitor.yml
+  devsecops:feedback:
+    taskfile: .config/devsecops/Taskfile.feedback.yml
+  project:
+    taskfile: src/Taskfile.yml
 
   # Optional includes (For dev, testing, linting, etc.)
   bun:
@@ -73,109 +93,61 @@ tasks:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Plan"
         silent: true
+      - task: devsecops:plan
+      - task: project:plan
 
   code:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Code"
         silent: true
-      - cmd: |
-          if [[ "{{.TASK_COMMITLINT_ENABLED}}" == "true" ]]; then
-            echo "🔍 Running commitlint..."
-            task commitlint
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping commitlint (disabled via TASK_COMMITLINT_ENABLED=false)"
-          fi
-        silent: true
-      - cmd: |
-          if [[ "{{.TASK_COMMITIZEN_ENABLED}}" == "true" ]]; then
-            echo "🔍 Running commitizen checks..."
-            task commitizen:check
-            echo "{{.TASK_SEPARATOR}}"
-            echo "📝 Running commitizen bump..."
-            task commitizen:bump
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping commitizen (disabled via TASK_COMMITIZEN_ENABLED=false)"
-          fi
-        silent: true
-      - cmd: |
-          if [[ "{{.TASK_MEGALINTER_ENABLED}}" == "true" ]]; then
-            echo "🔍 Running megalinter..."
-            task megalinter
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping megalinter (disabled via TASK_MEGALINTER_ENABLED=false)"
-          fi
-        silent: true
-      - cmd: |
-          if [[ "{{.TASK_LIZARD_ENABLED}}" == "true" ]]; then
-            echo "🔍 Running lizard code analysis..."
-            task lizard
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping lizard (disabled via TASK_LIZARD_ENABLED=false)"
-          fi
-        silent: true
+      - task: devsecops:code
+      - task: project:code
 
   build:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Build"
         silent: true
-      - cmd: |
-          if [[ "{{.TASK_DOCKER_ENABLED}}" == "true" ]]; then
-            echo "🐳 Building Docker images..."
-            task docker:build:all:dockerfile
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping docker build (disabled via TASK_DOCKER_ENABLED=false)"
-          fi
-        silent: true
+      - task: devsecops:build
+      - task: project:build
 
   test:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Test"
         silent: true
-      - cmd: |
-          if [[ "{{.TASK_DOCKER_ENABLED}}" == "true" ]]; then
-            echo "🧪 Running Docker tests..."
-            task docker:test
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping docker test (disabled via TASK_DOCKER_ENABLED=false)"
-          fi
-        silent: true
+      - task: devsecops:test
+      - task: project:test
 
   release:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Release"
         silent: true
-      - cmd: |
-          if [[ "{{.TASK_COMMITIZEN_ENABLED}}" == "true" ]]; then
-            echo "📦 Running commitizen bump for release..."
-            CZ_BUMP_DRY_RUN="false" CZ_BUMP_YES="true" task commitizen:bump
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping commitizen bump (disabled via TASK_COMMITIZEN_ENABLED=false)"
-          fi
-        silent: true
+      - task: devsecops:release
+      - task: project:release
 
   deploy:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Deploy"
         silent: true
+      - task: devsecops:deploy
+      - task: project:deploy
 
   operate:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Operate"
         silent: true
+      - task: devsecops:operate
+      - task: project:operate
 
   monitor:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Monitor"
         silent: true
+      - task: devsecops:monitor
+      - task: project:monitor
 
   feedback:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Feedback"
         silent: true
+      - task: devsecops:feedback
+      - task: project:feedback
