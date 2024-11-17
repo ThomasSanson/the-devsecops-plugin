@@ -202,7 +202,17 @@ tasks:
           echo "${options[@]}"
     cmds:
       - |
-        {{.CZ_COMMAND}} --config {{.CZ_CONFIG_FULL_PATH}} {{.CLI_OPTIONS}} bump {{.BUMP_OPTIONS}}
+        if {{.CZ_COMMAND}} --config {{.CZ_CONFIG_FULL_PATH}} {{.CLI_OPTIONS}} bump {{.BUMP_OPTIONS}}; then
+          echo "🎉 All commits successfully verified with Commitizen!"
+        else
+          exit_code=$?
+          if [ $exit_code -eq 3 ]; then
+            echo "⚠️  Warning: No commits found in the specified range to verify."
+          else
+            echo "❌ Commitizen bump failed with exit code $exit_code"
+            exit $exit_code
+          fi
+        fi
       - cmd: |
           if [ "{{.CZ_BUMP_DRY_RUN}}" = "true" ]; then
             echo "🎉 Version bump completed in dry-run mode. No changes were applied."
