@@ -5,6 +5,7 @@
 [![Project license](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](LICENSE)
 [![Made with Go-Task](https://img.shields.io/badge/Built%20with-Task-blue?style=flat-square)](https://taskfile.dev)
 [![Powered by Docker](https://img.shields.io/badge/Powered%20by-Docker-2496ED?style=flat-square&logo=docker)](https://www.docker.com/)
+[![Made with Copier](https://img.shields.io/badge/Made%20with-Copier-blue?style=flat-square)](https://copier.readthedocs.io)
 
 </div>
 
@@ -17,6 +18,7 @@
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
+  - [Template Usage](#template-usage)
 - [Usage](#usage)
   - [Task Control](#task-control)
   - [Available Commands](#available-commands)
@@ -43,6 +45,7 @@ The DevSecOps Plugin is a comprehensive toolset designed to streamline and enfor
 - [Lizard](https://github.com/terryyin/lizard) - Code complexity analysis
 - [Grype](https://github.com/anchore/grype) - Vulnerability scanning
 - [Trivy](https://github.com/aquasecurity/trivy) - Security scanner
+- [Copier](https://copier.readthedocs.io) - Project templating and scaffolding
 
 ### Pipeline Stages
 
@@ -82,13 +85,14 @@ The plugin implements a complete DevSecOps lifecycle through distinct stages:
 
 - Task (Taskfile)
 - Git
+- Python 3.11
 
 ### Installation
 
 1. Clone the repository:
 
 ```bash
-git clone <repository-url>
+git clone git@gitlab.mim-libre.fr:digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin.git
 ```
 
 2. Set up the development environment:
@@ -103,6 +107,28 @@ This will:
 - Configure Docker
 - Set up Node.js and Bun
 - Initialize the development environment
+
+### Template Usage
+
+This project now serves as a Copier template. To create a new project using this template:
+
+1. Install Copier if you haven't already:
+
+```bash
+pip install copier
+```
+
+2. Generate a new project:
+
+```bash
+copier copy -a .config/copier/copier-answers.yml https://gitlab.mim-libre.fr/digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin.git path/to/your/new/project
+```
+
+The template will automatically:
+
+- Generate project configuration files
+- Set up the DevSecOps pipeline structure
+- Configure all necessary tools and dependencies
 
 ## Usage
 
@@ -202,8 +228,8 @@ which are automatically integrated into the main pipeline while preserving the c
 
 ## Features
 
+- ♾️ **Automation**: Automated workflows for common DevSecOps tasks
 - 🔄 **Modular Pipeline**: Clearly separated stages with individual configurations
-- 🔄 **Automation**: Automated workflows for common DevSecOps tasks
 - 🎛️ **Flexible Control**: Enable/disable features via environment variables
 - 🔒 **Security-First**: Integrated security scanning at every stage
 - 📊 **Quality Assurance**: Comprehensive code quality checks
