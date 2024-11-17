@@ -50,19 +50,27 @@ The plugin implements a complete DevSecOps lifecycle through distinct stages:
 
 1. 🎯 **Plan**: Initial planning and setup
 2. 💻 **Code**: Development with integrated security checks
-   - Commitlint validation
-   - MegaLinter checks
-   - Commitizen formatting
-   - Lizard code analysis
+
+- Commitlint validation
+- MegaLinter checks
+- Commitizen formatting
+- Lizard code analysis
+
 3. 🏗️ **Build**: Automated building with security
-   - Docker image builds
-   - Security scans
+
+- Docker image builds
+- Security scans
+
 4. 🧪 **Test**: Comprehensive testing
-   - Docker tests
-   - Security testing
+
+- Docker tests
+- Security testing
+
 5. 📦 **Release**: Secure release management
-   - Version bumping
-   - Changelog generation
+
+- Version bumping
+- Changelog generation
+
 6. 🚀 **Deploy**: Automated deployment
 7. 🔄 **Operate**: Operational management
 8. 📊 **Monitor**: Continuous monitoring
@@ -90,6 +98,7 @@ task dev:setup-environment
 ```
 
 This will:
+
 - Install necessary dependencies
 - Configure Docker
 - Set up Node.js and Bun
