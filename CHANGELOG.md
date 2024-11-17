@@ -2,6 +2,13 @@
 
 # Changelog
 
+## 1.0.0 (2024-11-17)
+
+### Feat
+
+- **copier**: add Taskfile.yml for managing Copier installation and execution in a virtual environment
+- **copier.yml**: add template configuration for project setup to streamline DevSecOps project creation process
+
 ## 0.3.0 (2024-11-17)
 
 ### Feat
