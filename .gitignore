@@ -1,4 +1,5 @@
 .mega-linter.yml
+.vscode
 *.log
 *megalinter*.txt
 /*.sh
