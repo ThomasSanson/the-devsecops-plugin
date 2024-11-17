@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 1.0.1 (2024-11-17)
+
+### Fix
+
+- **copier.yml**: exclude .git directory from copier to prevent copying version control files
+
 ## 1.0.0 (2024-11-17)
 
 ### Feat
