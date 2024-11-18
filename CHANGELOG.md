@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 1.0.2 (2024-11-18)
+
+### Fix
+
+- **copier.yml**: exclude copier.yml from being copied to improve project cleanliness
+
 ## 1.0.1 (2024-11-17)
 
 ### Fix
