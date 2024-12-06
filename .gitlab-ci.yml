@@ -89,21 +89,29 @@ plan:
 code:
   stage: code
   retry: 2
+  needs: []  # Allows parallel execution
   script:
     - task code
 
 build:
   stage: build
+  needs: []  # Allows parallel execution
   script:
     - task build
 
 test:
   stage: test
+  needs: []  # Allows parallel execution
   script:
     - task test
 
 release:
   stage: release
+  needs:
+    - job: plan
+    - job: code
+    - job: build
+    - job: test
   script:
     - task release
     - |
@@ -123,20 +131,29 @@ release:
 
 deploy:
   stage: deploy
+  needs:
+    - job: release
   script:
     - task deploy
 
 operate:
   stage: operate
+  needs:
+    - job: deploy
   script:
     - task operate
 
 monitor:
   stage: monitor
+  needs:
+    - job: deploy
   script:
     - task monitor
 
 feedback:
   stage: feedback
+  needs:
+    - job: operate
+    - job: monitor
   script:
     - task feedback
