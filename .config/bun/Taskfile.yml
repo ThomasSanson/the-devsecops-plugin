@@ -24,7 +24,7 @@ tasks:
         development without the need for Node.js. It is designed to be flexible,
         accommodating various project configurations and Linux distributions.
     vars:
-      BUN_VERSION: '{{.BUN_VERSION | default "latest"}}'
+      BUN_VERSION: '{{.OVERRIDE_BUN_VERSION | default "latest"}}'
     status:
       - command -v bun &> /dev/null
     preconditions:
