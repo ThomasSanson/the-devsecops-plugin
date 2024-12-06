@@ -2,11 +2,11 @@
 version: "3"
 
 vars:
-  COMMITLINT_DIR: '{{.COMMITLINT_DIR | default ".config/commitlint"}}'
-  COMMITLINT_COMMAND: '{{.COMMITLINT_COMMAND | default "bunx --install=force --bun commitlint"}}'
-  COMMITLINT_CONFIG: '{{.COMMITLINT_CONFIG | default ".config/commitlint/config.yml"}}'
-  COMMITLINT_FROM: '{{.COMMITLINT_FROM | default "origin/main"}}'
-  COMMITLINT_TO: '{{.COMMITLINT_TO | default "HEAD"}}'
+  COMMITLINT_DIR: '{{.OVERRIDE_COMMITLINT_DIR | default ".config/commitlint"}}'
+  COMMITLINT_COMMAND: '{{.OVERRIDE_COMMITLINT_COMMAND | default "bunx --install=force --bun commitlint"}}'
+  COMMITLINT_CONFIG: '{{.OVERRIDE_COMMITLINT_CONFIG | default ".config/commitlint/config.yml"}}'
+  COMMITLINT_FROM: '{{.OVERRIDE_COMMITLINT_FROM | default "origin/main"}}'
+  COMMITLINT_TO: '{{.OVERRIDE_COMMITLINT_TO | default "HEAD"}}'
 
 tasks:
   default:

@@ -2,11 +2,11 @@
 version: "3"
 
 vars:
-  YAMLLINT_VIRTUALENV: '{{.YAMLLINT_VIRTUALENV | default "./venv/yamllint"}}'
-  YAMLLINT_COMMAND: '{{.YAMLLINT_COMMAND | default "./venv/yamllint/bin/yamllint"}}'
-  YAMLLINT_CONFIG_FULL_PATH: '{{.YAMLLINT_CONFIG_FULL_PATH | default ".config/yamllint/config.yml"}}'
-  YAMLLINT_CLI_OPTS: '{{.YAMLLINT_CLI_OPTS | default "--strict"}}'
-  YAMLLINT_PATH_TO_LINT: '{{.YAMLLINT_PATH_TO_LINT | default "."}}'
+  YAMLLINT_VIRTUALENV: '{{.OVERRIDE_YAMLLINT_VIRTUALENV | default "./venv/yamllint"}}'
+  YAMLLINT_COMMAND: '{{.OVERRIDE_YAMLLINT_COMMAND | default "./venv/yamllint/bin/yamllint"}}'
+  YAMLLINT_CONFIG_FULL_PATH: '{{.OVERRIDE_YAMLLINT_CONFIG_FULL_PATH | default ".config/yamllint/config.yml"}}'
+  YAMLLINT_CLI_OPTS: '{{.OVERRIDE_YAMLLINT_CLI_OPTS | default "--strict"}}'
+  YAMLLINT_PATH_TO_LINT: '{{.OVERRIDE_YAMLLINT_PATH_TO_LINT | default "."}}'
 
 tasks:
   default:
@@ -75,8 +75,8 @@ tasks:
           echo "3.11" > {{.YAMLLINT_PYTHON_VERSION_FILE}}
           ```
     vars:
-      YAMLLINT_PYTHON_VERSION_FILE: '{{.YAMLLINT_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
-      YAMLLINT_REQUIREMENTS_FILE: '{{.YAMLLINT_REQUIREMENTS_FILE | default ".config/yamllint/requirements.txt"}}'
+      YAMLLINT_PYTHON_VERSION_FILE: '{{.OVERRIDE_YAMLLINT_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
+      YAMLLINT_REQUIREMENTS_FILE: '{{.OVERRIDE_YAMLLINT_REQUIREMENTS_FILE | default ".config/yamllint/requirements.txt"}}'
     status:
       - |
         {{.YAMLLINT_COMMAND}} --version | grep -q $(awk -F '==' '{print $2}' {{.YAMLLINT_REQUIREMENTS_FILE}})

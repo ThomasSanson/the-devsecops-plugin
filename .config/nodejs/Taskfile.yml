@@ -2,7 +2,7 @@
 version: "3"
 
 vars:
-  NODEJS_MAJOR_VERSION: '{{.NODEJS_MAJOR_VERSION | default "20"}}'
+  NODEJS_MAJOR_VERSION: '{{.OVERRIDE_NODEJS_MAJOR_VERSION | default "20"}}'
 
 tasks:
   install:

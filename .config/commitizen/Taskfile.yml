@@ -2,22 +2,22 @@
 version: "3"
 
 vars:
-  CZ_VIRTUALENV: '{{.CZ_VIRTUALENV | default "./venv/commitizen"}}'
-  CZ_COMMAND: '{{.CZ_COMMAND | default "./venv/commitizen/bin/cz"}}'
-  CZ_CONFIG_FULL_PATH: '{{.CZ_CONFIG_FULL_PATH | default ".config/commitizen/cz.yaml"}}'
-  CZ_CLI_OPTS: '{{.CZ_CLI_OPTS | default ""}}'
-  CZ_CLI_CHECK_OPTS: '{{.CZ_CLI_CHECK_OPTS | default "--rev-range origin/main..HEAD"}}'
-  CZ_PYTHON_VERSION_FILE: '{{.CZ_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
-  CZ_REQUIREMENTS_FILE: '{{.CZ_REQUIREMENTS_FILE | default ".config/commitizen/requirements.txt"}}'
-  CZ_BUMP_DRY_RUN: '{{.CZ_BUMP_DRY_RUN | default "true"}}'
-  CZ_BUMP_YES: '{{.CZ_BUMP_YES | default "true"}}'
-  CZ_BUMP_CHECK_CONSISTENCY: '{{.CZ_BUMP_CHECK_CONSISTENCY | default "true"}}'
-  CZ_BUMP_NO_RAISE: '{{.CZ_BUMP_NO_RAISE | default "21"}}'
-  CZ_BUMP_CHANGELOG: '{{.CZ_BUMP_CHANGELOG | default "true"}}'
-  CZ_BUMP_PRERELEASE: '{{.CZ_BUMP_PRERELEASE | default ""}}'
-  CZ_BUMP_DEV_RELEASE: '{{.CZ_BUMP_DEV_RELEASE | default ""}}'
-  CZ_DEFAULT_BRANCH: '{{.CZ_DEFAULT_BRANCH | default "main"}}'
-  CZ_RELEASE_BRANCH_PATTERN: '{{.CZ_RELEASE_BRANCH_PATTERN | default "^release/"}}'
+  CZ_VIRTUALENV: '{{.OVERRIDE_CZ_VIRTUALENV | default "./venv/commitizen"}}'
+  CZ_COMMAND: '{{.OVERRIDE_CZ_COMMAND | default "./venv/commitizen/bin/cz"}}'
+  CZ_CONFIG_FULL_PATH: '{{.OVERRIDE_CZ_CONFIG_FULL_PATH | default ".config/commitizen/cz.yaml"}}'
+  CZ_CLI_OPTS: '{{.OVERRIDE_CZ_CLI_OPTS | default ""}}'
+  CZ_CLI_CHECK_OPTS: '{{.OVERRIDE_CZ_CLI_CHECK_OPTS | default "--rev-range origin/main..HEAD"}}'
+  CZ_PYTHON_VERSION_FILE: '{{.OVERRIDE_CZ_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
+  CZ_REQUIREMENTS_FILE: '{{.OVERRIDE_CZ_REQUIREMENTS_FILE | default ".config/commitizen/requirements.txt"}}'
+  CZ_BUMP_DRY_RUN: '{{.OVERRIDE_CZ_BUMP_DRY_RUN | default "true"}}'
+  CZ_BUMP_YES: '{{.OVERRIDE_CZ_BUMP_YES | default "true"}}'
+  CZ_BUMP_CHECK_CONSISTENCY: '{{.OVERRIDE_CZ_BUMP_CHECK_CONSISTENCY | default "true"}}'
+  CZ_BUMP_NO_RAISE: '{{.OVERRIDE_CZ_BUMP_NO_RAISE | default "21"}}'
+  CZ_BUMP_CHANGELOG: '{{.OVERRIDE_CZ_BUMP_CHANGELOG | default "true"}}'
+  CZ_BUMP_PRERELEASE: '{{.OVERRIDE_CZ_BUMP_PRERELEASE | default ""}}'
+  CZ_BUMP_DEV_RELEASE: '{{.OVERRIDE_CZ_BUMP_DEV_RELEASE | default ""}}'
+  CZ_DEFAULT_BRANCH: '{{.OVERRIDE_CZ_DEFAULT_BRANCH | default "main"}}'
+  CZ_RELEASE_BRANCH_PATTERN: '{{.OVERRIDE_CZ_RELEASE_BRANCH_PATTERN | default "^release/"}}'
   GIT_CURRENT_BRANCH:
     sh: |
       if [ -n "$CI_COMMIT_REF_NAME" ]; then

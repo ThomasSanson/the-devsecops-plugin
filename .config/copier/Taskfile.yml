@@ -2,11 +2,11 @@
 version: "3"
 
 vars:
-  COPIER_VIRTUALENV: '{{.COPIER_VIRTUALENV | default "./venv/copier"}}'
-  COPIER_COMMAND: '{{.COPIER_COMMAND | default "./venv/copier/bin/copier"}}'
-  COPIER_PYTHON_VERSION_FILE: '{{.COPIER_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
-  COPIER_REQUIREMENTS_FILE: '{{.COPIER_REQUIREMENTS_FILE | default ".config/copier/requirements.txt"}}'
-  COPIER_CLI_OPTS: '{{.COPIER_CLI_OPTS | default ""}}'
+  COPIER_VIRTUALENV: '{{.OVERRIDE_COPIER_VIRTUALENV | default "./venv/copier"}}'
+  COPIER_COMMAND: '{{.OVERRIDE_COPIER_COMMAND | default "./venv/copier/bin/copier"}}'
+  COPIER_PYTHON_VERSION_FILE: '{{.OVERRIDE_COPIER_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
+  COPIER_REQUIREMENTS_FILE: '{{.OVERRIDE_COPIER_REQUIREMENTS_FILE | default ".config/copier/requirements.txt"}}'
+  COPIER_CLI_OPTS: '{{.OVERRIDE_COPIER_CLI_OPTS | default ""}}'
 
 tasks:
   install:

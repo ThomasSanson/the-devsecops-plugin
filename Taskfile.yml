@@ -4,19 +4,19 @@ version: "3"
 
 vars:
   # Environment variables for task control
-  TASK_BUN_ENABLED: '{{.TASK_BUN_ENABLED | default "true"}}'
-  TASK_COMMITIZEN_ENABLED: '{{.TASK_COMMITIZEN_ENABLED | default "true"}}'
-  TASK_COMMITLINT_ENABLED: '{{.TASK_COMMITLINT_ENABLED | default "true"}}'
-  TASK_DEV_ENABLED: '{{.TASK_DEV_ENABLED | default "true"}}'
-  TASK_DOCKER_ENABLED: '{{.TASK_DOCKER_ENABLED | default "true"}}'
-  TASK_LIZARD_ENABLED: '{{.TASK_LIZARD_ENABLED | default "true"}}'
-  TASK_MEGALINTER_ENABLED: '{{.TASK_MEGALINTER_ENABLED | default "true"}}'
-  TASK_NODEJS_ENABLED: '{{.TASK_NODEJS_ENABLED | default "true"}}'
-  TASK_YAMLLINT_ENABLED: '{{.TASK_YAMLLINT_ENABLED | default "true"}}'
+  TASK_BUN_ENABLED: '{{.OVERRIDE_TASK_BUN_ENABLED | default "true"}}'
+  TASK_COMMITIZEN_ENABLED: '{{.OVERRIDE_TASK_COMMITIZEN_ENABLED | default "true"}}'
+  TASK_COMMITLINT_ENABLED: '{{.OVERRIDE_TASK_COMMITLINT_ENABLED | default "true"}}'
+  TASK_DEV_ENABLED: '{{.OVERRIDE_TASK_DEV_ENABLED | default "true"}}'
+  TASK_DOCKER_ENABLED: '{{.OVERRIDE_TASK_DOCKER_ENABLED | default "true"}}'
+  TASK_LIZARD_ENABLED: '{{.OVERRIDE_TASK_LIZARD_ENABLED | default "true"}}'
+  TASK_MEGALINTER_ENABLED: '{{.OVERRIDE_TASK_MEGALINTER_ENABLED | default "true"}}'
+  TASK_NODEJS_ENABLED: '{{.OVERRIDE_TASK_NODEJS_ENABLED | default "true"}}'
+  TASK_YAMLLINT_ENABLED: '{{.OVERRIDE_TASK_YAMLLINT_ENABLED | default "true"}}'
 
   # Simple separator
-  TASK_SEPARATOR: '{{.TASK_SEPARATOR | default (print (repeat 120 "-") "\n" (repeat 120 "-") "\n" (repeat 120 "-"))}}'
-  TASK_DEVSECOPS_ICON: '{{.TASK_DEVSECOPS_ICON | default "♾️"}}'
+  TASK_SEPARATOR: '{{.OVERRIDE_TASK_SEPARATOR | default (print (repeat 120 "-") "\n" (repeat 120 "-") "\n" (repeat 120 "-"))}}'
+  TASK_DEVSECOPS_ICON: '{{.OVERRIDE_TASK_DEVSECOPS_ICON | default "♾️"}}'
 
 
 # Includes: Specify necessary and additional components for development.
