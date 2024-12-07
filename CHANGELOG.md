@@ -2,6 +2,22 @@
 
 # Changelog
 
+## 1.1.0 (2024-12-07)
+
+### Feat
+
+- **cspell**: add "robertdebock" to the cspell configuration for improved spell checking accuracy
+- **Taskfile.yml**: add INVENTORY_TARGET variable for better inventory management in Ansible tasks
+- **Taskfile.yml**: add podman installation task to development environment setup for improved container management
+- **devcontainer**: enhance Docker Compose configuration for Podman support by adding necessary privileges and cgroup settings
+- **podman**: add Taskfile and playbook for automated Podman installation and role management
+chore(podman): create requirements files for Ansible dependencies and roles
+chore(podman): add .gitignore for roles directory to prevent unnecessary tracking
+
+### Refactor
+
+- **Taskfile.yml**: replace hardcoded localhost with INVENTORY_TARGET for improved flexibility
+
 ## 1.0.3 (2024-12-07)
 
 ### Fix
