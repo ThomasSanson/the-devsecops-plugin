@@ -1,3 +1,9 @@
 {
-  "Globs": ["**/.git/**", "**/megalinter-reports/**", "**/venv/**", "**/node_modules/**"]
+  "Globs": [
+    "**/.git/**",
+    "**/megalinter-reports/**",
+    "**/venv/**",
+    "**/node_modules/**",
+    "**/.config/**/roles/**"
+  ]
 }
