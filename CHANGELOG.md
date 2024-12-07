@@ -2,6 +2,15 @@
 
 # Changelog
 
+## 1.0.3 (2024-12-07)
+
+### Fix
+
+- **Taskfile.release.yml**: update environment variable names for commitizen bump to use OVERRIDE prefix for clarity and consistency
+- **Taskfile.yml**: update NODEJS_MAJOR_VERSION variable to use OVERRIDE_NODEJS_MAJOR_VERSION for better flexibility in version management
+- **Taskfile.yml**: update variable names to use OVERRIDE prefix for clarity and consistency in overriding defaults
+- **Taskfile.yml**: update BUN_VERSION variable to use OVERRIDE_BUN_VERSION for better flexibility in version management
+
 ## 1.0.2 (2024-11-18)
 
 ### Fix
