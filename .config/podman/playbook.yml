@@ -1,6 +1,6 @@
 ---
 - name: Install Podman
-  hosts: localhost
+  hosts: localhost # DevSkim: ignore DS162092
   become: true
   gather_facts: true
 
