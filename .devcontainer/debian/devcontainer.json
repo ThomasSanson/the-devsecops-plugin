@@ -5,10 +5,6 @@
   "shutdownAction": "none",
   "workspaceFolder": "${localWorkspaceFolder}",
   "updateRemoteUserUID": true,
-  "mounts": [
-      "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
-      "source=/sys/fs/cgroup,target=/sys/fs/cgroup,type=bind"
-  ],
   "customizations": {
     "vscode": {
       "settings": {
