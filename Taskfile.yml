@@ -74,6 +74,9 @@ includes:
     taskfile: .config/nodejs/Taskfile.yml
     dir: .config/nodejs
     optional: true
+  podman:
+    taskfile: .config/podman/Taskfile.yml
+    optional: true
   yamllint:
     taskfile: .config/yamllint/Taskfile.yml
     optional: true

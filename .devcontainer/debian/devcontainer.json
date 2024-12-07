@@ -1,7 +1,14 @@
 {
   "name": "Debian Dev Container",
   "runArgs": [
-      "--group-add=docker"
+    "--group-add=docker",
+    "--privileged",
+    "--security-opt", "seccomp=unconfined",
+    "--security-opt", "apparmor=unconfined",
+    "--cap-add=ALL",
+    "--cgroup-parent=docker.slice",
+    "--cgroupns=private",
+    "--dns=8.8.8.8"
   ],
   "dockerComposeFile": ["../../.config/devcontainer/docker-compose.yml"],
   "service": "debian",
@@ -9,7 +16,8 @@
   "workspaceFolder": "${localWorkspaceFolder}",
   "updateRemoteUserUID": true,
   "mounts": [
-      "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+      "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
+      "source=/sys/fs/cgroup,target=/sys/fs/cgroup,type=bind"
   ],
   "customizations": {
     "vscode": {

@@ -1,0 +1,9 @@
+---
+- name: Install Podman
+  hosts: localhost
+  become: true
+  gather_facts: true
+
+  roles:
+    - role: robertdebock.bootstrap
+    - role: robertdebock.podman
