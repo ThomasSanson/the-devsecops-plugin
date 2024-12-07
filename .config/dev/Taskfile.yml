@@ -6,6 +6,5 @@ tasks:
     desc: Configure the development environment.
     cmds:
       - task: :docker:install
-      - task: :podman:install
       - task: :nodejs:install
       - task: :bun:install
