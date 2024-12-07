@@ -9,6 +9,7 @@ vars:
   ROLES_REQUIREMENTS: '{{.OVERRIDE_ROLES_REQUIREMENTS | default ".config/podman/requirements.yml"}}'
   PLAYBOOK_FILE: '{{.OVERRIDE_PLAYBOOK_FILE | default ".config/podman/playbook.yml"}}'
   PYTHON_VERSION_FILE: '{{.OVERRIDE_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
+  INVENTORY_TARGET: "localhost" # DevSkim: ignore DS162092
 
 env:
   LANG: "C.UTF-8"
@@ -97,7 +98,7 @@ tasks:
       - defer: { task: cleanup }
       - |
         {{.ANSIBLE_CMD}} \
-          -i localhost, \
+          -i {{.INVENTORY_TARGET}}, \
           -c local \
           {{.PLAYBOOK_FILE}} \
           -e 'ansible_python_interpreter=/usr/bin/python3'
