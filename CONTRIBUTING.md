@@ -9,7 +9,7 @@ Thank you for considering contributing to The DevSecOps Plugin. This document pr
   - [Manual Setup](#manual-setup)
 - [GitLab Workflow](#gitlab-workflow)
   - [Issue Creation](#issue-creation)
-  - [Merge Request Process](#merge-request-process)
+  - [Merge Requests](#merge-requests)
 - [Development Standards](#development-standards)
 - [Testing Requirements](#testing-requirements)
 - [Documentation Guidelines](#documentation-guidelines)
@@ -123,7 +123,6 @@ Feature: [Feature Name]
     Then [expected outcome]
     And [additional outcomes if any]
 ```
-````
 
 ## Definition of Done
 
@@ -144,11 +143,12 @@ Feature: [Feature Name]
 - Version: [x.y.z]
 - Environment: [details]
 - Dependencies: [list]
-
 ````
 
 #### Issue Types
+
 Choose the appropriate type:
+
 - `fix`: Bug corrections (e.g., [fix] Resolve task timeout in CI pipeline)
 - `feat`: New features (e.g., [feat] Add automatic dependency scanning)
 - `docs`: Documentation changes (e.g., [docs] Update installation guide)
@@ -160,36 +160,41 @@ Choose the appropriate type:
 - `ci`: CI/CD modifications (e.g., [ci] Add new deployment stage)
 - `chore`: Maintenance tasks (e.g., [chore] Update dependencies)
 
-### Merge Request Process
+### Merge Requests
 
-#### Creating a Merge Request
+#### Creation Process
 
 1. Fork the project in GitLab
 2. Create a feature branch
 3. Implement changes
 4. Submit Merge Request
 
-#### MR Template
+#### Template
 
 ```markdown
 # Description
+
 [Detailed description of changes]
 
 ## Related Issues
+
 - Closes #[issue-number]
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
 - [ ] Documentation update
 
 ## Testing Performed
+
 - [ ] Unit tests
 - [ ] Integration tests
 - [ ] Manual testing
 
 ## Checklist
+
 - [ ] My code follows the project's style
 - [ ] I have updated the documentation
 - [ ] I have added tests
@@ -198,10 +203,11 @@ Choose the appropriate type:
 - [ ] My branch is up to date with main
 
 ## Additional Notes
-[Any additional information]
-````
 
-#### Review Requirements
+[Any additional information]
+```
+
+### Review Requirements
 
 1. Automated checks:
 
