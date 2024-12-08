@@ -7,17 +7,17 @@ vars:
   TASK_DEPENDENCY_CHECK_VERSION: "latest"
   TASK_DEPENDENCY_CHECK_DIRECTORY: "{{.HOME}}/OWASP-Dependency-Check"
   TASK_DEPENDENCY_CHECK_PROJECT: "dependency-check scan: {{.PWD}}"
-  TASK_DEPENDENCY_CHECKDATA_DIRECTORY: "{{.TASK_DEPENDENCY_CHECK_DIRECTORY}}/data"
-  TASK_DEPENDENCY_CHECKCACHE_DIRECTORY: "{{.TASK_DEPENDENCY_CHECK_DIRECTORY}}/data/cache"
-  TASK_DEPENDENCY_CHECKREPORT_DIRECTORY: "{{.PWD}}/odc-reports"
+  TASK_DEPENDENCY_CHECK_DATA_DIRECTORY: "{{.TASK_DEPENDENCY_CHECK_DIRECTORY}}/data"
+  TASK_DEPENDENCY_CHECK_CACHE_DIRECTORY: "{{.TASK_DEPENDENCY_CHECK_DIRECTORY}}/data/cache"
+  TASK_DEPENDENCY_CHECK_REPORT_DIRECTORY: "{{.PWD}}/odc-reports"
 
 tasks:
   setup:
     desc: Prepare directories for Dependency-Check.
     cmds:
-      - mkdir -p {{.TASK_DEPENDENCY_CHECKDATA_DIRECTORY}}
-      - mkdir -p {{.TASK_DEPENDENCY_CHECKCACHE_DIRECTORY}}
-      - mkdir -p {{.TASK_DEPENDENCY_CHECKREPORT_DIRECTORY}}
+      - mkdir -p {{.TASK_DEPENDENCY_CHECK_DATA_DIRECTORY}}
+      - mkdir -p {{.TASK_DEPENDENCY_CHECK_CACHE_DIRECTORY}}
+      - mkdir -p {{.TASK_DEPENDENCY_CHECK_REPORT_DIRECTORY}}
 
   pull:
     desc: Download latest Dependency-Check Docker image.
@@ -33,20 +33,20 @@ tasks:
           -e user=$USER \
           -u $(id -u ${USER}):$(id -g ${USER}) \
           --volume {{.PWD}}:/src:z \
-          --volume {{.TASK_DEPENDENCY_CHECKDATA_DIRECTORY}}:/usr/share/dependency-check/data:z \
-          --volume {{.TASK_DEPENDENCY_CHECKREPORT_DIRECTORY}}:/report:z \
+          --volume {{.TASK_DEPENDENCY_CHECK_DATA_DIRECTORY}}:/usr/share/dependency-check/data:z \
+          --volume {{.TASK_DEPENDENCY_CHECK_REPORT_DIRECTORY}}:/report:z \
           owasp/dependency-check:{{.TASK_DEPENDENCY_CHECK_VERSION}} \
           --scan /src \
           --format "ALL" \
           --project "{{.TASK_DEPENDENCY_CHECK_PROJECT}}" \
           --out /report
-      - echo "Dependency-Check analysis completed. Reports available in {{.TASK_DEPENDENCY_CHECKREPORT_DIRECTORY}}"
+      - echo "Dependency-Check analysis completed. Reports available in {{.TASK_DEPENDENCY_CHECK_REPORT_DIRECTORY}}"
 
   clean:
     desc: Remove Dependency-Check data and reports.
     cmds:
       - rm -rf {{.TASK_DEPENDENCY_CHECK_DIRECTORY}}
-      - rm -rf {{.TASK_DEPENDENCY_CHECKREPORT_DIRECTORY}}
+      - rm -rf {{.TASK_DEPENDENCY_CHECK_REPORT_DIRECTORY}}
 
   # Note: There's no direct update command in the Docker example,
   # but pulling the latest image serves a similar purpose
