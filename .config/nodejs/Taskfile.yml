@@ -2,7 +2,7 @@
 version: "3"
 
 vars:
-  NODEJS_MAJOR_VERSION: '{{.OVERRIDE_NODEJS_MAJOR_VERSION | default "20"}}'
+  TASK_NODEJS_MAJOR_VERSION: '{{.OVERRIDE_TASK_NODEJS_MAJOR_VERSION | default "20"}}'
 
 tasks:
   install:
@@ -13,11 +13,11 @@ tasks:
         based on the specified major version to provide a consistent development environment.
 
       🔧 Variables:
-        - NODEJS_MAJOR_VERSION: Specifies the major version of NodeJS to be installed.
+        - TASK_NODEJS_MAJOR_VERSION: Specifies the major version of NodeJS to be installed.
           Default: "20"
 
       🔐 Preconditions:
-        - The NODEJS_MAJOR_VERSION variable must be set.
+        - The TASK_NODEJS_MAJOR_VERSION variable must be set.
 
       🔄 Execution:
         Executes the installation script with the specified NodeJS major version.
@@ -27,14 +27,14 @@ tasks:
         for further development and deployment tasks. It is designed to be flexible,
         accommodating various project configurations.
     preconditions:
-      - sh: "[[ ! -z {{.NODEJS_MAJOR_VERSION}} ]]"
-        msg: "❌ The NODEJS_MAJOR_VERSION variable must be defined to proceed with the installation."
+      - sh: "[[ ! -z {{.TASK_NODEJS_MAJOR_VERSION}} ]]"
+        msg: "❌ The TASK_NODEJS_MAJOR_VERSION variable must be defined to proceed with the installation."
     status:
-      - node -v | grep -q 'v{{.NODEJS_MAJOR_VERSION}}'
+      - node -v | grep -q 'v{{.TASK_NODEJS_MAJOR_VERSION}}'
     cmds:
       - |
         if [[ {{OS}} == 'linux' && $(grep -i 'debian' /etc/os-release) ]]; then
-          sh install/debian.sh {{.NODEJS_MAJOR_VERSION}}
+          sh install/debian.sh {{.TASK_NODEJS_MAJOR_VERSION}}
         fi
 
   test:
