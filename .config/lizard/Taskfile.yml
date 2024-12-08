@@ -2,12 +2,12 @@
 version: "3"
 
 vars:
-  LIZARD_CLI_OPTS: '{{.OVERRIDE_LIZARD_CLI_OPTS | default ""}}'
-  LIZARD_COMMAND: '{{.OVERRIDE_LIZARD_COMMAND | default "./venv/lizard/bin/lizard"}}'
-  LIZARD_PATH_TO_ANALYSE: '{{.OVERRIDE_LIZARD_PATH_TO_ANALYSE | default "."}}'
-  LIZARD_PYTHON_VERSION_FILE: '{{.OVERRIDE_LIZARD_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
-  LIZARD_REQUIREMENTS_FILE: '{{.OVERRIDE_LIZARD_REQUIREMENTS_FILE | default ".config/lizard/requirements.txt"}}'
-  LIZARD_VIRTUALENV: '{{.OVERRIDE_LIZARD_VIRTUALENV | default "./venv/lizard"}}'
+  TASK_LIZARD_CLI_OPTS: '{{.OVERRIDE_TASK_LIZARD_CLI_OPTS | default ""}}'
+  TASK_LIZARD_COMMAND: '{{.OVERRIDE_TASK_LIZARD_COMMAND | default "./venv/lizard/bin/lizard"}}'
+  TASK_LIZARD_PATH_TO_ANALYSE: '{{.OVERRIDE_TASK_LIZARD_PATH_TO_ANALYSE | default "."}}'
+  TASK_LIZARD_PYTHON_VERSION_FILE: '{{.OVERRIDE_TASK_LIZARD_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
+  TASK_LIZARD_REQUIREMENTS_FILE: '{{.OVERRIDE_TASK_LIZARD_REQUIREMENTS_FILE | default ".config/lizard/requirements.txt"}}'
+  TASK_LIZARD_VIRTUALENV: '{{.OVERRIDE_TASK_LIZARD_VIRTUALENV | default "./venv/lizard"}}'
 
 tasks:
   default:
@@ -18,10 +18,10 @@ tasks:
         Executes Lizard to analyse code complexity and maintainability.
 
       🔧 Variables:
-        - LIZARD_VIRTUALENV: Virtual environment path
-        - LIZARD_COMMAND: Lizard execution command
-        - LIZARD_CLI_OPTS: Command-line options for Lizard
-        - LIZARD_PATH_TO_ANALYSE: Path to analyse
+        - TASK_LIZARD_VIRTUALENV: Virtual environment path
+        - TASK_LIZARD_COMMAND: Lizard execution command
+        - TASK_LIZARD_CLI_OPTS: Command-line options for Lizard
+        - TASK_LIZARD_PATH_TO_ANALYSE: Path to analyse
 
       🔐 Preconditions:
         - 'install' task must be completed successfully
@@ -34,7 +34,7 @@ tasks:
         Execute after code modifications to maintain quality standards
     cmds:
       - |
-        {{.LIZARD_COMMAND}} $(grep -v '^#' .gitignore | grep -v '^$' | awk '{if ($0 ~ /\./) print "-x"$0; else print "-x./"$0"/*"}' | tr '\n' ' ') {{.LIZARD_CLI_OPTS}} {{.LIZARD_PATH_TO_ANALYSE}}
+        {{.TASK_LIZARD_COMMAND}} $(grep -v '^#' .gitignore | grep -v '^$' | awk '{if ($0 ~ /\./) print "-x"$0; else print "-x./"$0"/*"}' | tr '\n' ' ') {{.TASK_LIZARD_CLI_OPTS}} {{.TASK_LIZARD_PATH_TO_ANALYSE}}
       - cmd: echo "✅ Lizard analysis completed successfully."
         silent: true
 
@@ -45,9 +45,9 @@ tasks:
         Sets up Lizard and its dependencies in a virtual environment.
 
       🔧 Variables:
-        - LIZARD_PYTHON_VERSION_FILE: Python version file path
-        - LIZARD_REQUIREMENTS_FILE: Requirements file path
-        - LIZARD_VIRTUALENV: Virtual environment location
+        - TASK_LIZARD_PYTHON_VERSION_FILE: Python version file path
+        - TASK_LIZARD_REQUIREMENTS_FILE: Requirements file path
+        - TASK_LIZARD_VIRTUALENV: Virtual environment location
 
       🔐 Preconditions:
         - Python version file must exist
@@ -61,20 +61,20 @@ tasks:
       📝 Note:
         Ensure Python version is compatible with Lizard
     preconditions:
-      - sh: test -f {{.LIZARD_PYTHON_VERSION_FILE}}
+      - sh: test -f {{.TASK_LIZARD_PYTHON_VERSION_FILE}}
         msg: |
-          ❌ Error: missing file {{.LIZARD_PYTHON_VERSION_FILE}}.
+          ❌ Error: missing file {{.TASK_LIZARD_PYTHON_VERSION_FILE}}.
           Please create it as follows:
           ```bash
-          mkdir -p $(dirname "{{.LIZARD_PYTHON_VERSION_FILE}}")
-          echo "3.11" > {{.LIZARD_PYTHON_VERSION_FILE}}
+          mkdir -p $(dirname "{{.TASK_LIZARD_PYTHON_VERSION_FILE}}")
+          echo "3.11" > {{.TASK_LIZARD_PYTHON_VERSION_FILE}}
           ```
     status:
       - |
-        {{.LIZARD_COMMAND}} --version | grep -q $(awk -F '==' '{print $2}' {{.LIZARD_REQUIREMENTS_FILE}})
+        {{.TASK_LIZARD_COMMAND}} --version | grep -q $(awk -F '==' '{print $2}' {{.TASK_LIZARD_REQUIREMENTS_FILE}})
     cmds:
-      - python$(cut -d '=' -f 2 {{.LIZARD_PYTHON_VERSION_FILE}}) -m venv {{.LIZARD_VIRTUALENV}}
-      - "{{.LIZARD_VIRTUALENV}}/bin/pip install -r {{.LIZARD_REQUIREMENTS_FILE}}"
+      - python$(cut -d '=' -f 2 {{.TASK_LIZARD_PYTHON_VERSION_FILE}}) -m venv {{.TASK_LIZARD_VIRTUALENV}}
+      - "{{.TASK_LIZARD_VIRTUALENV}}/bin/pip install -r {{.TASK_LIZARD_REQUIREMENTS_FILE}}"
       - cmd: echo "☑️  Lizard and dependencies installed successfully."
         silent: true
 
@@ -94,6 +94,6 @@ tasks:
       📝 Note:
         This task is typically called via defer in other tasks
     cmds:
-      - rm -rf {{.LIZARD_VIRTUALENV}}
+      - rm -rf {{.TASK_LIZARD_VIRTUALENV}}
       - cmd: echo "✅ Uninstall completed successfully."
         silent: true
