@@ -2,6 +2,23 @@
 
 # Changelog
 
+## 1.1.1 (2024-12-08)
+
+### Fix
+
+- **megalinter**: correct typo in TASK_MEGALINTER variable name to TASK_MEGALINTER_CONTAINER_VERSION for consistency and functionality
+- **Taskfile.yml**: update variable references in tasks to match new naming convention and ensure correct functionality
+- **Taskfile.release.yml**: correct environment variable names for commitizen bump to ensure proper execution during release process
+- **Taskfile.yml**: rename BUN_VERSION variable to TASK_BUN_VERSION for clarity and consistency in task definitions
+
+### Refactor
+
+- **Taskfile.yml**: rename variables to include TASK_PODMAN_ prefix for better clarity and organization
+- **Taskfile.yml**: rename NODEJS_MAJOR_VERSION to TASK_NODEJS_MAJOR_VERSION for clarity and consistency in variable naming
+- **Taskfile.yml**: rename LIZARD_* variables to TASK_LIZARD_* for better clarity and consistency in task definitions
+- **dependency-check**: rename variables for consistency and clarity in Taskfile.yml
+- **Taskfile.yml**: rename copier variables to task-specific variables for clarity and consistency in configuration management
+
 ## 1.1.0 (2024-12-07)
 
 ### Feat
