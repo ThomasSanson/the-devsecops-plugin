@@ -18,14 +18,14 @@
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
-  - [Template Usage](#template-usage)
 - [Usage](#usage)
+  - [Project Customization](#project-customization)
   - [Task Control](#task-control)
   - [Available Commands](#available-commands)
 - [Architecture](#architecture)
 - [Features](#features)
-- [Contributing](#contributing)
 - [Security](#security)
+- [Contributing](#contributing)
 - [License](#license)
 
 </details>
@@ -83,52 +83,37 @@ The plugin implements a complete DevSecOps lifecycle through distinct stages:
 
 ### Prerequisites
 
-- Task (Taskfile)
-- Git
-- Python 3.11
+Before using the DevSecOps Plugin, ensure you have the following installed:
+
+- Python 3.11 or higher
 
 ### Installation
 
-1. Clone the repository:
+1. Create and activate a Python virtual environment:
 
 ```bash
-git clone git@gitlab.mim-libre.fr:digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin.git
+mkdir -p ~/workspace
+python3 -m venv ~/workspace/venv
 ```
 
-2. Set up the development environment:
+2. Install Copier in the virtual environment:
 
 ```bash
-task dev:setup-environment
-```
-
-This will:
-
-- Install necessary dependencies
-- Configure Docker
-- Set up Node.js and Bun
-- Initialize the development environment
-
-### Template Usage
-
-This project now serves as a Copier template. To create a new project using this template:
-
-1. Install Copier if you haven't already:
-
-```bash
+source ~/workspace/venv/bin/activate
 pip install copier
 ```
 
-2. Generate a new project:
+3. Generate a new project using the template:
 
 ```bash
-copier copy -a .config/copier/copier-answers.yml https://gitlab.mim-libre.fr/digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin.git path/to/your/new/project
+cd ~/workspace/path/to/your/new/project
+
+source ~/workspace/venv/bin/activate
+copier copy -a .config/devsecops/copier-answers.yml https://gitlab.mim-libre.fr/digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin.git .
 ```
 
-The template will automatically:
-
-- Generate project configuration files
-- Set up the DevSecOps pipeline structure
-- Configure all necessary tools and dependencies
+Replace `/path/to/your/new/project` with your desired project location.
+Use `.` to create in the current directory
 
 ## Usage
 
@@ -251,11 +236,7 @@ The DevSecOps Plugin integrates multiple security tools and practices:
 
 ## Contributing
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes using Commitizen (`task commitizen`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+Please see our [Contributing Guide](CONTRIBUTING.md) for details on how to set up the development environment and contribute to the project.
 
 ## License
 
