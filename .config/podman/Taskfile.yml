@@ -2,14 +2,14 @@
 version: "3"
 
 vars:
-  VENV_DIR: '{{.OVERRIDE_VENV_DIR | default "./venv/podman"}}'
-  ANSIBLE_CMD: '{{.OVERRIDE_ANSIBLE_CMD | default "./venv/podman/bin/ansible-playbook"}}'
-  GALAXY_CMD: '{{.OVERRIDE_GALAXY_CMD | default "./venv/podman/bin/ansible-galaxy"}}'
-  REQUIREMENTS_FILE: '{{.OVERRIDE_REQUIREMENTS_FILE | default ".config/podman/requirements.txt"}}'
-  ROLES_REQUIREMENTS: '{{.OVERRIDE_ROLES_REQUIREMENTS | default ".config/podman/requirements.yml"}}'
-  PLAYBOOK_FILE: '{{.OVERRIDE_PLAYBOOK_FILE | default ".config/podman/playbook.yml"}}'
-  PYTHON_VERSION_FILE: '{{.OVERRIDE_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
-  INVENTORY_TARGET: "localhost" # DevSkim: ignore DS162092
+  TASK_PODMAN_VENV_DIR: '{{.OVERRIDE_TASK_PODMAN_VENV_DIR | default "./venv/podman"}}'
+  TASK_PODMAN_ANSIBLE_CMD: '{{.OVERRIDE_TASK_PODMAN_ANSIBLE_CMD | default "./venv/podman/bin/ansible-playbook"}}'
+  TASK_PODMAN_ANSIBLE_GALAXY_CMD: '{{.OVERRIDE_TASK_PODMAN_ANSIBLE_GALAXY_CMD | default "./venv/podman/bin/ansible-galaxy"}}'
+  TASK_PODMAN_ANSIBLE_REQUIREMENTS_FILE: '{{.OVERRIDE_TASK_PODMAN_ANSIBLE_REQUIREMENTS_FILE | default ".config/podman/requirements.txt"}}'
+  TASK_PODMAN_ANSIBLE_ROLES_REQUIREMENTS: '{{.OVERRIDE_TASK_PODMAN_ANSIBLE_ROLES_REQUIREMENTS | default ".config/podman/requirements.yml"}}'
+  TASK_PODMAN_ANSIBLE_PLAYBOOK_FILE: '{{.OVERRIDE_TASK_PODMAN_ANSIBLE_PLAYBOOK_FILE | default ".config/podman/playbook.yml"}}'
+  TASK_PODMAN_PYTHON_VERSION_FILE: '{{.OVERRIDE_TASK_PODMAN_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
+  TASK_PODMAN_ANSIBLE_INVENTORY_TARGET: "localhost" # DevSkim: ignore DS162092
 
 env:
   LANG: "C.UTF-8"
@@ -24,8 +24,8 @@ tasks:
         Sets up Ansible and its dependencies in a dedicated virtual environment
 
       🔧 Variables:
-        - VENV_DIR: Virtual environment location
-        - REQUIREMENTS_FILE: Dependencies file path
+        - TASK_PODMAN_VENV_DIR: Virtual environment location
+        - TASK_PODMAN_ANSIBLE_REQUIREMENTS_FILE: Dependencies file path
 
       🔐 Preconditions:
         - Python 3.x must be installed
@@ -37,14 +37,14 @@ tasks:
     preconditions:
       - sh: "command -v python3 >/dev/null 2>&1"
         msg: "❌ Python 3 is not installed"
-      - sh: "test -f {{.PYTHON_VERSION_FILE}}"
-        msg: "❌ Python version file not found at {{.PYTHON_VERSION_FILE}}"
-      - sh: "test -f {{.REQUIREMENTS_FILE}}"
-        msg: "❌ Requirements file not found at {{.REQUIREMENTS_FILE}}"
+      - sh: "test -f {{.TASK_PODMAN_PYTHON_VERSION_FILE}}"
+        msg: "❌ Python version file not found at {{.TASK_PODMAN_PYTHON_VERSION_FILE}}"
+      - sh: "test -f {{.TASK_PODMAN_ANSIBLE_REQUIREMENTS_FILE}}"
+        msg: "❌ Requirements file not found at {{.TASK_PODMAN_ANSIBLE_REQUIREMENTS_FILE}}"
     cmds:
       - defer: { task: cleanup }
-      - python3 -m venv {{.VENV_DIR}}
-      - "{{.VENV_DIR}}/bin/pip install -r {{.REQUIREMENTS_FILE}}"
+      - python3 -m venv {{.TASK_PODMAN_VENV_DIR}}
+      - "{{.TASK_PODMAN_VENV_DIR}}/bin/pip install -r {{.TASK_PODMAN_ANSIBLE_REQUIREMENTS_FILE}}"
       - cmd: echo "✅ Dependencies installed successfully"
         silent: true
 
@@ -54,8 +54,8 @@ tasks:
         Installs required Ansible roles
 
       🔧 Variables:
-        - GALAXY_CMD: Ansible Galaxy command path
-        - ROLES_REQUIREMENTS: Roles requirements file path
+        - TASK_PODMAN_ANSIBLE_GALAXY_CMD: Ansible Galaxy command path
+        - TASK_PODMAN_ANSIBLE_ROLES_REQUIREMENTS: Roles requirements file path
 
       🔐 Preconditions:
         - Dependencies must be installed
@@ -64,11 +64,11 @@ tasks:
         Installs required Ansible roles
     deps: [install-dependencies]
     preconditions:
-      - sh: "test -f {{.ROLES_REQUIREMENTS}}"
-        msg: "❌ Roles requirements file not found at {{.ROLES_REQUIREMENTS}}"
+      - sh: "test -f {{.TASK_PODMAN_ANSIBLE_ROLES_REQUIREMENTS}}"
+        msg: "❌ Roles requirements file not found at {{.TASK_PODMAN_ANSIBLE_ROLES_REQUIREMENTS}}"
     cmds:
       - mkdir -p .config/podman/roles
-      - "{{.GALAXY_CMD}} install -r {{.ROLES_REQUIREMENTS}}"
+      - "{{.TASK_PODMAN_ANSIBLE_GALAXY_CMD}} install -r {{.TASK_PODMAN_ANSIBLE_ROLES_REQUIREMENTS}}"
       - cmd: echo "✅ Ansible roles installed successfully"
         silent: true
 
@@ -78,8 +78,8 @@ tasks:
         Installs Podman using Ansible automation
 
       🔧 Variables:
-        - ANSIBLE_CMD: Ansible command path
-        - PLAYBOOK_FILE: Ansible playbook location
+        - TASK_PODMAN_ANSIBLE_CMD: Ansible command path
+        - TASK_PODMAN_ANSIBLE_PLAYBOOK_FILE: Ansible playbook location
 
       🔐 Preconditions:
         - Dependencies must be installed
@@ -92,15 +92,15 @@ tasks:
     preconditions:
       - sh: "[[ $EUID -eq 0 ]] || sudo -n true"
         msg: "❌ Root privileges or sudo access required"
-      - sh: "test -f {{.PLAYBOOK_FILE}}"
-        msg: "❌ Playbook file not found at {{.PLAYBOOK_FILE}}"
+      - sh: "test -f {{.TASK_PODMAN_ANSIBLE_PLAYBOOK_FILE}}"
+        msg: "❌ Playbook file not found at {{.TASK_PODMAN_ANSIBLE_PLAYBOOK_FILE}}"
     cmds:
       - defer: { task: cleanup }
       - |
-        {{.ANSIBLE_CMD}} \
-          -i {{.INVENTORY_TARGET}}, \
+        {{.TASK_PODMAN_ANSIBLE_CMD}} \
+          -i {{.TASK_PODMAN_ANSIBLE_INVENTORY_TARGET}}, \
           -c local \
-          {{.PLAYBOOK_FILE}} \
+          {{.TASK_PODMAN_ANSIBLE_PLAYBOOK_FILE}} \
           -e 'ansible_python_interpreter=/usr/bin/python3'
       - cmd: echo "✅ Podman installed successfully"
         silent: true
@@ -111,7 +111,7 @@ tasks:
         Performs cleanup of temporary files and failed installations
 
       🔧 Variables:
-        - VENV_DIR: Virtual environment to clean
+        - TASK_PODMAN_VENV_DIR: Virtual environment to clean
 
       🔐 Preconditions: None
 
@@ -119,7 +119,7 @@ tasks:
         Removes temporary files and partial installations
     internal: true
     cmds:
-      - rm -rf {{.VENV_DIR}}/*.tmp
-      - rm -rf {{.VENV_DIR}}/*.log
+      - rm -rf {{.TASK_PODMAN_VENV_DIR}}/*.tmp
+      - rm -rf {{.TASK_PODMAN_VENV_DIR}}/*.log
       - cmd: echo "✅ Cleanup completed"
         silent: true
