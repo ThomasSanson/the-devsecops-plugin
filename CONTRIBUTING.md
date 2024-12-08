@@ -33,20 +33,20 @@ The DevContainer configuration ensures a standardised development environment wi
 
 1. Clone the repository:
 
-   ```bash
-   git clone git@gitlab.mim-libre.fr:digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin.git
-   ```
+  ```bash
+  git clone git@gitlab.mim-libre.fr:digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin.git
+  ```
 
 2. Open in Visual Studio Code:
 
-   ```bash
-   code the-devsecops-plugin
-   ```
+  ```bash
+  code the-devsecops-plugin
+  ```
 
 3. When prompted, select 'Reopen in Container', or:
-   - Press F1
-   - Type 'Reopen in Container'
-   - Select 'Remote-Containers: Reopen in Container'
+  - Press F1
+  - Type 'Reopen in Container'
+  - Select 'Remote-Containers: Reopen in Container'
 
 #### Troubleshooting DevContainer
 
@@ -54,19 +54,20 @@ Common issues and solutions:
 
 1. Container fails to build:
 
-   ```bash
-   docker system prune -af
-   docker volume prune -f
-   ```
+  ```bash
+  docker system prune -af
+  docker volume prune -f
+  ```
 
 2. Port conflicts:
 
-   - Check `.devcontainer/devcontainer.json` for port mappings
-   - Modify if ports are already in use
+- Check `.devcontainer/devcontainer.json` for port mappings
+- Modify if ports are already in use
 
 3. Performance issues:
-   - Increase Docker Desktop resources
-   - Ensure antivirus excludes Docker directories
+
+- Increase Docker Desktop resources
+- Ensure antivirus excludes Docker directories
 
 ### Manual Setup
 
@@ -74,16 +75,16 @@ Whilst DevContainer is recommended, manual setup is possible:
 
 1. Install dependencies:
 
-   ```bash
-   python3 -m venv ~/workspace/venv
-   source ~/workspace/venv/bin/activate
-   pip install copier
-   ```
+  ```bash
+  python3 -m venv ~/workspace/venv
+  source ~/workspace/venv/bin/activate
+  pip install copier
+  ```
 
 2. Configure environment:
-   ```bash
-   task dev:setup-environment
-   ```
+  ```bash
+  task dev:setup-environment
+  ```
 
 ## GitLab Workflow
 
@@ -199,16 +200,15 @@ Choose the appropriate type:
 #### MR Review Process
 
 1. Automated checks:
-
-   - Pipeline must pass
-   - Code quality gates met
-   - Security scans passed
-   - Test coverage maintained/improved
+- Pipeline must pass
+- Code quality gates met
+- Security scans passed
+- Test coverage maintained/improved
 
 2. Manual review requirements:
-   - Two approvals minimum
-   - No unresolved discussions
-   - Up-to-date with base branch
+- Two approvals minimum
+- No unresolved discussions
+- Up-to-date with base branch
 
 ## Development Standards
 
@@ -224,36 +224,34 @@ Choose the appropriate type:
 ### Testing Requirements
 
 1. Unit tests:
-
-   - One test file per module
-   - Mock external dependencies
-   - > 85% coverage
+- One test file per module
+- Mock external dependencies
+- > 85% coverage
 
 2. Integration tests:
-
-   - Test major workflows
-   - Include edge cases
-   - Mock external services
+- Test major workflows
+- Include edge cases
+- Mock external services
 
 3. Performance tests:
-   - Response time limits
-   - Resource usage bounds
-   - Scalability verification
+
+- Response time limits
+- Resource usage bounds
+- Scalability verification
 
 ## Documentation Guidelines
 
 1. Code documentation:
-
-   - Clear function signatures
-   - Purpose descriptions
-   - Usage examples
-   - Parameter explanations
+- Clear function signatures
+- Purpose descriptions
+- Usage examples
+- Parameter explanations
 
 2. User documentation:
-   - Step-by-step guides
-   - Clear prerequisites
-   - Troubleshooting sections
-   - Version compatibility
+- Step-by-step guides
+- Clear prerequisites
+- Troubleshooting sections
+- Version compatibility
 
 ## Communication Standards
 
