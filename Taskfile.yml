@@ -83,6 +83,14 @@ includes:
 
 tasks:
   default:
+    # Orchestrates Test Driven Development workflows.
+    cmds:
+      - task: code
+      - task: build
+      - task: test
+      - task: deploy
+
+  devsecops:
     # Orchestrates DevSecOps workflows.
     cmds:
       - task: plan
