@@ -8,7 +8,7 @@ tasks:
       - cmd: |
           if [[ "{{.TASK_COMMITIZEN_ENABLED}}" == "true" ]]; then
             echo "📦 Running commitizen bump for release..."
-            OVERRIDE_CZ_BUMP_DRY_RUN="false" OVERRIDE_CZ_BUMP_YES="true" task commitizen:bump
+            OVERRIDE_TASK_CZ_BUMP_DRY_RUN="false" OVERRIDE_TASK_CZ_BUMP_YES="true" task commitizen:bump
             echo "{{.TASK_SEPARATOR}}"
           else
             echo "⚠️ Skipping commitizen bump (disabled via TASK_COMMITIZEN_ENABLED=false)"
