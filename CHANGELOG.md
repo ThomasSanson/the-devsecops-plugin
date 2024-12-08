@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 1.2.0 (2024-12-08)
+
+### Feat
+
+- **Taskfile**: add default task to orchestrate TDD workflows for better development process automation
+
 ## 1.1.1 (2024-12-08)
 
 ### Fix
