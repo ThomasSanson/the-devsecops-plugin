@@ -1,4 +1,4 @@
-<!-- markdownlint-disable MD024 -->
+<!-- markdownlint-disable MD024 MD037 -->
 
 # Changelog
 
@@ -13,9 +13,9 @@
 
 ### Refactor
 
-- **Taskfile.yml**: rename variables to include TASK_PODMAN_ prefix for better clarity and organization
+- **Taskfile.yml**: rename variables to include TASK*PODMAN* prefix for better clarity and organization
 - **Taskfile.yml**: rename NODEJS_MAJOR_VERSION to TASK_NODEJS_MAJOR_VERSION for clarity and consistency in variable naming
-- **Taskfile.yml**: rename LIZARD_* variables to TASK_LIZARD_* for better clarity and consistency in task definitions
+- **Taskfile.yml**: rename LIZARD*\* variables to TASK_LIZARD*\* for better clarity and consistency in task definitions
 - **dependency-check**: rename variables for consistency and clarity in Taskfile.yml
 - **Taskfile.yml**: rename copier variables to task-specific variables for clarity and consistency in configuration management
 
@@ -28,8 +28,8 @@
 - **Taskfile.yml**: add podman installation task to development environment setup for improved container management
 - **devcontainer**: enhance Docker Compose configuration for Podman support by adding necessary privileges and cgroup settings
 - **podman**: add Taskfile and playbook for automated Podman installation and role management
-chore(podman): create requirements files for Ansible dependencies and roles
-chore(podman): add .gitignore for roles directory to prevent unnecessary tracking
+  chore(podman): create requirements files for Ansible dependencies and roles
+  chore(podman): add .gitignore for roles directory to prevent unnecessary tracking
 
 ### Refactor
 
@@ -97,7 +97,7 @@ chore(podman): add .gitignore for roles directory to prevent unnecessary trackin
 - **lizard**: add Taskfile for Lizard code complexity analysis and requirements file for dependencies
 - **docker**: add Taskfile for Docker installation and management tasks
 - **docker**: create installation script for Debian-based systems
-feat(docker): implement testing framework for Docker installation process
+  feat(docker): implement testing framework for Docker installation process
 - **devcontainer**: add Dockerfile and related scripts for Debian-based environment setup
 - **Taskfile**: add Taskfile.yml to configure the development environment with Docker, Node.js, and Bun installations
 - **dependency-check**: add Taskfile.yml for managing Dependency-Check tasks to streamline security analysis process
