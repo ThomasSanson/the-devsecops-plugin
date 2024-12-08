@@ -2,11 +2,11 @@
 version: "3"
 
 vars:
-  COMMITLINT_DIR: '{{.OVERRIDE_COMMITLINT_DIR | default ".config/commitlint"}}'
-  COMMITLINT_COMMAND: '{{.OVERRIDE_COMMITLINT_COMMAND | default "bunx --install=force --bun commitlint"}}'
-  COMMITLINT_CONFIG: '{{.OVERRIDE_COMMITLINT_CONFIG | default ".config/commitlint/config.yml"}}'
-  COMMITLINT_FROM: '{{.OVERRIDE_COMMITLINT_FROM | default "origin/main"}}'
-  COMMITLINT_TO: '{{.OVERRIDE_COMMITLINT_TO | default "HEAD"}}'
+  TASK_COMMITLINT_DIR: '{{.OVERRIDE_TASK_COMMITLINT_DIR | default ".config/commitlint"}}'
+  TASK_COMMITLINT_COMMAND: '{{.OVERRIDE_TASK_COMMITLINT_COMMAND | default "bunx --install=force --bun commitlint"}}'
+  TASK_COMMITLINT_CONFIG: '{{.OVERRIDE_TASK_COMMITLINT_CONFIG | default ".config/commitlint/config.yml"}}'
+  TASK_COMMITLINT_FROM: '{{.OVERRIDE_TASK_COMMITLINT_FROM | default "origin/main"}}'
+  TASK_COMMITLINT_TO: '{{.OVERRIDE_TASK_COMMITLINT_TO | default "HEAD"}}'
 
 tasks:
   default:
@@ -16,10 +16,10 @@ tasks:
         Runs commitlint to check commit messages.
 
       🔧 Variables:
-        - COMMITLINT_COMMAND: Command to run commitlint. Default: "bunx commitlint"
-        - COMMITLINT_CONFIG: Path to commitlint configuration file. Default: ".config/commitlint/config.yml"
-        - COMMITLINT_FROM: Starting point for commit range. Default: "HEAD~1"
-        - COMMITLINT_TO: Ending point for commit range. Default: "HEAD"
+        - TASK_COMMITLINT_COMMAND: Command to run commitlint. Default: "bunx commitlint"
+        - TASK_COMMITLINT_CONFIG: Path to commitlint configuration file. Default: ".config/commitlint/config.yml"
+        - TASK_COMMITLINT_FROM: Starting point for commit range. Default: "HEAD~1"
+        - TASK_COMMITLINT_TO: Ending point for commit range. Default: "HEAD"
 
       🔐 Preconditions:
         - The 'install' task must have been successfully executed.
@@ -31,7 +31,7 @@ tasks:
         This task checks commit messages against the configured rules.
     # deps: [install]
     vars:
-      COMMITLINT_LINT_COMMAND: "{{.COMMITLINT_COMMAND}} --config {{.COMMITLINT_CONFIG}} --from {{.COMMITLINT_FROM}} --to {{.COMMITLINT_TO}}"
+      COMMITLINT_LINT_COMMAND: "{{.TASK_COMMITLINT_COMMAND}} --config {{.TASK_COMMITLINT_CONFIG}} --from {{.TASK_COMMITLINT_FROM}} --to {{.TASK_COMMITLINT_TO}}"
       RED: '\033[0;31m'
       GREEN: '\033[0;32m'
       BLUE: '\033[0;34m'
