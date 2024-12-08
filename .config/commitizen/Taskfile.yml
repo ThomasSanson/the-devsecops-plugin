@@ -2,23 +2,23 @@
 version: "3"
 
 vars:
-  CZ_VIRTUALENV: '{{.OVERRIDE_CZ_VIRTUALENV | default "./venv/commitizen"}}'
-  CZ_COMMAND: '{{.OVERRIDE_CZ_COMMAND | default "./venv/commitizen/bin/cz"}}'
-  CZ_CONFIG_FULL_PATH: '{{.OVERRIDE_CZ_CONFIG_FULL_PATH | default ".config/commitizen/cz.yaml"}}'
-  CZ_CLI_OPTS: '{{.OVERRIDE_CZ_CLI_OPTS | default ""}}'
-  CZ_CLI_CHECK_OPTS: '{{.OVERRIDE_CZ_CLI_CHECK_OPTS | default "--rev-range origin/main..HEAD"}}'
-  CZ_PYTHON_VERSION_FILE: '{{.OVERRIDE_CZ_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
-  CZ_REQUIREMENTS_FILE: '{{.OVERRIDE_CZ_REQUIREMENTS_FILE | default ".config/commitizen/requirements.txt"}}'
-  CZ_BUMP_DRY_RUN: '{{.OVERRIDE_CZ_BUMP_DRY_RUN | default "true"}}'
-  CZ_BUMP_YES: '{{.OVERRIDE_CZ_BUMP_YES | default "true"}}'
-  CZ_BUMP_CHECK_CONSISTENCY: '{{.OVERRIDE_CZ_BUMP_CHECK_CONSISTENCY | default "true"}}'
-  CZ_BUMP_NO_RAISE: '{{.OVERRIDE_CZ_BUMP_NO_RAISE | default "21"}}'
-  CZ_BUMP_CHANGELOG: '{{.OVERRIDE_CZ_BUMP_CHANGELOG | default "true"}}'
-  CZ_BUMP_PRERELEASE: '{{.OVERRIDE_CZ_BUMP_PRERELEASE | default ""}}'
-  CZ_BUMP_DEV_RELEASE: '{{.OVERRIDE_CZ_BUMP_DEV_RELEASE | default ""}}'
-  CZ_DEFAULT_BRANCH: '{{.OVERRIDE_CZ_DEFAULT_BRANCH | default "main"}}'
-  CZ_RELEASE_BRANCH_PATTERN: '{{.OVERRIDE_CZ_RELEASE_BRANCH_PATTERN | default "^release/"}}'
-  GIT_CURRENT_BRANCH:
+  TASK_CZ_VIRTUALENV: '{{.OVERRIDE_TASK_CZ_VIRTUALENV | default "./venv/commitizen"}}'
+  TASK_CZ_COMMAND: '{{.OVERRIDE_TASK_CZ_COMMAND | default "./venv/commitizen/bin/cz"}}'
+  TASK_CZ_CONFIG_FULL_PATH: '{{.OVERRIDE_TASK_CZ_CONFIG_FULL_PATH | default ".config/commitizen/cz.yaml"}}'
+  TASK_CZ_CLI_OPTS: '{{.OVERRIDE_TASK_CZ_CLI_OPTS | default ""}}'
+  TASK_CZ_CLI_CHECK_OPTS: '{{.OVERRIDE_TASK_CZ_CLI_CHECK_OPTS | default "--rev-range origin/main..HEAD"}}'
+  TASK_CZ_PYTHON_VERSION_FILE: '{{.OVERRIDE_TASK_CZ_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
+  TASK_CZ_REQUIREMENTS_FILE: '{{.OVERRIDE_TASK_CZ_REQUIREMENTS_FILE | default ".config/commitizen/requirements.txt"}}'
+  TASK_CZ_BUMP_DRY_RUN: '{{.OVERRIDE_TASK_CZ_BUMP_DRY_RUN | default "true"}}'
+  TASK_CZ_BUMP_YES: '{{.OVERRIDE_TASK_CZ_BUMP_YES | default "true"}}'
+  TASK_CZ_BUMP_CHECK_CONSISTENCY: '{{.OVERRIDE_TASK_CZ_BUMP_CHECK_CONSISTENCY | default "true"}}'
+  TASK_CZ_BUMP_NO_RAISE: '{{.OVERRIDE_TASK_CZ_BUMP_NO_RAISE | default "21"}}'
+  TASK_CZ_BUMP_CHANGELOG: '{{.OVERRIDE_TASK_CZ_BUMP_CHANGELOG | default "true"}}'
+  TASK_CZ_BUMP_PRERELEASE: '{{.OVERRIDE_TASK_CZ_BUMP_PRERELEASE | default ""}}'
+  TASK_CZ_BUMP_DEV_RELEASE: '{{.OVERRIDE_TASK_CZ_BUMP_DEV_RELEASE | default ""}}'
+  TASK_CZ_DEFAULT_BRANCH: '{{.OVERRIDE_TASK_CZ_DEFAULT_BRANCH | default "main"}}'
+  TASK_CZ_RELEASE_BRANCH_PATTERN: '{{.OVERRIDE_TASK_CZ_RELEASE_BRANCH_PATTERN | default "^release/"}}'
+  TASK_CZ_GIT_CURRENT_BRANCH:
     sh: |
       if [ -n "$CI_COMMIT_REF_NAME" ]; then
         echo "$CI_COMMIT_REF_NAME"
@@ -40,10 +40,10 @@ tasks:
         Executes commitizen to guide the user through creating a standardized commit message.
 
       🔧 Variables:
-        - CZ_VIRTUALENV: Path to the virtual environment. Default: "./venv/commitizen"
-        - CZ_COMMAND: Command to run commitizen. Default: "./venv/commitizen/bin/cz"
-        - CZ_CONFIG_FULL_PATH: Path to the commitizen configuration file. Default: ".config/commitizen/cz.yaml"
-        - CZ_CLI_OPTS: Command line options for commitizen. Default: ""
+        - TASK_CZ_VIRTUALENV: Path to the virtual environment. Default: "./venv/commitizen"
+        - TASK_CZ_COMMAND: Command to run commitizen. Default: "./venv/commitizen/bin/cz"
+        - TASK_CZ_CONFIG_FULL_PATH: Path to the commitizen configuration file. Default: ".config/commitizen/cz.yaml"
+        - TASK_CZ_CLI_OPTS: Command line options for commitizen. Default: ""
 
       🔐 Preconditions:
         - The 'install' task must have been successfully executed.
@@ -55,7 +55,7 @@ tasks:
       📝 Note:
         This task should be executed when creating a new commit.
     cmds:
-      - "{{.CZ_COMMAND}} --config {{.CZ_CONFIG_FULL_PATH}} {{.CZ_CLI_OPTS}} commit {{.CLI_ARGS}}"
+      - "{{.TASK_CZ_COMMAND}} --config {{.TASK_CZ_CONFIG_FULL_PATH}} {{.TASK_CZ_CLI_OPTS}} commit {{.CLI_ARGS}}"
 
   install:
     desc: Set up Commitizen in a virtual environment.
@@ -64,13 +64,13 @@ tasks:
         Configures Commitizen and its dependencies within a controlled virtual environment.
 
       🔧 Variables:
-        - CZ_PYTHON_VERSION_FILE: Path to the file specifying the Python version.
+        - TASK_CZ_PYTHON_VERSION_FILE: Path to the file specifying the Python version.
           Default: ".config/python/.python-version"
           Example content: "3.11"
-        - CZ_REQUIREMENTS_FILE: Path to the file listing required packages.
+        - TASK_CZ_REQUIREMENTS_FILE: Path to the file listing required packages.
           Default: ".config/commitizen/requirements.txt"
           Example content: "commitizen==3.28.0"
-        - CZ_VIRTUALENV: Location of the virtual environment for Commitizen.
+        - TASK_CZ_VIRTUALENV: Location of the virtual environment for Commitizen.
           Default: "./venv/commitizen"
 
       🔐 Preconditions:
@@ -79,8 +79,8 @@ tasks:
         - An active internet connection is required to download Commitizen and its dependencies.
 
       🔄 Execution:
-        1. Creates a new Python virtual environment using the version specified in CZ_PYTHON_VERSION_FILE.
-        2. Installs Commitizen and its dependencies using the CZ_REQUIREMENTS_FILE.
+        1. Creates a new Python virtual environment using the version specified in TASK_CZ_PYTHON_VERSION_FILE.
+        2. Installs Commitizen and its dependencies using the TASK_CZ_REQUIREMENTS_FILE.
         3. Verifies the installation by checking the installed Commitizen version.
 
       📝 Note:
@@ -88,20 +88,20 @@ tasks:
     preconditions:
       - sh: command -v python3 >/dev/null 2>&1
         msg: "❌ Error: Python is not installed. Please install Python before proceeding."
-      - sh: test -f {{.CZ_PYTHON_VERSION_FILE}}
+      - sh: test -f {{.TASK_CZ_PYTHON_VERSION_FILE}}
         msg: |
-          ❌ Error: missing file {{.CZ_PYTHON_VERSION_FILE}}.
+          ❌ Error: missing file {{.TASK_CZ_PYTHON_VERSION_FILE}}.
           Please create it as follows:
           ```bash
-          mkdir -p $(dirname "{{.CZ_PYTHON_VERSION_FILE}}")
-          echo "3.11" > {{.CZ_PYTHON_VERSION_FILE}}
+          mkdir -p $(dirname "{{.TASK_CZ_PYTHON_VERSION_FILE}}")
+          echo "3.11" > {{.TASK_CZ_PYTHON_VERSION_FILE}}
           ```
     status:
       - |
-        {{.CZ_COMMAND}} version | grep -q $(awk -F '==' '{print $2}' {{.CZ_REQUIREMENTS_FILE}})
+        {{.TASK_CZ_COMMAND}} version | grep -q $(awk -F '==' '{print $2}' {{.TASK_CZ_REQUIREMENTS_FILE}})
     cmds:
-      - python$(cut -d '=' -f 2 {{.CZ_PYTHON_VERSION_FILE}}) -m venv {{.CZ_VIRTUALENV}}
-      - "{{.CZ_VIRTUALENV}}/bin/pip install -r {{.CZ_REQUIREMENTS_FILE}}"
+      - python$(cut -d '=' -f 2 {{.TASK_CZ_PYTHON_VERSION_FILE}}) -m venv {{.TASK_CZ_VIRTUALENV}}
+      - "{{.TASK_CZ_VIRTUALENV}}/bin/pip install -r {{.TASK_CZ_REQUIREMENTS_FILE}}"
       - cmd: echo "✅ Commitizen and dependencies are successfully installed in the virtual environment."
         silent: true
 
@@ -113,10 +113,10 @@ tasks:
         Automatically verifies commits using Commitizen rules.
 
       🔧 Variables:
-        - CZ_COMMAND: Command to run commitizen. Default: "./venv/commitizen/bin/cz"
-        - CZ_CONFIG_FULL_PATH: Path to the commitizen configuration file. Default: ".config/commitizen/cz.yaml"
-        - CZ_CLI_OPTS: Additional command line options for commitizen. Default: ""
-        - CZ_CLI_CHECK_OPTS: Options specific to the check command. Default: "--rev-range origin/main..HEAD"
+        - TASK_CZ_COMMAND: Command to run commitizen. Default: "./venv/commitizen/bin/cz"
+        - TASK_CZ_CONFIG_FULL_PATH: Path to the commitizen configuration file. Default: ".config/commitizen/cz.yaml"
+        - TASK_CZ_CLI_OPTS: Additional command line options for commitizen. Default: ""
+        - TASK_CZ_CLI_CHECK_OPTS: Options specific to the check command. Default: "--rev-range origin/main..HEAD"
 
       🔐 Preconditions:
         - The 'install' task must have been successfully executed.
@@ -128,10 +128,10 @@ tasks:
       📝 Note:
         This task verifies that commit messages conform to the Commitizen standards.
         The default behaviour checks commits from main to HEAD, but this can be customised
-        by modifying the CZ_CLI_CHECK_OPTS variable.
+        by modifying the TASK_CZ_CLI_CHECK_OPTS variable.
     cmds:
       - |
-        if {{.CZ_COMMAND}} --config {{.CZ_CONFIG_FULL_PATH}} {{.CZ_CLI_OPTS}} check {{.CZ_CLI_CHECK_OPTS}}; then
+        if {{.TASK_CZ_COMMAND}} --config {{.TASK_CZ_CONFIG_FULL_PATH}} {{.TASK_CZ_CLI_OPTS}} check {{.TASK_CZ_CLI_CHECK_OPTS}}; then
           echo "🎉 All commits successfully verified with Commitizen!"
         else
           exit_code=$?
@@ -151,16 +151,16 @@ tasks:
         Increments the version number based on the commit history.
 
       🔧 Variables:
-        - CZ_COMMAND: Command to run commitizen. Default: "./venv/commitizen/bin/cz"
-        - CZ_CONFIG_FULL_PATH: Path to the commitizen configuration file. Default: ".config/commitizen/cz.yaml"
-        - CZ_CLI_OPTS: Additional command line options for commitizen. Default: ""
-        - CZ_BUMP_DRY_RUN: Whether to perform a dry run. Default: true
-        - CZ_BUMP_YES: Whether to automatically confirm prompts. Default: true
-        - CZ_BUMP_CHECK_CONSISTENCY: Whether to check consistency before bumping. Default: true
-        - CZ_BUMP_NO_RAISE: Comma-separated error codes that won't raise an error. Default: "21"
-        - CZ_BUMP_CHANGELOG: Whether to update the changelog when bumping. Default: true
-        - CZ_BUMP_PRERELEASE: Prerelease identifier (e.g., "alpha", "beta"). Default: ""
-        - CZ_BUMP_DEV_RELEASE: Development release identifier. Default: ""
+        - TASK_CZ_COMMAND: Command to run commitizen. Default: "./venv/commitizen/bin/cz"
+        - TASK_CZ_CONFIG_FULL_PATH: Path to the commitizen configuration file. Default: ".config/commitizen/cz.yaml"
+        - TASK_CZ_CLI_OPTS: Additional command line options for commitizen. Default: ""
+        - TASK_CZ_BUMP_DRY_RUN: Whether to perform a dry run. Default: true
+        - TASK_CZ_BUMP_YES: Whether to automatically confirm prompts. Default: true
+        - TASK_CZ_BUMP_CHECK_CONSISTENCY: Whether to check consistency before bumping. Default: true
+        - TASK_CZ_BUMP_NO_RAISE: Comma-separated error codes that won't raise an error. Default: "21"
+        - TASK_CZ_BUMP_CHANGELOG: Whether to update the changelog when bumping. Default: true
+        - TASK_CZ_BUMP_PRERELEASE: Prerelease identifier (e.g., "alpha", "beta"). Default: ""
+        - TASK_CZ_BUMP_DEV_RELEASE: Development release identifier. Default: ""
 
       🔐 Preconditions:
         - The 'install' task must have been successfully executed.
@@ -171,38 +171,38 @@ tasks:
 
       📝 Note:
         This task increments the version number based on the commit history.
-        Use CZ_BUMP_DRY_RUN=false to apply changes, CZ_BUMP_YES=false to enable confirmations,
-        and CZ_BUMP_CHECK_CONSISTENCY=false to skip consistency checks if needed.
-        Set CZ_BUMP_NO_RAISE to a comma-separated list of error codes to ignore specific errors,
-        e.g., CZ_BUMP_NO_RAISE=21 to ignore the "Nothing to commit" error.
-        Use CZ_BUMP_PRERELEASE and CZ_BUMP_DEV_RELEASE for managing pre-releases and development versions.
+        Use TASK_CZ_BUMP_DRY_RUN=false to apply changes, TASK_CZ_BUMP_YES=false to enable confirmations,
+        and TASK_CZ_BUMP_CHECK_CONSISTENCY=false to skip consistency checks if needed.
+        Set TASK_CZ_BUMP_NO_RAISE to a comma-separated list of error codes to ignore specific errors,
+        e.g., TASK_CZ_BUMP_NO_RAISE=21 to ignore the "Nothing to commit" error.
+        Use TASK_CZ_BUMP_PRERELEASE and TASK_CZ_BUMP_DEV_RELEASE for managing pre-releases and development versions.
     vars:
       BUMP_OPTIONS:
         sh: |
           options=(
-            {{if eq .CZ_BUMP_YES "true"}}"--yes"{{end}}
-            {{if eq .CZ_BUMP_DRY_RUN "true"}}"--dry-run"{{end}}
-            {{if eq .CZ_BUMP_CHECK_CONSISTENCY "true"}}"--check-consistency"{{end}}
-            {{if eq .CZ_BUMP_CHANGELOG "true"}}"--changelog"{{end}}
+            {{if eq .TASK_CZ_BUMP_YES "true"}}"--yes"{{end}}
+            {{if eq .TASK_CZ_BUMP_DRY_RUN "true"}}"--dry-run"{{end}}
+            {{if eq .TASK_CZ_BUMP_CHECK_CONSISTENCY "true"}}"--check-consistency"{{end}}
+            {{if eq .TASK_CZ_BUMP_CHANGELOG "true"}}"--changelog"{{end}}
           )
 
-          if [[ "{{.GIT_CURRENT_BRANCH}}" =~ {{.CZ_RELEASE_BRANCH_PATTERN}} ]] || [ -n "{{.CZ_BUMP_PRERELEASE}}" ]; then
+          if [[ "{{.TASK_CZ_GIT_CURRENT_BRANCH}}" =~ {{.TASK_CZ_RELEASE_BRANCH_PATTERN}} ]] || [ -n "{{.TASK_CZ_BUMP_PRERELEASE}}" ]; then
             options+=("--prerelease")
-          elif [[ "{{.GIT_CURRENT_BRANCH}}" != "{{.CZ_DEFAULT_BRANCH}}" ]] || [ -n "{{.CZ_BUMP_DEV_RELEASE}}" ]; then
+          elif [[ "{{.TASK_CZ_GIT_CURRENT_BRANCH}}" != "{{.TASK_CZ_DEFAULT_BRANCH}}" ]] || [ -n "{{.TASK_CZ_BUMP_DEV_RELEASE}}" ]; then
             options+=("--devrelease" "$(date +%Y%m%d%H%M%S)")
           fi
 
           echo "${options[@]}"
       CLI_OPTIONS:
         sh: |
-          options=({{.CZ_CLI_OPTS}})
-          if [ -n "{{.CZ_BUMP_NO_RAISE}}" ]; then
-            options+=("--no-raise" "{{.CZ_BUMP_NO_RAISE}}")
+          options=({{.TASK_CZ_CLI_OPTS}})
+          if [ -n "{{.TASK_CZ_BUMP_NO_RAISE}}" ]; then
+            options+=("--no-raise" "{{.TASK_CZ_BUMP_NO_RAISE}}")
           fi
           echo "${options[@]}"
     cmds:
       - |
-        if {{.CZ_COMMAND}} --config {{.CZ_CONFIG_FULL_PATH}} {{.CLI_OPTIONS}} bump {{.BUMP_OPTIONS}}; then
+        if {{.TASK_CZ_COMMAND}} --config {{.TASK_CZ_CONFIG_FULL_PATH}} {{.CLI_OPTIONS}} bump {{.BUMP_OPTIONS}}; then
           echo "🎉 All commits successfully verified with Commitizen!"
         else
           exit_code=$?
@@ -214,7 +214,7 @@ tasks:
           fi
         fi
       - cmd: |
-          if [ "{{.CZ_BUMP_DRY_RUN}}" = "true" ]; then
+          if [ "{{.TASK_CZ_BUMP_DRY_RUN}}" = "true" ]; then
             echo "🎉 Version bump completed in dry-run mode. No changes were applied."
           else
             echo "✅ Version bump completed successfully!"
