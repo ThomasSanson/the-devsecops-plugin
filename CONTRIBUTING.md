@@ -9,7 +9,6 @@ Thank you for considering contributing to The DevSecOps Plugin. This document pr
   - [Manual Setup](#manual-setup)
 - [GitLab Workflow](#gitlab-workflow)
   - [Issue Creation](#issue-creation)
-  - [Merge Requests](#merge-requests)
 - [Development Standards](#development-standards)
 - [Testing Requirements](#testing-requirements)
 - [Documentation Guidelines](#documentation-guidelines)
@@ -160,7 +159,7 @@ Choose the appropriate type:
 - `ci`: CI/CD modifications (e.g., [ci] Add new deployment stage)
 - `chore`: Maintenance tasks (e.g., [chore] Update dependencies)
 
-### Merge Requests
+### Merge Request
 
 #### Creation Process
 
