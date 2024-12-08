@@ -9,7 +9,7 @@ Thank you for considering contributing to The DevSecOps Plugin. This document pr
   - [Manual Setup](#manual-setup)
 - [GitLab Workflow](#gitlab-workflow)
   - [Issue Creation](#issue-creation)
-  - [Merge Requests](#merge-requests)
+  - [Merge Request Process](#merge-request-process)
 - [Development Standards](#development-standards)
 - [Testing Requirements](#testing-requirements)
 - [Documentation Guidelines](#documentation-guidelines)
@@ -33,20 +33,21 @@ The DevContainer configuration ensures a standardised development environment wi
 
 1. Clone the repository:
 
-  ```bash
-  git clone git@gitlab.mim-libre.fr:digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin.git
-  ```
+```bash
+git clone git@gitlab.mim-libre.fr:digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin.git
+```
 
 2. Open in Visual Studio Code:
 
-  ```bash
-  code the-devsecops-plugin
-  ```
+```bash
+code the-devsecops-plugin
+```
 
 3. When prompted, select 'Reopen in Container', or:
-  - Press F1
-  - Type 'Reopen in Container'
-  - Select 'Remote-Containers: Reopen in Container'
+
+- Press F1
+- Type 'Reopen in Container'
+- Select 'Remote-Containers: Reopen in Container'
 
 #### Troubleshooting DevContainer
 
@@ -54,10 +55,10 @@ Common issues and solutions:
 
 1. Container fails to build:
 
-  ```bash
-  docker system prune -af
-  docker volume prune -f
-  ```
+```bash
+docker system prune -af
+docker volume prune -f
+```
 
 2. Port conflicts:
 
@@ -75,16 +76,17 @@ Whilst DevContainer is recommended, manual setup is possible:
 
 1. Install dependencies:
 
-  ```bash
-  python3 -m venv ~/workspace/venv
-  source ~/workspace/venv/bin/activate
-  pip install copier
-  ```
+```bash
+python3 -m venv ~/workspace/venv
+source ~/workspace/venv/bin/activate
+pip install copier
+```
 
 2. Configure environment:
-  ```bash
-  task dev:setup-environment
-  ```
+
+```bash
+task dev:setup-environment
+```
 
 ## GitLab Workflow
 
@@ -158,15 +160,17 @@ Choose the appropriate type:
 - `ci`: CI/CD modifications (e.g., [ci] Add new deployment stage)
 - `chore`: Maintenance tasks (e.g., [chore] Update dependencies)
 
-### Merge Requests
+### Merge Request Process
 
-#### MR Process
+#### Creating a Merge Request
+
 1. Fork the project in GitLab
 2. Create a feature branch
 3. Implement changes
 4. Submit Merge Request
 
 #### MR Template
+
 ```markdown
 # Description
 [Detailed description of changes]
@@ -197,15 +201,17 @@ Choose the appropriate type:
 [Any additional information]
 ````
 
-#### MR Review Process
+#### Review Requirements
 
 1. Automated checks:
+
 - Pipeline must pass
 - Code quality gates met
 - Security scans passed
 - Test coverage maintained/improved
 
 2. Manual review requirements:
+
 - Two approvals minimum
 - No unresolved discussions
 - Up-to-date with base branch
@@ -224,11 +230,13 @@ Choose the appropriate type:
 ### Testing Requirements
 
 1. Unit tests:
+
 - One test file per module
 - Mock external dependencies
 - > 85% coverage
 
 2. Integration tests:
+
 - Test major workflows
 - Include edge cases
 - Mock external services
@@ -241,13 +249,15 @@ Choose the appropriate type:
 
 ## Documentation Guidelines
 
-1. Code documentation:
+### Code Documentation
+
 - Clear function signatures
 - Purpose descriptions
 - Usage examples
 - Parameter explanations
 
-2. User documentation:
+### User Documentation
+
 - Step-by-step guides
 - Clear prerequisites
 - Troubleshooting sections
