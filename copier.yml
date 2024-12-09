@@ -6,12 +6,13 @@ _skip_if_exists:
 _min_copier_version: "8.0.0"
 
 _exclude:
-    - .git
-    - CHANGELOG.md
-    - copier.yml
-    - LICENSE
-    - README.md
-    - VERSION
+  - .git
+  - CHANGELOG.md
+  - CONTRIBUTING.md
+  - copier.yml
+  - LICENSE
+  - README.md
+  - VERSION
 
 _message_after_copy: |
   Your DevSecOps project has been created successfully!
