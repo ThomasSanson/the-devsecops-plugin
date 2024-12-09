@@ -3,7 +3,7 @@
 _answers_file: .config/devsecops/.copier-answers.yml
 _skip_if_exists:
   - .config/devsecops/.copier-answers.yml
-_min_copier_version: "8.0.0"
+_min_copier_version: "9.4.0"
 
 _exclude:
   - .git
