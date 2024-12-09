@@ -18,7 +18,6 @@ vars:
   TASK_SEPARATOR: '{{.OVERRIDE_TASK_SEPARATOR | default (print (repeat 120 "-") "\n" (repeat 120 "-") "\n" (repeat 120 "-"))}}'
   TASK_DEVSECOPS_ICON: '{{.OVERRIDE_TASK_DEVSECOPS_ICON | default "♾️"}}'
 
-
 # Includes: Specify necessary and additional components for development.
 # - Essential includes are required for a successful Docker build.
 # - Optional includes extras like tests and lint (not needed for Docker builds)
@@ -107,61 +106,61 @@ tasks:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Plan"
         silent: true
-      - task: devsecops:plan
       - task: project:plan
+      - task: devsecops:plan
 
   code:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Code"
         silent: true
-      - task: devsecops:code
       - task: project:code
+      - task: devsecops:code
 
   build:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Build"
         silent: true
-      - task: devsecops:build
       - task: project:build
+      - task: devsecops:build
 
   test:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Test"
         silent: true
-      - task: devsecops:test
       - task: project:test
+      - task: devsecops:test
 
   release:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Release"
         silent: true
-      - task: devsecops:release
       - task: project:release
+      - task: devsecops:release
 
   deploy:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Deploy"
         silent: true
-      - task: devsecops:deploy
       - task: project:deploy
+      - task: devsecops:deploy
 
   operate:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Operate"
         silent: true
-      - task: devsecops:operate
       - task: project:operate
+      - task: devsecops:operate
 
   monitor:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Monitor"
         silent: true
-      - task: devsecops:monitor
       - task: project:monitor
+      - task: devsecops:monitor
 
   feedback:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Feedback"
         silent: true
-      - task: devsecops:feedback
       - task: project:feedback
+      - task: devsecops:feedback
