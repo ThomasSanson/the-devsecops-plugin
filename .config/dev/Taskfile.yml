@@ -5,6 +5,7 @@ tasks:
   setup-environment:
     desc: Configure the development environment.
     cmds:
+      - task: :bun:install
+      - task: :copier:install
       - task: :docker:install
       - task: :nodejs:install
-      - task: :bun:install
