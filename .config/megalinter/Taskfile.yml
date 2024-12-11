@@ -10,7 +10,7 @@ tasks:
     desc: Run MegaLinter for comprehensive code analysis.
     preconditions:
       - sh: "command -v docker &> /dev/null"
-        msg: "❌ Docker is not installed. Please run the 'docker:install' task first."
+        msg: "❌ Docker is not installed. Please run the 'docker-ce:install' task first."
     cmds:
       - docker rm -f {{.TASK_MEGALINTER_CONTAINER_NAME}}
       - sudo rm -rf ./megalinter-reports
