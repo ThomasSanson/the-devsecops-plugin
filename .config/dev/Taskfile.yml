@@ -33,6 +33,15 @@ tasks:
           fi
         silent: true
       - cmd: |
+          if [[ "{{.TASK_PODMAN_ENABLED}}" == "true" ]]; then
+            echo "🔍 Running podman..."
+            task podman:install
+            echo "{{.TASK_SEPARATOR}}"
+          else
+            echo "⚠️ Skipping podman (disabled via TASK_PODMAN_ENABLED=false)"
+          fi
+        silent: true
+      - cmd: |
           if [[ "{{.TASK_NODEJS_ENABLED}}" == "true" ]]; then
             echo "🔍 Running nodejs..."
             task nodejs:install
