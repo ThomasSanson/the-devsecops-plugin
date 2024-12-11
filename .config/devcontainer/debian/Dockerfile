@@ -24,7 +24,7 @@ RUN echo "export HTTP_PROXY=\"$HTTP_PROXY\"" > $TEMP_DIR/env_vars && \
 # Run main setup script
 # Set Git safe directory
 # Change ownership of the project directory
-RUN $TEMP_DIR/.config/devcontainer/debian/scripts/init.sh && \
+RUN cd $TEMP_DIR && ./.config/devcontainer/debian/scripts/init.sh && \
   git config --system --add safe.directory $TEMP_DIR && \
   chown -R $USERNAME:$USERNAME $TEMP_DIR
 
