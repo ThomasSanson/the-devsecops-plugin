@@ -159,7 +159,7 @@ All tasks can be enabled/disabled via environment variables:
 # Enable/disable specific features
 export TASK_COMMITIZEN_ENABLED=true
 export TASK_MEGALINTER_ENABLED=true
-export TASK_DOCKER_ENABLED=true
+export TASK_DOCKER_CE_ENABLED=true
 export TASK_LIZARD_ENABLED=true
 ```
 
@@ -183,7 +183,7 @@ task feedback   # Feedback loop
 # Run specific tools
 task megalinter     # Code quality & security
 task commitizen     # Manage commits
-task docker:test    # Docker tests
+task docker-ce:test    # Docker tests
 ```
 
 ## Architecture
