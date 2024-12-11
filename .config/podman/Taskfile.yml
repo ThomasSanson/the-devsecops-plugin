@@ -68,7 +68,7 @@ tasks:
         msg: "❌ Roles requirements file not found at {{.TASK_PODMAN_ANSIBLE_ROLES_REQUIREMENTS}}"
     cmds:
       - mkdir -p .config/podman/roles
-      - "{{.TASK_PODMAN_ANSIBLE_GALAXY_CMD}} install -r {{.TASK_PODMAN_ANSIBLE_ROLES_REQUIREMENTS}}"
+      - "{{.TASK_PODMAN_ANSIBLE_GALAXY_CMD}} install -r {{.TASK_PODMAN_ANSIBLE_ROLES_REQUIREMENTS}} --roles-path .config/podman/roles"
       - cmd: echo "✅ Ansible roles installed successfully"
         silent: true
 
