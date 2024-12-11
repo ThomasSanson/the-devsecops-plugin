@@ -4,3 +4,11 @@ misconfigurations:
     paths:
       - ".devcontainer/Dockerfile"
     statement: Including sudo in the Dockerfile is essential to allow necessary administrative tasks during development within the DevContainer environment.
+
+scan:
+  skip-dirs:
+    - megalinter-reports
+    - vendor
+    - venv
+    - .git
+    - .config/**/roles
