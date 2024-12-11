@@ -8,10 +8,10 @@ set -e
 source "$TEMP_DIR/env_vars"
 
 setup_docker() {
-  local USERNAME="$1"
+  local USER="$1"
 
   echo "Configuring Docker..."
-  sudo usermod -aG docker "$USERNAME"
+  sudo usermod -aG docker "$USER"
 
   echo "Docker configuration completed."
 }
