@@ -4,6 +4,7 @@ version: "3"
 
 vars:
   # Environment variables for task control
+  TASK_FLAGS: '{{.OVERRIDE_TASK_FLAGS | default ""}}'
   TASK_BUN_ENABLED: '{{.OVERRIDE_TASK_BUN_ENABLED | default "true"}}'
   TASK_COMMITIZEN_ENABLED: '{{.OVERRIDE_TASK_COMMITIZEN_ENABLED | default "true"}}'
   TASK_COMMITLINT_ENABLED: '{{.OVERRIDE_TASK_COMMITLINT_ENABLED | default "true"}}'
