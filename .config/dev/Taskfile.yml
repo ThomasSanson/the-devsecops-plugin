@@ -8,7 +8,7 @@ tasks:
       - cmd: |
           if [[ "{{.TASK_BUN_ENABLED}}" == "true" ]]; then
             echo "🔍 Running bun..."
-            task bun:install
+            task {{.TASK_FLAGS}} bun:install
             echo "{{.TASK_SEPARATOR}}"
           else
             echo "⚠️ Skipping bun (disabled via TASK_BUN_ENABLED=false)"
@@ -17,7 +17,7 @@ tasks:
       - cmd: |
           if [[ "{{.TASK_COPIER_ENABLED}}" == "true" ]]; then
             echo "🔍 Running copier..."
-            task copier:install
+            task {{.TASK_FLAGS}} copier:install
             echo "{{.TASK_SEPARATOR}}"
           else
             echo "⚠️ Skipping copier (disabled via TASK_COPIER_ENABLED=false)"
@@ -26,7 +26,7 @@ tasks:
       - cmd: |
           if [[ "{{.TASK_DOCKER_CE_ENABLED}}" == "true" ]]; then
             echo "🔍 Running docker-ce..."
-            task docker-ce:install
+            task {{.TASK_FLAGS}} docker-ce:install
             echo "{{.TASK_SEPARATOR}}"
           else
             echo "⚠️ Skipping docker-ce (disabled via TASK_DOCKER_CE_ENABLED=false)"
@@ -35,7 +35,7 @@ tasks:
       - cmd: |
           if [[ "{{.TASK_PODMAN_ENABLED}}" == "true" ]]; then
             echo "🔍 Running podman..."
-            task podman:install
+            task {{.TASK_FLAGS}} podman:install
             echo "{{.TASK_SEPARATOR}}"
           else
             echo "⚠️ Skipping podman (disabled via TASK_PODMAN_ENABLED=false)"
@@ -44,7 +44,7 @@ tasks:
       - cmd: |
           if [[ "{{.TASK_NODEJS_ENABLED}}" == "true" ]]; then
             echo "🔍 Running nodejs..."
-            task nodejs:install
+            task {{.TASK_FLAGS}} nodejs:install
             echo "{{.TASK_SEPARATOR}}"
           else
             echo "⚠️ Skipping nodejs (disabled via TASK_NODEJS_ENABLED=false)"
