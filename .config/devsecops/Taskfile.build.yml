@@ -8,7 +8,7 @@ tasks:
       - cmd: |
           if [[ "{{.TASK_DOCKER_CE_ENABLED}}" == "true" ]]; then
             echo "🐳 Building Docker images..."
-            task docker-ce:build:all:dockerfile
+            task {{.TASK_FLAGS}} docker-ce:build:all:dockerfile
             echo "{{.TASK_SEPARATOR}}"
           else
             echo "⚠️ Skipping docker build (disabled via TASK_DOCKER_CE_ENABLED=false)"
