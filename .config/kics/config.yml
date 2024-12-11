@@ -2,3 +2,4 @@ exclude-paths:
   - "**/venv/**"
   - "**/.config/**/roles/**"
   - .config/podman/roles
+  - .config/docker-ce/roles
