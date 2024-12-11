@@ -1,0 +1,125 @@
+---
+version: "3"
+
+vars:
+  TASK_DOCKER_CE_VENV_DIR: '{{.OVERRIDE_TASK_DOCKER_CE_VENV_DIR | default "./venv/docker-ce"}}'
+  TASK_DOCKER_CE_ANSIBLE_CMD: '{{.OVERRIDE_TASK_DOCKER_CE_ANSIBLE_CMD | default "./venv/docker-ce/bin/ansible-playbook"}}'
+  TASK_DOCKER_CE_ANSIBLE_GALAXY_CMD: '{{.OVERRIDE_TASK_DOCKER_CE_ANSIBLE_GALAXY_CMD | default "./venv/docker-ce/bin/ansible-galaxy"}}'
+  TASK_DOCKER_CE_ANSIBLE_REQUIREMENTS_FILE: '{{.OVERRIDE_TASK_DOCKER_CE_ANSIBLE_REQUIREMENTS_FILE | default ".config/docker-ce/requirements.txt"}}'
+  TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS: '{{.OVERRIDE_TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS | default ".config/docker-ce/requirements.yml"}}'
+  TASK_DOCKER_CE_ANSIBLE_PLAYBOOK_FILE: '{{.OVERRIDE_TASK_DOCKER_CE_ANSIBLE_PLAYBOOK_FILE | default ".config/docker-ce/playbook.yml"}}'
+  TASK_DOCKER_CE_PYTHON_VERSION_FILE: '{{.OVERRIDE_TASK_DOCKER_CE_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
+  TASK_DOCKER_CE_ANSIBLE_INVENTORY_TARGET: "localhost" # DevSkim: ignore DS162092
+
+env:
+  LANG: "C.UTF-8"
+  LC_ALL: "C.UTF-8"
+  LANGUAGE: "C.UTF-8"
+  ANSIBLE_ROLES_PATH: ".config/docker-ce/roles"
+
+tasks:
+  install-dependencies:
+    desc: |
+      ℹ️ Description:
+        Sets up Ansible and its dependencies in a dedicated virtual environment
+
+      🔧 Variables:
+        - TASK_DOCKER_CE_VENV_DIR: Virtual environment location
+        - TASK_DOCKER_CE_ANSIBLE_REQUIREMENTS_FILE: Dependencies file path
+
+      🔐 Preconditions:
+        - Python 3.x must be installed
+        - Internet connectivity required
+
+      🔄 Execution:
+        Creates virtualenv and installs required packages
+    deps: [cleanup]
+    preconditions:
+      - sh: "command -v python3 >/dev/null 2>&1"
+        msg: "❌ Python 3 is not installed"
+      - sh: "test -f {{.TASK_DOCKER_CE_PYTHON_VERSION_FILE}}"
+        msg: "❌ Python version file not found at {{.TASK_DOCKER_CE_PYTHON_VERSION_FILE}}"
+      - sh: "test -f {{.TASK_DOCKER_CE_ANSIBLE_REQUIREMENTS_FILE}}"
+        msg: "❌ Requirements file not found at {{.TASK_DOCKER_CE_ANSIBLE_REQUIREMENTS_FILE}}"
+    cmds:
+      - defer: { task: cleanup }
+      - python$(cut -d '=' -f 2 {{.TASK_DOCKER_CE_PYTHON_VERSION_FILE}}) -m venv {{.TASK_DOCKER_CE_VENV_DIR}}
+      - "{{.TASK_DOCKER_CE_VENV_DIR}}/bin/pip install -r {{.TASK_DOCKER_CE_ANSIBLE_REQUIREMENTS_FILE}}"
+      - cmd: echo "✅ Dependencies installed successfully"
+        silent: true
+
+  install-roles:
+    desc: |
+      ℹ️ Description:
+        Installs required Ansible roles
+
+      🔧 Variables:
+        - TASK_DOCKER_CE_ANSIBLE_GALAXY_CMD: Ansible Galaxy command path
+        - TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS: Roles requirements file path
+
+      🔐 Preconditions:
+        - Dependencies must be installed
+
+      🔄 Execution:
+        Installs required Ansible roles
+    deps: [install-dependencies]
+    preconditions:
+      - sh: "test -f {{.TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS}}"
+        msg: "❌ Roles requirements file not found at {{.TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS}}"
+    cmds:
+      - mkdir -p .config/docker-ce/roles
+      - "{{.TASK_DOCKER_CE_ANSIBLE_GALAXY_CMD}} install -r {{.TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS}} --roles-path .config/docker-ce/roles"
+      - cmd: echo "✅ Ansible roles installed successfully"
+        silent: true
+
+  install:
+    desc: |
+      ℹ️ Description:
+        Installs Docker-CE using Ansible automation
+
+      🔧 Variables:
+        - TASK_DOCKER_CE_ANSIBLE_CMD: Ansible command path
+        - TASK_DOCKER_CE_ANSIBLE_PLAYBOOK_FILE: Ansible playbook location
+
+      🔐 Preconditions:
+        - Dependencies must be installed
+        - Roles must be installed
+        - Root/sudo privileges required
+
+      🔄 Execution:
+        Runs Ansible playbook for Docker-CE installation
+    deps: [install-roles]
+    preconditions:
+      - sh: "[[ $EUID -eq 0 ]] || sudo -n true"
+        msg: "❌ Root privileges or sudo access required"
+      - sh: "test -f {{.TASK_DOCKER_CE_ANSIBLE_PLAYBOOK_FILE}}"
+        msg: "❌ Playbook file not found at {{.TASK_DOCKER_CE_ANSIBLE_PLAYBOOK_FILE}}"
+    cmds:
+      - defer: { task: cleanup }
+      - |
+        {{.TASK_DOCKER_CE_ANSIBLE_CMD}} \
+          -i {{.TASK_DOCKER_CE_ANSIBLE_INVENTORY_TARGET}}, \
+          -c local \
+          {{.TASK_DOCKER_CE_ANSIBLE_PLAYBOOK_FILE}} \
+          -e 'ansible_python_interpreter=/usr/bin/python3'
+      - cmd: echo "✅ Docker-CE installed successfully"
+        silent: true
+
+  cleanup:
+    desc: |
+      ℹ️ Description:
+        Performs cleanup of temporary files and failed installations
+
+      🔧 Variables:
+        - TASK_DOCKER_CE_VENV_DIR: Virtual environment to clean
+
+      🔐 Preconditions: None
+
+      🔄 Execution:
+        Removes temporary files and partial installations
+    internal: true
+    cmds:
+      - rm -rf {{.TASK_DOCKER_CE_VENV_DIR}}/*.tmp
+      - rm -rf {{.TASK_DOCKER_CE_VENV_DIR}}/*.log
+      - cmd: echo "✅ Cleanup completed"
+        silent: true
