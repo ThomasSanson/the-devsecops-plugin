@@ -18,7 +18,7 @@ env:
   ANSIBLE_ROLES_PATH: ".config/podman/roles"
 
 tasks:
-  install-dependencies:
+  install:dependencies:
     desc: |
       ℹ️ Description:
         Sets up Ansible and its dependencies in a dedicated virtual environment
@@ -43,12 +43,12 @@ tasks:
         msg: "❌ Requirements file not found at {{.TASK_PODMAN_ANSIBLE_REQUIREMENTS_FILE}}"
     cmds:
       - defer: { task: cleanup }
-      - python3 -m venv {{.TASK_PODMAN_VENV_DIR}}
+      - python$(cut -d '=' -f 2 {{.TASK_PODMAN_PYTHON_VERSION_FILE}}) -m venv {{.TASK_PODMAN_VENV_DIR}}
       - "{{.TASK_PODMAN_VENV_DIR}}/bin/pip install -r {{.TASK_PODMAN_ANSIBLE_REQUIREMENTS_FILE}}"
       - cmd: echo "✅ Dependencies installed successfully"
         silent: true
 
-  install-roles:
+  install:roles:
     desc: |
       ℹ️ Description:
         Installs required Ansible roles
@@ -62,7 +62,7 @@ tasks:
 
       🔄 Execution:
         Installs required Ansible roles
-    deps: [install-dependencies]
+    deps: [install:dependencies]
     preconditions:
       - sh: "test -f {{.TASK_PODMAN_ANSIBLE_ROLES_REQUIREMENTS}}"
         msg: "❌ Roles requirements file not found at {{.TASK_PODMAN_ANSIBLE_ROLES_REQUIREMENTS}}"
@@ -84,18 +84,17 @@ tasks:
       🔐 Preconditions:
         - Dependencies must be installed
         - Roles must be installed
-        - Root/sudo privileges required
 
       🔄 Execution:
         Runs Ansible playbook for Podman installation
-    deps: [install-roles]
+    status:
+      - command -v podman &> /dev/null
     preconditions:
-      - sh: "[[ $EUID -eq 0 ]] || sudo -n true"
-        msg: "❌ Root privileges or sudo access required"
       - sh: "test -f {{.TASK_PODMAN_ANSIBLE_PLAYBOOK_FILE}}"
         msg: "❌ Playbook file not found at {{.TASK_PODMAN_ANSIBLE_PLAYBOOK_FILE}}"
     cmds:
       - defer: { task: cleanup }
+      - task: install:roles
       - |
         {{.TASK_PODMAN_ANSIBLE_CMD}} \
           -i {{.TASK_PODMAN_ANSIBLE_INVENTORY_TARGET}}, \
