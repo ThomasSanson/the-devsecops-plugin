@@ -17,6 +17,10 @@ env:
   LANGUAGE: "C.UTF-8"
   ANSIBLE_ROLES_PATH: ".config/docker-ce/roles"
 
+includes:
+  test:
+    taskfile: tests/Taskfile.yml
+
 tasks:
   install-dependencies:
     desc: |
@@ -84,14 +88,11 @@ tasks:
       🔐 Preconditions:
         - Dependencies must be installed
         - Roles must be installed
-        - Root/sudo privileges required
 
       🔄 Execution:
         Runs Ansible playbook for Docker-CE installation
     deps: [install-roles]
     preconditions:
-      - sh: "[[ $EUID -eq 0 ]] || sudo -n true"
-        msg: "❌ Root privileges or sudo access required"
       - sh: "test -f {{.TASK_DOCKER_CE_ANSIBLE_PLAYBOOK_FILE}}"
         msg: "❌ Playbook file not found at {{.TASK_DOCKER_CE_ANSIBLE_PLAYBOOK_FILE}}"
     cmds:
@@ -123,3 +124,42 @@ tasks:
       - rm -rf {{.TASK_DOCKER_CE_VENV_DIR}}/*.log
       - cmd: echo "✅ Cleanup completed"
         silent: true
+
+  build:all:dockerfile:
+    desc: Build all Dockerfiles in the project.
+    summary: |
+      ℹ️ Description:
+        Searches for all Dockerfile in the project and attempts to build them.
+        This task ensures that all Docker builds are functioning correctly.
+
+      🔧 Variables:
+        DOCKERFILE_LIST: A list of all Dockerfile found in the project, excluding gitignored paths.
+
+      🔐 Preconditions:
+        - Docker must be installed and running.
+        - sha256sum must be installed.
+        - git must be installed.
+
+      🔄 Execution:
+        Iterates through each Dockerfile found and attempts to build it.
+
+      📝 Note:
+        This task is useful for verifying the integrity of all Dockerfile
+        in the project. It does not push or deploy the built images.
+    vars:
+      DOCKERFILE_LIST:
+        sh: git ls-files -c -o --exclude-standard | grep Dockerfile || true
+    preconditions:
+      - sh: command -v docker >/dev/null 2>&1
+        msg: "❌ Docker is not installed or not in PATH. Please install Docker first."
+      - sh: command -v sha256sum >/dev/null 2>&1
+        msg: "❌ sha256sum is not installed or not in PATH. Please install sha256sum first."
+      - sh: command -v git >/dev/null 2>&1
+        msg: "❌ git is not installed or not in PATH. Please install git first."
+    cmds:
+      - defer: { task: cleanup }
+      - for: { var: DOCKERFILE_LIST }
+        cmd: |
+          echo "Building Dockerfile: {{.ITEM}}"
+          HASH=$(sha256sum {{.ITEM}} | cut -d' ' -f1)
+          docker build -t test-build-${HASH} -f {{.ITEM}} .
