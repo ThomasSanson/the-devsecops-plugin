@@ -8,7 +8,7 @@ tasks:
       - cmd: |
           if [[ "{{.TASK_COMMITLINT_ENABLED}}" == "true" ]]; then
             echo "🔍 Running commitlint..."
-            task commitlint
+            task {{.TASK_FLAGS}} commitlint
             echo "{{.TASK_SEPARATOR}}"
           else
             echo "⚠️ Skipping commitlint (disabled via TASK_COMMITLINT_ENABLED=false)"
@@ -17,7 +17,7 @@ tasks:
       - cmd: |
           if [[ "{{.TASK_MEGALINTER_ENABLED}}" == "true" ]]; then
             echo "🔍 Running megalinter..."
-            task megalinter
+            task {{.TASK_FLAGS}} megalinter
             echo "{{.TASK_SEPARATOR}}"
           else
             echo "⚠️ Skipping megalinter (disabled via TASK_MEGALINTER_ENABLED=false)"
@@ -26,10 +26,10 @@ tasks:
       - cmd: |
           if [[ "{{.TASK_COMMITIZEN_ENABLED}}" == "true" ]]; then
             echo "📝 Running commitizen checks..."
-            task commitizen:check
+            task {{.TASK_FLAGS}} commitizen:check
             echo "{{.TASK_SEPARATOR}}"
             echo "📝 Running commitizen bump..."
-            task commitizen:bump
+            task {{.TASK_FLAGS}} commitizen:bump
             echo "{{.TASK_SEPARATOR}}"
           else
             echo "⚠️ Skipping commitizen (disabled via TASK_COMMITIZEN_ENABLED=false)"
@@ -38,7 +38,7 @@ tasks:
       - cmd: |
           if [[ "{{.TASK_LIZARD_ENABLED}}" == "true" ]]; then
             echo "🔍 Running lizard code analysis..."
-            task lizard
+            task {{.TASK_FLAGS}} lizard
             echo "{{.TASK_SEPARATOR}}"
           else
             echo "⚠️ Skipping lizard (disabled via TASK_LIZARD_ENABLED=false)"
