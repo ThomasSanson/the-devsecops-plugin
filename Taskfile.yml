@@ -63,6 +63,9 @@ includes:
   docker:
     taskfile: .config/docker/Taskfile.yml
     optional: true
+  docker-ce:
+    taskfile: .config/docker-ce/Taskfile.yml
+    optional: true
   lizard:
     taskfile: .config/lizard/Taskfile.yml
     optional: true
