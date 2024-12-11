@@ -13,7 +13,6 @@ tasks:
         TASK_BUN_VERSION: The version of Bun to install (default: latest)
 
       🔐 Preconditions:
-        - User must have sudo privileges or be root.
         - unzip must be installed.
 
       🔄 Execution:
@@ -28,8 +27,6 @@ tasks:
     status:
       - command -v bun &> /dev/null
     preconditions:
-      - sh: "[[ $EUID -eq 0 ]] || sudo -n true"
-        msg: "❌ You must be root or have sudo privileges to run this task."
       - sh: "command -v unzip &> /dev/null"
         msg: "❌ unzip is not installed. Please install unzip and try again."
     cmds:
