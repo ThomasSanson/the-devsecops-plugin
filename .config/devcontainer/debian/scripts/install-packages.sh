@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Install Necessary Packages
-
 set -e
 
 # shellcheck disable=SC1091
@@ -10,6 +8,9 @@ source "$TEMP_DIR/env_vars"
 install_packages() {
   echo "Updating package lists..."
   apt-get update
+
+  # Read Python version from configuration file
+  PYTHON_VERSION=$(cat .config/python/.python-version)
 
   echo "Installing necessary packages..."
   apt-get install -y --no-install-recommends \
@@ -20,8 +21,9 @@ install_packages() {
     lsb-release \
     nano \
     openssh-client \
-    python3-pip \
-    python3-venv \
+    "python${PYTHON_VERSION}" \
+    "python${PYTHON_VERSION}-venv" \
+    "python${PYTHON_VERSION}-dev" \
     sudo \
     unzip \
     wget
