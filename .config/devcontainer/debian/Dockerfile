@@ -35,6 +35,7 @@ USER $USER
 
 # Set the default shell to bash
 ENV SHELL=/bin/bash
+ENV USER=$USER
 
 # Add local bin to PATH
 ENV PATH="/home/${USER}/.local/bin:${PATH}"
