@@ -22,7 +22,7 @@ includes:
     taskfile: tests/Taskfile.yml
 
 tasks:
-  install-dependencies:
+  install:dependencies:
     desc: |
       ℹ️ Description:
         Sets up Ansible and its dependencies in a dedicated virtual environment
@@ -52,7 +52,7 @@ tasks:
       - cmd: echo "✅ Dependencies installed successfully"
         silent: true
 
-  install-roles:
+  install:roles:
     desc: |
       ℹ️ Description:
         Installs required Ansible roles
@@ -66,7 +66,7 @@ tasks:
 
       🔄 Execution:
         Installs required Ansible roles
-    deps: [install-dependencies]
+    deps: [install:dependencies]
     preconditions:
       - sh: "test -f {{.TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS}}"
         msg: "❌ Roles requirements file not found at {{.TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS}}"
@@ -91,12 +91,14 @@ tasks:
 
       🔄 Execution:
         Runs Ansible playbook for Docker-CE installation
-    deps: [install-roles]
+    status:
+      - command -v docker &> /dev/null
     preconditions:
       - sh: "test -f {{.TASK_DOCKER_CE_ANSIBLE_PLAYBOOK_FILE}}"
         msg: "❌ Playbook file not found at {{.TASK_DOCKER_CE_ANSIBLE_PLAYBOOK_FILE}}"
     cmds:
       - defer: { task: cleanup }
+      - task: install:roles
       - |
         {{.TASK_DOCKER_CE_ANSIBLE_CMD}} \
           -i {{.TASK_DOCKER_CE_ANSIBLE_INVENTORY_TARGET}}, \
