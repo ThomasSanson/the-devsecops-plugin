@@ -5,7 +5,7 @@
   gather_facts: true
 
   vars:
-    current_user: "{{ lookup('env', 'USER') }}"
+    current_user: "{{ lookup('env', 'USERNAME') }}"
 
   roles:
     - role: robertdebock.bootstrap
