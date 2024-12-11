@@ -17,10 +17,6 @@ env:
   LANGUAGE: "C.UTF-8"
   ANSIBLE_ROLES_PATH: ".config/docker-ce/roles"
 
-includes:
-  test:
-    taskfile: tests/Taskfile.yml
-
 tasks:
   install:dependencies:
     desc: |
