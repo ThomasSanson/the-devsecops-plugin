@@ -2,6 +2,54 @@
 
 # Changelog
 
+## 3.0.0 (2024-12-15)
+
+### Feat
+
+- **Taskfile**: add support for dynamic task flags in installation commands to enhance flexibility in task execution
+- **Taskfile.yml**: add status check for Docker installation before running playbook to ensure prerequisites are met
+- **install-packages.sh**: read Python version from configuration file and install corresponding packages to ensure compatibility with the project requirements
+- **Taskfile**: add conditional task for podman installation based on TASK_PODMAN_ENABLED variable to enhance flexibility in development environment setup
+- **Taskfile**: add TASK_PODMAN_ENABLED variable to manage Podman integration settings
+- **tests**: add Taskfile.yml for comprehensive Docker installation testing on Debian containers to ensure reliability and correctness of the installation process
+- **Taskfile.yml**: add build task for all Dockerfiles to verify integrity and functionality
+- **Taskfile.yml**: include test taskfile for better organization of testing tasks
+- **Taskfile**: enhance setup-environment task with conditional installation
+- **Taskfile**: add TASK_COPIER_ENABLED variable and rename TASK_DOCKER_ENABLED to TASK_DOCKER_CE_ENABLED for clarity and consistency in task management
+- **docker**: add Taskfile.yml for managing Docker-CE installation with Ansible automation and virtual environment setup
+- **docker**: add requirements.yml for Ansible roles to manage Docker CE installation and dependencies
+- **docker**: add requirements.txt for Ansible dependencies to manage Ansible versions in Docker configuration
+- **docker**: add Ansible playbook for installing Docker-CE to streamline setup process
+- **Taskfile**: add optional docker-ce taskfile inclusion for better modularity
+- **Taskfile.yml**: update setup-environment task to include copier installation and remove duplicate bun installation
+
+### Fix
+
+- **megalinter**: update paths in Taskfile.yml to reflect new directory structure for lint reports and temporary files
+- **megalinter**: update paths in Taskfile.yml to reflect new directory structure for lint reports and working directory
+- **Taskfile.release.yml**: update commitizen bump command to include dynamic task flags for better flexibility in release process
+- **Taskfile.code.yml**: update task commands to include dynamic TASK_FLAGS for better flexibility in task execution
+- **Taskfile.build.yml**: update Docker build command to use dynamic TASK_FLAGS for improved flexibility in task execution
+- **playbook.yml**: update environment variable lookup from USERNAME to USER for consistency with standard practice
+- **setup-docker.sh**: rename USERNAME variable to USER for consistency and clarity in the script
+- **init.sh**: update user variable from USERNAME to USER for consistency in script execution
+- **Dockerfile**: rename ARG USERNAME to USER for consistency and clarity in environment variable usage
+- **devcontainer**: rename USERNAME argument to USER for consistency with Docker conventions
+- **Taskfile.yml**: update task names to use a consistent naming convention for better clarity
+- **playbook.yml**: update environment variable lookup from USER to USERNAME for compatibility with Windows systems
+- **Dockerfile**: change working directory before running init.sh to ensure script execution in the correct context
+- **Taskfile.yml**: update error message to reflect correct Docker installation task name from 'docker:install' to 'docker-ce:install' for clarity
+- **Taskfile.test.yml**: update environment variable from TASK_DOCKER_ENABLED to TASK_DOCKER_CE_ENABLED for accurate Docker test execution
+- **Taskfile.build.yml**: update environment variable from TASK_DOCKER_ENABLED to TASK_DOCKER_CE_ENABLED for better clarity and accuracy in Docker build tasks
+- **docs**: update Docker task environment variable names for clarity and consistency
+- **Taskfile.yml**: add --roles-path option to ansible-galaxy install command to specify roles installation directory
+
+### Refactor
+
+- **setup-user.sh**: rename USERNAME variable to USER for consistency and clarity in user setup script
+- **ci**: remove unnecessary dependencies on deploy job for operate and monitor stages to streamline pipeline execution
+- **Taskfile.yml**: rename task identifiers for consistency and clarity, update Python version command to dynamically read from a file, and adjust dependencies to reflect new task names
+
 ## 2.0.0 (2024-12-09)
 
 ### Feat
