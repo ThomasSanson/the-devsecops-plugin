@@ -1,0 +1,90 @@
+---
+version: "3"
+
+vars:
+  # Core settings
+  TASK_KANIKO_EXECUTOR: '{{.OVERRIDE_TASK_KANIKO_EXECUTOR | default "gcr.io/kaniko-project/executor:latest"}}'
+  TASK_KANIKO_WARMER: '{{.OVERRIDE_TASK_KANIKO_WARMER | default "gcr.io/kaniko-project/warmer:latest"}}'
+
+  # Build settings
+  TASK_KANIKO_IMAGE_NAME: '{{.OVERRIDE_TASK_KANIKO_IMAGE_NAME | default "test"}}'
+  TASK_KANIKO_IMAGE_TAG: '{{.OVERRIDE_TASK_KANIKO_IMAGE_TAG | default "latest"}}'
+  TASK_KANIKO_DOCKERFILE: '{{.OVERRIDE_TASK_KANIKO_DOCKERFILE | default ".config/devcontainer/debian/Dockerfile"}}'
+  TASK_KANIKO_CONTEXT: '{{.OVERRIDE_TASK_KANIKO_CONTEXT | default "."}}'
+  TASK_KANIKO_PUSH: '{{.OVERRIDE_TASK_KANIKO_PUSH | default "false"}}'
+
+  # Cache settings
+  TASK_KANIKO_CACHE_ENABLED: '{{.OVERRIDE_TASK_KANIKO_CACHE_ENABLED | default "true"}}'
+  TASK_KANIKO_CACHE_REPO: '{{.OVERRIDE_TASK_KANIKO_CACHE_REPO | default "oci:~/tmp/cache"}}'
+  TASK_KANIKO_CACHE_TTL: '{{.OVERRIDE_TASK_KANIKO_CACHE_TTL | default "24h"}}'
+
+  # Labels (optional)
+  TASK_KANIKO_CUSTOM_LABELS: '{{.OVERRIDE_TASK_KANIKO_CUSTOM_LABELS | default ""}}'
+  TASK_KANIKO_BASE_LABELS: >
+    --label org.opencontainers.image.created={{now | date "2006-01-02T15:04:05Z07:00"}}
+    --label org.opencontainers.image.source={{.REPO_URL | default "local"}}
+    --label org.opencontainers.image.version={{.TASK_KANIKO_IMAGE_TAG}}
+
+tasks:
+  default:
+    desc: |
+      Build a container image with Kaniko
+
+      Variables:
+        TASK_KANIKO_IMAGE_NAME: Name for the built image (default: test)
+        TASK_KANIKO_IMAGE_TAG: Tag for the built image (default: latest)
+        TASK_KANIKO_DOCKERFILE: Path to Dockerfile (default: .config/devcontainer/debian/Dockerfile)
+        TASK_KANIKO_CUSTOM_LABELS: Additional custom labels (format: key=value,key2=value2)
+        TASK_KANIKO_PUSH: Push the image to registry (default: false)
+    cmds:
+      - |
+        # Validate paths
+        TASK_KANIKO_CONTEXT_PATH=$(realpath {{.TASK_KANIKO_CONTEXT}})
+        if [ ! -d "$TASK_KANIKO_CONTEXT_PATH" ]; then
+          echo "Error: Build context directory does not exist: $TASK_KANIKO_CONTEXT_PATH"
+          exit 1
+        fi
+
+        if [ ! -f "$TASK_KANIKO_CONTEXT_PATH/{{.TASK_KANIKO_DOCKERFILE}}" ]; then
+          echo "Error: Dockerfile not found at: $TASK_KANIKO_CONTEXT_PATH/{{.TASK_KANIKO_DOCKERFILE}}"
+          exit 1
+        fi
+
+        # Prepare labels
+        LABEL_ARGS="${TASK_KANIKO_BASE_LABELS}"
+        if [ -n "{{.TASK_KANIKO_CUSTOM_LABELS}}" ]; then
+          IFS=',' read -ra LABELS <<< "{{.TASK_KANIKO_CUSTOM_LABELS}}"
+          for LABEL in "${LABELS[@]}"; do
+            LABEL_ARGS="$LABEL_ARGS --label $LABEL"
+          done
+        fi
+
+        # Build image
+        docker run \
+          -v "$TASK_KANIKO_CONTEXT_PATH:/workspace" \
+          {{.TASK_KANIKO_EXECUTOR}} \
+          --context "/workspace" \
+          --dockerfile "/workspace/{{.TASK_KANIKO_DOCKERFILE}}" \
+          --destination {{.TASK_KANIKO_IMAGE_NAME}}:{{.TASK_KANIKO_IMAGE_TAG}} \
+          {{if ne .TASK_KANIKO_PUSH "true"}}--no-push{{end}} \
+          {{if eq .TASK_KANIKO_CACHE_ENABLED "true"}}--cache=true --cache-repo={{.TASK_KANIKO_CACHE_REPO}} --cache-ttl={{.TASK_KANIKO_CACHE_TTL}}{{end}} \
+          $LABEL_ARGS
+
+  warmup:
+    desc: |
+      Warm up Kaniko cache with base images
+
+      Variables:
+        TASK_KANIKO_CACHE_REPO: Cache repository path (default: oci:~/tmp/cache)
+        TASK_KANIKO_CACHE_TTL: Cache time-to-live (default: 24h)
+    cmds:
+      - |
+        # Create cache directory if it doesn't exist
+        mkdir -p $(echo "{{.TASK_KANIKO_CACHE_REPO}}" | sed 's/^oci://')
+
+        # Pull and cache base images
+        docker run \
+          -v $(echo "{{.TASK_KANIKO_CACHE_REPO}}" | sed 's/^oci://'):/cache \
+          {{.TASK_KANIKO_WARMER}} \
+          --cache-repo={{.TASK_KANIKO_CACHE_REPO}} \
+          --image=debian:12
