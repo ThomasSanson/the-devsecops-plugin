@@ -5,7 +5,7 @@ vars:
   # Core settings
   TASK_KANIKO_EXECUTOR: '{{.OVERRIDE_TASK_KANIKO_EXECUTOR | default "gcr.io/kaniko-project/executor:latest"}}'
   TASK_KANIKO_WARMER: '{{.OVERRIDE_TASK_KANIKO_WARMER | default "gcr.io/kaniko-project/warmer:latest"}}'
-  TASK_KANIKO_RUNTIME_CMD: '{{.OVERRIDE_TASK_KANIKO_RUNTIME_CMD | default "podman container run"}}'
+  TASK_KANIKO_RUNTIME_CMD: '{{.OVERRIDE_TASK_KANIKO_RUNTIME_CMD | default "docker container run"}}'
   TASK_KANIKO_VOLUME_FLAG: '{{.OVERRIDE_TASK_KANIKO_VOLUME_FLAG | default "-v"}}'  # -v, --volume, --mount, etc.
 
   # Build settings
