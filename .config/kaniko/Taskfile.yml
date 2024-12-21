@@ -17,7 +17,7 @@ vars:
 
   # Cache settings
   TASK_KANIKO_CACHE_ENABLED: '{{.OVERRIDE_TASK_KANIKO_CACHE_ENABLED | default "true"}}'
-  TASK_KANIKO_CACHE_REPO: '{{.OVERRIDE_TASK_KANIKO_CACHE_REPO | default "oci:~/tmp/cache"}}'
+  TASK_KANIKO_CACHE_REPO: '{{.OVERRIDE_TASK_KANIKO_CACHE_REPO | default "oci:$HOME/tmp/cache"}}'
   TASK_KANIKO_CACHE_TTL: '{{.OVERRIDE_TASK_KANIKO_CACHE_TTL | default "24h"}}'
 
   # Labels (optional)
@@ -59,6 +59,13 @@ tasks:
           for LABEL in "${LABELS[@]}"; do
             LABEL_ARGS="$LABEL_ARGS --label $LABEL"
           done
+        fi
+
+        # Prepare cache directory if enabled
+        if [ "{{.TASK_KANIKO_CACHE_ENABLED}}" = "true" ]; then
+          CACHE_DIR=$(echo "{{.TASK_KANIKO_CACHE_REPO}}" | sed 's|^oci:||')
+          mkdir -p "$CACHE_DIR"
+          chmod -R 777 "$CACHE_DIR"
         fi
 
         # Build image
