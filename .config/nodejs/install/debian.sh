@@ -139,10 +139,27 @@ install_nodejs() {
   sudo -E apt-get install -y --no-install-recommends nodejs || error_exit "Failed to install Node.js"
 }
 
-# Function to update npm to the latest version
+# Function to update Node.js to latest minor version
+update_nodejs_to_latest() {
+  print_color "$YELLOW" "Updating Node.js to latest minor version..."
+
+  # Install n (Node version manager)
+  sudo -E npm install -g n || error_exit "Failed to install n package manager"
+
+  # Update to latest version of the same major version
+  current_major=$(node --version | cut -d. -f1 | tr -d 'v')
+  sudo -E n "$current_major" || error_exit "Failed to update Node.js to latest version"
+
+  # Reload shell to use new Node.js version
+  hash -r
+
+  print_color "$GREEN" "Node.js updated to $(node --version)"
+}
+
+# Function to update npm to the latest compatible version
 update_npm() {
-  print_color "$YELLOW" "Updating npm to the latest version..."
-  sudo -E npm install -g npm@latest || error_exit "Failed to update npm to the latest version"
+  print_color "$YELLOW" "Updating npm to a compatible version..."
+  sudo -E npm install -g npm@latest || error_exit "Failed to update npm"
 }
 
 # Function to display installed versions
@@ -205,6 +222,8 @@ main() {
   add_nodesource_apt_repo
   update_package_list
   install_nodejs
+
+  update_nodejs_to_latest
 
   configure_proxy "$HTTP_PROXY" "proxy"
   configure_proxy "$HTTPS_PROXY" "https-proxy"
