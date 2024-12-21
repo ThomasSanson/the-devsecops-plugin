@@ -11,6 +11,7 @@ vars:
   TASK_COPIER_ENABLED: '{{.OVERRIDE_TASK_COPIER_ENABLED | default "true"}}'
   TASK_DEV_ENABLED: '{{.OVERRIDE_TASK_DEV_ENABLED | default "true"}}'
   TASK_DOCKER_CE_ENABLED: '{{.OVERRIDE_TASK_DOCKER_CE_ENABLED | default "true"}}'
+  TASK_KANIKO_ENABLED: '{{.OVERRIDE_TASK_KANIKO_ENABLED | default "true"}}'
   TASK_LIZARD_ENABLED: '{{.OVERRIDE_TASK_LIZARD_ENABLED | default "true"}}'
   TASK_MEGALINTER_ENABLED: '{{.OVERRIDE_TASK_MEGALINTER_ENABLED | default "true"}}'
   TASK_NODEJS_ENABLED: '{{.OVERRIDE_TASK_NODEJS_ENABLED | default "true"}}'
@@ -65,6 +66,9 @@ includes:
     optional: true
   docker-ce:
     taskfile: .config/docker-ce/Taskfile.yml
+    optional: true
+  kaniko:
+    taskfile: .config/kaniko/Taskfile.yml
     optional: true
   lizard:
     taskfile: .config/lizard/Taskfile.yml
