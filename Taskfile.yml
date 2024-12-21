@@ -17,6 +17,7 @@ vars:
   TASK_NODEJS_ENABLED: '{{.OVERRIDE_TASK_NODEJS_ENABLED | default "true"}}'
   TASK_PODMAN_ENABLED: '{{.OVERRIDE_TASK_PODMAN_ENABLED | default "true"}}'
   TASK_YAMLLINT_ENABLED: '{{.OVERRIDE_TASK_YAMLLINT_ENABLED | default "true"}}'
+  TASK_DEVSECOPS_BUILD_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_BUILD_ENABLED | default "true"}}'
 
   # Simple separator
   TASK_SEPARATOR: '{{.OVERRIDE_TASK_SEPARATOR | default (print (repeat 120 "-") "\n" (repeat 120 "-") "\n" (repeat 120 "-"))}}'
@@ -128,7 +129,15 @@ tasks:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Build"
         silent: true
       - task: project:build
-      - task: devsecops:build
+      - cmd: |
+          if [[ "{{.TASK_DEVSECOPS_BUILD_ENABLED | default "true"}}" == "true" ]]; then
+            echo "🔨 Running DevSecOps build tasks..."
+            task {{.TASK_FLAGS}} devsecops:build
+            echo "{{.TASK_SEPARATOR}}"
+          else
+            echo "⚠️ Skipping DevSecOps build tasks (disabled via TASK_DEVSECOPS_BUILD_ENABLED=false)"
+          fi
+        silent: true
 
   test:
     cmds:
