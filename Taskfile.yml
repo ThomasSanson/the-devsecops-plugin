@@ -17,7 +17,17 @@ vars:
   TASK_NODEJS_ENABLED: '{{.OVERRIDE_TASK_NODEJS_ENABLED | default "true"}}'
   TASK_PODMAN_ENABLED: '{{.OVERRIDE_TASK_PODMAN_ENABLED | default "true"}}'
   TASK_YAMLLINT_ENABLED: '{{.OVERRIDE_TASK_YAMLLINT_ENABLED | default "true"}}'
-  TASK_DEVSECOPS_BUILD_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_BUILD_ENABLED | default "true"}}'
+
+  # DevSecOps variables
+  TASK_DEVSECOPS_PLAN_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_PLAN_ENABLED | default "true"}}'
+  TASK_DEVSECOPS_CODE_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_CODE_ENABLED | default "true"}}'
+  TASK_DEVSECOPS_BUILD_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_BUILD_ENABLED | default "false"}}'
+  TASK_DEVSECOPS_TEST_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_TEST_ENABLED | default "false"}}'
+  TASK_DEVSECOPS_RELEASE_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_RELEASE_ENABLED | default "true"}}'
+  TASK_DEVSECOPS_DEPLOY_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_DEPLOY_ENABLED | default "false"}}'
+  TASK_DEVSECOPS_OPERATE_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_OPERATE_ENABLED | default "false"}}'
+  TASK_DEVSECOPS_MONITOR_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_MONITOR_ENABLED | default "false"}}'
+  TASK_DEVSECOPS_FEEDBACK_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_FEEDBACK_ENABLED | default "true"}}'
 
   # Simple separator
   TASK_SEPARATOR: '{{.OVERRIDE_TASK_SEPARATOR | default (print (repeat 120 "-") "\n" (repeat 120 "-") "\n" (repeat 120 "-"))}}'
@@ -115,14 +125,30 @@ tasks:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Plan"
         silent: true
       - task: project:plan
-      - task: devsecops:plan
+      - cmd: |
+          if [[ "{{.TASK_DEVSECOPS_PLAN_ENABLED | default "true"}}" == "true" ]]; then
+            echo "📋 Running DevSecOps plan tasks..."
+            task {{.TASK_FLAGS}} devsecops:plan
+            echo "{{.TASK_SEPARATOR}}"
+          else
+            echo "⚠️ Skipping DevSecOps plan tasks (disabled via TASK_DEVSECOPS_PLAN_ENABLED=false)"
+          fi
+        silent: true
 
   code:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Code"
         silent: true
       - task: project:code
-      - task: devsecops:code
+      - cmd: |
+          if [[ "{{.TASK_DEVSECOPS_CODE_ENABLED | default "true"}}" == "true" ]]; then
+            echo "💻 Running DevSecOps code tasks..."
+            task {{.TASK_FLAGS}} devsecops:code
+            echo "{{.TASK_SEPARATOR}}"
+          else
+            echo "⚠️ Skipping DevSecOps code tasks (disabled via TASK_DEVSECOPS_CODE_ENABLED=false)"
+          fi
+        silent: true
 
   build:
     cmds:
@@ -144,39 +170,87 @@ tasks:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Test"
         silent: true
       - task: project:test
-      - task: devsecops:test
+      - cmd: |
+          if [[ "{{.TASK_DEVSECOPS_TEST_ENABLED | default "true"}}" == "true" ]]; then
+            echo "🧪 Running DevSecOps test tasks..."
+            task {{.TASK_FLAGS}} devsecops:test
+            echo "{{.TASK_SEPARATOR}}"
+          else
+            echo "⚠️ Skipping DevSecOps test tasks (disabled via TASK_DEVSECOPS_TEST_ENABLED=false)"
+          fi
+        silent: true
 
   release:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Release"
         silent: true
       - task: project:release
-      - task: devsecops:release
+      - cmd: |
+          if [[ "{{.TASK_DEVSECOPS_RELEASE_ENABLED | default "true"}}" == "true" ]]; then
+            echo "📦 Running DevSecOps release tasks..."
+            task {{.TASK_FLAGS}} devsecops:release
+            echo "{{.TASK_SEPARATOR}}"
+          else
+            echo "⚠️ Skipping DevSecOps release tasks (disabled via TASK_DEVSECOPS_RELEASE_ENABLED=false)"
+          fi
+        silent: true
 
   deploy:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Deploy"
         silent: true
       - task: project:deploy
-      - task: devsecops:deploy
+      - cmd: |
+          if [[ "{{.TASK_DEVSECOPS_DEPLOY_ENABLED | default "true"}}" == "true" ]]; then
+            echo "🚀 Running DevSecOps deploy tasks..."
+            task {{.TASK_FLAGS}} devsecops:deploy
+            echo "{{.TASK_SEPARATOR}}"
+          else
+            echo "⚠️ Skipping DevSecOps deploy tasks (disabled via TASK_DEVSECOPS_DEPLOY_ENABLED=false)"
+          fi
+        silent: true
 
   operate:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Operate"
         silent: true
       - task: project:operate
-      - task: devsecops:operate
+      - cmd: |
+          if [[ "{{.TASK_DEVSECOPS_OPERATE_ENABLED | default "true"}}" == "true" ]]; then
+            echo "⚙️ Running DevSecOps operate tasks..."
+            task {{.TASK_FLAGS}} devsecops:operate
+            echo "{{.TASK_SEPARATOR}}"
+          else
+            echo "⚠️ Skipping DevSecOps operate tasks (disabled via TASK_DEVSECOPS_OPERATE_ENABLED=false)"
+          fi
+        silent: true
 
   monitor:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Monitor"
         silent: true
       - task: project:monitor
-      - task: devsecops:monitor
+      - cmd: |
+          if [[ "{{.TASK_DEVSECOPS_MONITOR_ENABLED | default "true"}}" == "true" ]]; then
+            echo "📊 Running DevSecOps monitor tasks..."
+            task {{.TASK_FLAGS}} devsecops:monitor
+            echo "{{.TASK_SEPARATOR}}"
+          else
+            echo "⚠️ Skipping DevSecOps monitor tasks (disabled via TASK_DEVSECOPS_MONITOR_ENABLED=false)"
+          fi
+        silent: true
 
   feedback:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Feedback"
         silent: true
       - task: project:feedback
-      - task: devsecops:feedback
+      - cmd: |
+          if [[ "{{.TASK_DEVSECOPS_FEEDBACK_ENABLED | default "true"}}" == "true" ]]; then
+            echo "💭 Running DevSecOps feedback tasks..."
+            task {{.TASK_FLAGS}} devsecops:feedback
+            echo "{{.TASK_SEPARATOR}}"
+          else
+            echo "⚠️ Skipping DevSecOps feedback tasks (disabled via TASK_DEVSECOPS_FEEDBACK_ENABLED=false)"
+          fi
+        silent: true
