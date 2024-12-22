@@ -14,3 +14,12 @@ tasks:
             echo "⚠️ Skipping commitizen bump (disabled via TASK_COMMITIZEN_ENABLED=false)"
           fi
         silent: true
+      - cmd: |
+          if [[ "{{.TASK_KANIKO_ENABLED}}" == "true" ]]; then
+            echo "🚀 Running Kaniko image push..."
+            OVERRIDE_TASK_KANIKO_PUSH="true" task {{.TASK_FLAGS}} kaniko
+            echo "{{.TASK_SEPARATOR}}"
+          else
+            echo "⚠️ Skipping Kaniko push (disabled via TASK_KANIKO_ENABLED=false)"
+          fi
+        silent: true
