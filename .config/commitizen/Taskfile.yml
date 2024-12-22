@@ -9,11 +9,11 @@ vars:
   TASK_CZ_CLI_CHECK_OPTS: '{{.OVERRIDE_TASK_CZ_CLI_CHECK_OPTS | default "--rev-range origin/main..HEAD"}}'
   TASK_CZ_PYTHON_VERSION_FILE: '{{.OVERRIDE_TASK_CZ_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
   TASK_CZ_REQUIREMENTS_FILE: '{{.OVERRIDE_TASK_CZ_REQUIREMENTS_FILE | default ".config/commitizen/requirements.txt"}}'
-  TASK_CZ_BUMP_DRY_RUN: '{{.OVERRIDE_TASK_CZ_BUMP_DRY_RUN | default "true"}}'
-  TASK_CZ_BUMP_YES: '{{.OVERRIDE_TASK_CZ_BUMP_YES | default "true"}}'
+  TASK_CZ_BUMP_DRY_RUN: '{{.OVERRIDE_TASK_CZ_BUMP_DRY_RUN | default "false"}}'
+  TASK_CZ_BUMP_YES: '{{.OVERRIDE_TASK_CZ_BUMP_YES | default "false"}}'
   TASK_CZ_BUMP_CHECK_CONSISTENCY: '{{.OVERRIDE_TASK_CZ_BUMP_CHECK_CONSISTENCY | default "true"}}'
   TASK_CZ_BUMP_NO_RAISE: '{{.OVERRIDE_TASK_CZ_BUMP_NO_RAISE | default "21"}}'
-  TASK_CZ_BUMP_CHANGELOG: '{{.OVERRIDE_TASK_CZ_BUMP_CHANGELOG | default "true"}}'
+  TASK_CZ_BUMP_CHANGELOG: '{{.OVERRIDE_TASK_CZ_BUMP_CHANGELOG | default "false"}}'
   TASK_CZ_BUMP_PRERELEASE: '{{.OVERRIDE_TASK_CZ_BUMP_PRERELEASE | default ""}}'
   TASK_CZ_BUMP_DEV_RELEASE: '{{.OVERRIDE_TASK_CZ_BUMP_DEV_RELEASE | default ""}}'
   TASK_CZ_DEFAULT_BRANCH: '{{.OVERRIDE_TASK_CZ_DEFAULT_BRANCH | default "main"}}'
@@ -155,10 +155,10 @@ tasks:
         - TASK_CZ_CONFIG_FULL_PATH: Path to the commitizen configuration file. Default: ".config/commitizen/cz.yaml"
         - TASK_CZ_CLI_OPTS: Additional command line options for commitizen. Default: ""
         - TASK_CZ_BUMP_DRY_RUN: Whether to perform a dry run. Default: true
-        - TASK_CZ_BUMP_YES: Whether to automatically confirm prompts. Default: true
+        - TASK_CZ_BUMP_YES: Whether to automatically confirm prompts. Default: false
         - TASK_CZ_BUMP_CHECK_CONSISTENCY: Whether to check consistency before bumping. Default: true
         - TASK_CZ_BUMP_NO_RAISE: Comma-separated error codes that won't raise an error. Default: "21"
-        - TASK_CZ_BUMP_CHANGELOG: Whether to update the changelog when bumping. Default: true
+        - TASK_CZ_BUMP_CHANGELOG: Whether to update the changelog when bumping. Default: false
         - TASK_CZ_BUMP_PRERELEASE: Prerelease identifier (e.g., "alpha", "beta"). Default: ""
         - TASK_CZ_BUMP_DEV_RELEASE: Development release identifier. Default: ""
 
