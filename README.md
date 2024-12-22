@@ -22,6 +22,8 @@
   - [Project Customization](#project-customization)
   - [Task Control](#task-control)
   - [Available Commands](#available-commands)
+- [Environment Variables](#environment-variables)
+- [Development Setup](#development-setup)
 - [Architecture](#architecture)
 - [Features](#features)
 - [Security](#security)
@@ -184,6 +186,62 @@ task feedback   # Feedback loop
 task megalinter     # Code quality & security
 task commitizen     # Manage commits
 task docker-ce:test    # Docker tests
+```
+
+## Environment Variables
+
+### Task Control Variables
+You can customize the behavior of the plugin by setting these environment variables:
+
+```bash
+# Core Features
+TASK_BUN_ENABLED=true           # Enable/disable Bun runtime
+TASK_COMMITIZEN_ENABLED=true    # Enable/disable Commitizen
+TASK_COMMITLINT_ENABLED=true    # Enable/disable Commitlint
+TASK_MEGALINTER_ENABLED=true    # Enable/disable MegaLinter
+TASK_DOCKER_CE_ENABLED=true     # Enable/disable Docker CE features
+TASK_LIZARD_ENABLED=true        # Enable/disable Lizard code analysis
+
+# DevSecOps Pipeline Stages
+TASK_DEVSECOPS_PLAN_ENABLED=true      # Enable/disable Plan stage
+TASK_DEVSECOPS_CODE_ENABLED=true      # Enable/disable Code stage
+TASK_DEVSECOPS_BUILD_ENABLED=true     # Enable/disable Build stage
+TASK_DEVSECOPS_TEST_ENABLED=true      # Enable/disable Test stage
+TASK_DEVSECOPS_RELEASE_ENABLED=true   # Enable/disable Release stage
+TASK_DEVSECOPS_DEPLOY_ENABLED=true    # Enable/disable Deploy stage
+TASK_DEVSECOPS_OPERATE_ENABLED=true   # Enable/disable Operate stage
+TASK_DEVSECOPS_MONITOR_ENABLED=true   # Enable/disable Monitor stage
+TASK_DEVSECOPS_FEEDBACK_ENABLED=true  # Enable/disable Feedback stage
+```
+
+### GitLab CI/CD Variables
+The following variables need to be configured in your GitLab CI/CD settings:
+
+- `CZ_DEPLOY_KEY`: Base64 encoded SSH private key for git operations (required for releases)
+- `GITLAB_USER_LOGIN`: Your GitLab username (automatically provided)
+- `GITLAB_USER_EMAIL`: Your GitLab email (automatically provided)
+
+## Development Setup
+
+1. Clone the repository:
+```bash
+git clone https://gitlab.mim-libre.fr/digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin.git
+cd the-devsecops-plugin
+```
+
+2. Install Task:
+```bash
+sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d
+```
+
+3. Setup development environment:
+```bash
+task dev:setup-environment
+```
+
+4. Run the complete pipeline locally:
+```bash
+task devsecops
 ```
 
 ## Architecture
