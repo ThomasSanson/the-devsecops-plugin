@@ -2,67 +2,111 @@
 version: "3"
 
 vars:
-  TASK_NODEJS_MAJOR_VERSION: '{{.OVERRIDE_TASK_NODEJS_MAJOR_VERSION | default "20"}}'
+  TASK_NODEJS_VENV_DIR: '{{.OVERRIDE_TASK_NODEJS_VENV_DIR | default "./venv/nodejs"}}'
+  TASK_NODEJS_ANSIBLE_CMD: '{{.OVERRIDE_TASK_NODEJS_ANSIBLE_CMD | default "./venv/nodejs/bin/ansible-playbook"}}'
+  TASK_NODEJS_ANSIBLE_GALAXY_CMD: '{{.OVERRIDE_TASK_NODEJS_ANSIBLE_GALAXY_CMD | default "./venv/nodejs/bin/ansible-galaxy"}}'
+  TASK_NODEJS_ANSIBLE_REQUIREMENTS_FILE: '{{.OVERRIDE_TASK_NODEJS_ANSIBLE_REQUIREMENTS_FILE | default ".config/nodejs/requirements.txt"}}'
+  TASK_NODEJS_ANSIBLE_ROLES_REQUIREMENTS: '{{.OVERRIDE_TASK_NODEJS_ANSIBLE_ROLES_REQUIREMENTS | default ".config/nodejs/requirements.yml"}}'
+  TASK_NODEJS_ANSIBLE_PLAYBOOK_FILE: '{{.OVERRIDE_TASK_NODEJS_ANSIBLE_PLAYBOOK_FILE | default ".config/nodejs/playbook.yml"}}'
+  TASK_NODEJS_PYTHON_VERSION_FILE: '{{.OVERRIDE_TASK_NODEJS_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
+  TASK_NODEJS_ANSIBLE_INVENTORY_TARGET: "localhost" # DevSkim: ignore DS162092
+  TASK_NODEJS_MAJOR_VERSION: '{{.OVERRIDE_TASK_NODEJS_MAJOR_VERSION | default "20.x"}}'
+
+env:
+  LANG: "C.UTF-8"
+  LC_ALL: "C.UTF-8"
+  LANGUAGE: "C.UTF-8"
+  ANSIBLE_ROLES_PATH: ".config/nodejs/roles"
 
 tasks:
-  install:
-    desc: Install Node.js on the system.
-    summary: |
-      🏷️ Description:
-        Meticulously installs NodeJS and its dependencies, ensuring the correct version
-        based on the specified major version to provide a consistent development environment.
+  install:dependencies:
+    desc: |
+      ℹ️ Description:
+        Sets up Ansible and its dependencies in a dedicated virtual environment
 
       🔧 Variables:
-        - TASK_NODEJS_MAJOR_VERSION: Specifies the major version of NodeJS to be installed.
-          Default: "20"
+        - TASK_NODEJS_VENV_DIR: Virtual environment location
+        - TASK_NODEJS_ANSIBLE_REQUIREMENTS_FILE: Dependencies file path
 
       🔐 Preconditions:
-        - The TASK_NODEJS_MAJOR_VERSION variable must be set.
+        - Python 3.x must be installed
+        - Internet connectivity required
 
       🔄 Execution:
-        Executes the installation script with the specified NodeJS major version.
-
-      📝 Note:
-        This task establishes a robust NodeJS environment, providing a solid foundation
-        for further development and deployment tasks. It is designed to be flexible,
-        accommodating various project configurations.
+        Creates virtualenv and installs required packages
+    deps: [cleanup]
     preconditions:
-      - sh: "[[ ! -z {{.TASK_NODEJS_MAJOR_VERSION}} ]]"
-        msg: "❌ The TASK_NODEJS_MAJOR_VERSION variable must be defined to proceed with the installation."
-    status:
-      - node -v | grep -q 'v{{.TASK_NODEJS_MAJOR_VERSION}}'
+      - sh: "command -v python3 >/dev/null 2>&1"
+        msg: "❌ Python 3 is not installed"
+      - sh: "test -f {{.TASK_NODEJS_PYTHON_VERSION_FILE}}"
+        msg: "❌ Python version file not found at {{.TASK_NODEJS_PYTHON_VERSION_FILE}}"
+      - sh: "test -f {{.TASK_NODEJS_ANSIBLE_REQUIREMENTS_FILE}}"
+        msg: "❌ Requirements file not found at {{.TASK_NODEJS_ANSIBLE_REQUIREMENTS_FILE}}"
     cmds:
-      - |
-        if [[ {{OS}} == 'linux' && $(grep -i 'debian' /etc/os-release) ]]; then
-          sh install/debian.sh {{.TASK_NODEJS_MAJOR_VERSION}}
-        fi
-
-  test:
-    desc: Run Node.js installation tests.
-    summary: |
-      🎯 Description:
-        Executes all test files located in the 'tests/' directory.
-
-      🔧 Variables:
-        - LIST_TEST_FILES: A dynamically generated list of all .sh files in the tests/ directory.
-
-      🔐 Preconditions:
-        - Test files must exist in the 'tests/' directory.
-
-      🔄 Execution:
-        Iterates through each test file and executes it.
-
-      📝 Note:
-        Ensure all test files are properly formatted and executable before running this task.
-    vars:
-      LIST_TEST_FILES:
-        sh: find tests/ -type f -name '*.sh'
-    preconditions:
-      - sh: test -n "$(find tests/ -type f -name '*.sh')"
-        msg: "❌ No test files found in the 'tests/' directory."
-    cmds:
-      - for:
-          var: LIST_TEST_FILES
-        cmd: sh {{.ITEM}}
-      - cmd: echo "✅ All tests have been executed successfully."
+      - defer: { task: cleanup }
+      - python$(cut -d '=' -f 2 {{.TASK_NODEJS_PYTHON_VERSION_FILE}}) -m venv {{.TASK_NODEJS_VENV_DIR}}
+      - "{{.TASK_NODEJS_VENV_DIR}}/bin/pip install -r {{.TASK_NODEJS_ANSIBLE_REQUIREMENTS_FILE}}"
+      - cmd: echo "✅ Dependencies installed successfully"
         silent: true
+
+  install:roles:
+    desc: |
+      ℹ️ Description:
+        Installs required Ansible roles
+
+      🔧 Variables:
+        - TASK_NODEJS_ANSIBLE_GALAXY_CMD: Ansible Galaxy command path
+        - TASK_NODEJS_ANSIBLE_ROLES_REQUIREMENTS: Roles requirements file path
+
+      🔐 Preconditions:
+        - Dependencies must be installed
+
+      🔄 Execution:
+        Installs required Ansible roles
+    deps: [install:dependencies]
+    preconditions:
+      - sh: "test -f {{.TASK_NODEJS_ANSIBLE_ROLES_REQUIREMENTS}}"
+        msg: "❌ Roles requirements file not found at {{.TASK_NODEJS_ANSIBLE_ROLES_REQUIREMENTS}}"
+    cmds:
+      - mkdir -p .config/nodejs/roles
+      - "{{.TASK_NODEJS_ANSIBLE_GALAXY_CMD}} install -r {{.TASK_NODEJS_ANSIBLE_ROLES_REQUIREMENTS}} --roles-path .config/nodejs/roles"
+      - cmd: echo "✅ Ansible roles installed successfully"
+        silent: true
+
+  install:
+    desc: |
+      ℹ️ Description:
+        Installs Node.js using Ansible automation
+
+      🔧 Variables:
+        - TASK_NODEJS_ANSIBLE_CMD: Ansible command path
+        - TASK_NODEJS_ANSIBLE_PLAYBOOK_FILE: Ansible playbook location
+        - TASK_NODEJS_MAJOR_VERSION: Major version of Node.js to install (default: 20.x)
+
+      🔐 Preconditions:
+        - Dependencies must be installed
+        - Roles must be installed
+
+      🔄 Execution:
+        Runs Ansible playbook for Node.js installation
+    status:
+      - command -v node &> /dev/null
+    preconditions:
+      - sh: "test -f {{.TASK_NODEJS_ANSIBLE_PLAYBOOK_FILE}}"
+        msg: "❌ Playbook file not found at {{.TASK_NODEJS_ANSIBLE_PLAYBOOK_FILE}}"
+    cmds:
+      - defer: { task: cleanup }
+      - task: install:roles
+      - |
+        {{.TASK_NODEJS_ANSIBLE_CMD}} \
+          -i {{.TASK_NODEJS_ANSIBLE_INVENTORY_TARGET}}, \
+          -c local \
+          -e "nodejs_version={{.TASK_NODEJS_MAJOR_VERSION}}" \
+          {{.TASK_NODEJS_ANSIBLE_PLAYBOOK_FILE}}
+      - cmd: echo "✅ Node.js installed successfully"
+        silent: true
+
+  cleanup:
+    internal: true
+    cmds:
+      - rm -rf .config/nodejs/roles
