@@ -8,6 +8,12 @@ vars:
   TASK_KANIKO_RUNTIME_CMD: '{{.OVERRIDE_TASK_KANIKO_RUNTIME_CMD | default "docker container run"}}'
   TASK_KANIKO_VOLUME_FLAG: '{{.OVERRIDE_TASK_KANIKO_VOLUME_FLAG | default "-v"}}'  # -v, --volume, --mount, etc.
 
+  # Authentication settings
+  TASK_KANIKO_AUTH_ENABLED: '{{.OVERRIDE_TASK_KANIKO_AUTH_ENABLED | default "false"}}'
+  TASK_KANIKO_REGISTRY_USERNAME: '{{.OVERRIDE_TASK_KANIKO_REGISTRY_USERNAME | default ""}}'
+  TASK_KANIKO_REGISTRY_PASSWORD: '{{.OVERRIDE_TASK_KANIKO_REGISTRY_PASSWORD | default ""}}'
+  TASK_KANIKO_REGISTRY_URL: '{{.OVERRIDE_TASK_KANIKO_REGISTRY_URL | default ""}}'
+
   # Build settings
   TASK_KANIKO_IMAGE_NAME: '{{.OVERRIDE_TASK_KANIKO_IMAGE_NAME | default "test"}}'
   TASK_KANIKO_IMAGE_TAG: '{{.OVERRIDE_TASK_KANIKO_IMAGE_TAG | default "latest"}}'
@@ -38,46 +44,72 @@ tasks:
         TASK_KANIKO_DOCKERFILE: Path to Dockerfile (default: .config/devcontainer/debian/Dockerfile)
         TASK_KANIKO_CUSTOM_LABELS: Additional custom labels (format: key=value,key2=value2)
         TASK_KANIKO_PUSH: Push the image to registry (default: false)
+        TASK_KANIKO_AUTH_ENABLED: Enable registry authentication (default: false)
+        TASK_KANIKO_REGISTRY_USERNAME: Registry username
+        TASK_KANIKO_REGISTRY_PASSWORD: Registry password
+        TASK_KANIKO_REGISTRY_URL: Registry URL
     cmds:
-      - |
-        # Validate paths
-        TASK_KANIKO_CONTEXT_PATH=$(realpath {{.TASK_KANIKO_CONTEXT}})
-        if [ ! -d "$TASK_KANIKO_CONTEXT_PATH" ]; then
-          echo "Error: Build context directory does not exist: $TASK_KANIKO_CONTEXT_PATH"
-          exit 1
-        fi
+      - cmd: |
+          # Validate paths
+          TASK_KANIKO_CONTEXT_PATH=$(realpath {{.TASK_KANIKO_CONTEXT}})
+          if [ ! -d "$TASK_KANIKO_CONTEXT_PATH" ]; then
+            echo "Error: Build context directory does not exist: $TASK_KANIKO_CONTEXT_PATH"
+            exit 1
+          fi
 
-        if [ ! -f "$TASK_KANIKO_CONTEXT_PATH/{{.TASK_KANIKO_DOCKERFILE}}" ]; then
-          echo "Error: Dockerfile not found at: $TASK_KANIKO_CONTEXT_PATH/{{.TASK_KANIKO_DOCKERFILE}}"
-          exit 1
-        fi
+          if [ ! -f "$TASK_KANIKO_CONTEXT_PATH/{{.TASK_KANIKO_DOCKERFILE}}" ]; then
+            echo "Error: Dockerfile not found at: $TASK_KANIKO_CONTEXT_PATH/{{.TASK_KANIKO_DOCKERFILE}}"
+            exit 1
+          fi
 
-        # Prepare labels
-        LABEL_ARGS="${TASK_KANIKO_BASE_LABELS}"
-        if [ -n "{{.TASK_KANIKO_CUSTOM_LABELS}}" ]; then
-          IFS=',' read -ra LABELS <<< "{{.TASK_KANIKO_CUSTOM_LABELS}}"
-          for LABEL in "${LABELS[@]}"; do
-            LABEL_ARGS="$LABEL_ARGS --label $LABEL"
-          done
-        fi
+          # Setup authentication if enabled
+          if [ "{{.TASK_KANIKO_AUTH_ENABLED}}" = "true" ]; then
+            if [ -z "{{.TASK_KANIKO_REGISTRY_USERNAME}}" ] || [ -z "{{.TASK_KANIKO_REGISTRY_PASSWORD}}" ]; then
+              echo "Error: Registry credentials are required when authentication is enabled"
+              exit 1
+            fi
 
-        # Prepare cache directory if enabled
-        if [ "{{.TASK_KANIKO_CACHE_ENABLED}}" = "true" ]; then
-          CACHE_DIR=$(echo "{{.TASK_KANIKO_CACHE_REPO}}" | sed 's|^oci:||')
-          mkdir -p "$CACHE_DIR"
-          chmod -R 777 "$CACHE_DIR"
-        fi
+            # Create docker config directory locally
+            mkdir -p $HOME/.docker
 
-        # Build image
-        {{.TASK_KANIKO_RUNTIME_CMD}} \
-          {{.TASK_KANIKO_VOLUME_FLAG}} "$TASK_KANIKO_CONTEXT_PATH:/workspace" \
-          {{.TASK_KANIKO_EXECUTOR}} \
-          --context "/workspace" \
-          --dockerfile "/workspace/{{.TASK_KANIKO_DOCKERFILE}}" \
-          --destination {{.TASK_KANIKO_IMAGE_NAME}}:{{.TASK_KANIKO_IMAGE_TAG}} \
-          {{if ne .TASK_KANIKO_PUSH "true"}}--no-push{{end}} \
-          {{if eq .TASK_KANIKO_CACHE_ENABLED "true"}}--cache=true --cache-repo={{.TASK_KANIKO_CACHE_REPO}} --cache-ttl={{.TASK_KANIKO_CACHE_TTL}}{{end}} \
-          $LABEL_ARGS
+            # Create docker config.json with auth credentials
+            echo "{
+              \"auths\": {
+                \"{{.TASK_KANIKO_REGISTRY_URL}}\": {
+                  \"auth\": \"$(echo -n "{{.TASK_KANIKO_REGISTRY_USERNAME}}:{{.TASK_KANIKO_REGISTRY_PASSWORD}}" | base64)\"
+                }
+              }
+            }" > $HOME/.docker/config.json
+          fi
+
+          # Prepare labels
+          LABEL_ARGS="${TASK_KANIKO_BASE_LABELS}"
+          if [ -n "{{.TASK_KANIKO_CUSTOM_LABELS}}" ]; then
+            IFS=',' read -ra LABELS <<< "{{.TASK_KANIKO_CUSTOM_LABELS}}"
+            for LABEL in "${LABELS[@]}"; do
+              LABEL_ARGS="$LABEL_ARGS --label $LABEL"
+            done
+          fi
+
+          # Prepare cache directory if enabled
+          if [ "{{.TASK_KANIKO_CACHE_ENABLED}}" = "true" ]; then
+            CACHE_DIR=$(echo "{{.TASK_KANIKO_CACHE_REPO}}" | sed 's|^oci:||')
+            mkdir -p "$CACHE_DIR"
+            chmod -R 777 "$CACHE_DIR"
+          fi
+
+          # Build image
+          {{.TASK_KANIKO_RUNTIME_CMD}} \
+            {{.TASK_KANIKO_VOLUME_FLAG}} "$TASK_KANIKO_CONTEXT_PATH:/workspace" \
+            {{if eq .TASK_KANIKO_AUTH_ENABLED "true"}}{{.TASK_KANIKO_VOLUME_FLAG}} "$HOME/.docker:/kaniko/.docker"{{end}} \
+            {{.TASK_KANIKO_EXECUTOR}} \
+            --context "/workspace" \
+            --dockerfile "/workspace/{{.TASK_KANIKO_DOCKERFILE}}" \
+            --destination {{.TASK_KANIKO_IMAGE_NAME}}:{{.TASK_KANIKO_IMAGE_TAG}} \
+            {{if ne .TASK_KANIKO_PUSH "true"}}--no-push{{end}} \
+            {{if eq .TASK_KANIKO_CACHE_ENABLED "true"}}--cache=true --cache-repo={{.TASK_KANIKO_CACHE_REPO}} --cache-ttl={{.TASK_KANIKO_CACHE_TTL}}{{end}} \
+            $LABEL_ARGS
+        silent: true
 
   warmup:
     desc: |
