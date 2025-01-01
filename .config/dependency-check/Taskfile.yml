@@ -4,6 +4,7 @@ version: "3"
 # Note: This is a test to ensure that the tool functions correctly and is mastered before being fully integrated into the project.
 
 vars:
+  TASK_DEPENDENCY_CHECK_USER: '{{.OVERRIDE_TASK_DEPENDENCY_CHECK_USER | default ""}}'
   TASK_DEPENDENCY_CHECK_VERSION: "latest"
   TASK_DEPENDENCY_CHECK_DIRECTORY: "{{.HOME}}/OWASP-Dependency-Check"
   TASK_DEPENDENCY_CHECK_PROJECT: "dependency-check scan: {{.PWD}}"
@@ -30,8 +31,7 @@ tasks:
     cmds:
       - |
         docker run --rm \
-          -e user=$USER \
-          -u $(id -u ${USER}):$(id -g ${USER}) \
+          -e user={{.TASK_DEPENDENCY_CHECK_USER}} \
           --volume {{.PWD}}:/src:z \
           --volume {{.TASK_DEPENDENCY_CHECK_DATA_DIRECTORY}}:/usr/share/dependency-check/data:z \
           --volume {{.TASK_DEPENDENCY_CHECK_REPORT_DIRECTORY}}:/report:z \
