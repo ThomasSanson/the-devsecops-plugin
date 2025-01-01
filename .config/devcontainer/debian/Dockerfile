@@ -30,18 +30,28 @@ RUN ./.config/devcontainer/debian/scripts/init.sh && \
   git config --system --add safe.directory $TEMP_DIR && \
   chown -R $USER:$USER $TEMP_DIR
 
+# Create and configure shell files for the developer user
+RUN mkdir -p /home/$USER && \
+    touch /home/$USER/.bashrc /home/$USER/.profile /home/$USER/.bash_profile && \
+    echo '[ -f "$HOME/.bashrc" ] && . "$HOME/.bashrc"' >> /home/$USER/.profile && \
+    echo '[ -z "$BASH_VERSION" ] || [ -f "$HOME/.bashrc" ] && . "$HOME/.bashrc"' >> /home/$USER/.bash_profile && \
+    chown -R $USER:$USER /home/$USER && \
+    chmod -R u+rw /home/$USER
+
 # Switch to non-root user
 USER $USER
 
-# Set the default shell to bash
+# Configure bash as default shell with proper sourcing of .bashrc
+SHELL ["/bin/bash", "-l", "-c"]
 ENV SHELL=/bin/bash
 ENV USER=$USER
 
 # Add local bin to PATH
 ENV PATH="/home/${USER}/.local/bin:${PATH}"
 
-# Run setup task
-RUN task dev:setup-environment
+# Run setup task with login shell to ensure .bashrc is sourced
+RUN --mount=type=secret,id=env_vars \
+    bash -l -c 'task dev:setup-environment'
 
 # Run final scripts
 RUN ./.config/devcontainer/debian/scripts/setup-docker.sh "$USER" \
@@ -53,3 +63,7 @@ WORKDIR /home/$USER/workspace/project
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD task --version || exit 1
+  
+# Set entrypoint to ensure .bashrc is always sourced
+ENTRYPOINT ["/bin/bash", "-l", "-c"]
+CMD ["bash", "-l"]
