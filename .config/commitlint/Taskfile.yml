@@ -3,7 +3,7 @@ version: "3"
 
 vars:
   TASK_COMMITLINT_DIR: '{{.OVERRIDE_TASK_COMMITLINT_DIR | default ".config/commitlint"}}'
-  TASK_COMMITLINT_COMMAND: '{{.OVERRIDE_TASK_COMMITLINT_COMMAND | default "bunx --install=force --bun commitlint"}}'
+  TASK_COMMITLINT_COMMAND: '{{.OVERRIDE_TASK_COMMITLINT_COMMAND | default "$HOME/.bun/bin/bunx --install=force --bun commitlint"}}'
   TASK_COMMITLINT_CONFIG: '{{.OVERRIDE_TASK_COMMITLINT_CONFIG | default ".config/commitlint/config.yml"}}'
   TASK_COMMITLINT_FROM: '{{.OVERRIDE_TASK_COMMITLINT_FROM | default "origin/main"}}'
   TASK_COMMITLINT_TO: '{{.OVERRIDE_TASK_COMMITLINT_TO | default "HEAD"}}'
@@ -16,7 +16,7 @@ tasks:
         Runs commitlint to check commit messages.
 
       🔧 Variables:
-        - TASK_COMMITLINT_COMMAND: Command to run commitlint. Default: "bunx commitlint"
+        - TASK_COMMITLINT_COMMAND: Command to run commitlint. Default: "$HOME/.bun/bin/bunx commitlint"
         - TASK_COMMITLINT_CONFIG: Path to commitlint configuration file. Default: ".config/commitlint/config.yml"
         - TASK_COMMITLINT_FROM: Starting point for commit range. Default: "HEAD~1"
         - TASK_COMMITLINT_TO: Ending point for commit range. Default: "HEAD"
