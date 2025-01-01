@@ -28,6 +28,7 @@
 - [Features](#features)
 - [Security](#security)
 - [Contributing](#contributing)
+- [Contributors](#contributors)
 - [License](#license)
 
 </details>
@@ -295,6 +296,10 @@ The DevSecOps Plugin integrates multiple security tools and practices:
 ## Contributing
 
 Please see our [Contributing Guide](CONTRIBUTING.md) for details on how to set up the development environment and contribute to the project.
+
+## Contributors
+
+- Thomas Sanson (https://github.com/ThomasSanson)
 
 ## License
 
