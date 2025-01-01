@@ -38,9 +38,6 @@ before_script:
   # Fix permissions
   - sudo chown -R developer:developer /home/developer
   - sudo chmod -R u+rw /home/developer
-  # Setup environment
-  - sudo apt-get update
-  - sudo apt-get install -y curl sudo gnupg2 lsb-release git unzip python3-venv openssh-client
   # Setup SSH
   - eval $(ssh-agent -s)
   - mkdir -p ~/.ssh
@@ -57,8 +54,6 @@ before_script:
   - ssh-keyscan $CI_SERVER_HOST >> ~/.ssh/known_hosts
   - git fetch --all
   - |
-    git config --global --add safe.directory "*"
-
     git config --local user.name "${GITLAB_USER_LOGIN}"
     git config --local user.email "${GITLAB_USER_EMAIL}"
     git config --local pull.rebase true
