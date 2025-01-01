@@ -33,8 +33,8 @@ RUN ./.config/devcontainer/debian/scripts/init.sh && \
 # Create and configure shell files for the developer user
 RUN mkdir -p /home/$USER && \
     touch /home/$USER/.bashrc /home/$USER/.profile /home/$USER/.bash_profile && \
-    echo '[ -f "$HOME/.bashrc" ] && . "$HOME/.bashrc"' >> /home/$USER/.profile && \
-    echo '[ -z "$BASH_VERSION" ] || [ -f "$HOME/.bashrc" ] && . "$HOME/.bashrc"' >> /home/$USER/.bash_profile && \
+    echo "[ -f \"\$HOME/.bashrc\" ] && . \"\$HOME/.bashrc\"" >> /home/$USER/.profile && \
+    echo "[ -z \"\$BASH_VERSION\" ] || [ -f \"\$HOME/.bashrc\" ] && . \"\$HOME/.bashrc\"" >> /home/$USER/.bash_profile && \
     chown -R $USER:$USER /home/$USER && \
     chmod -R u+rw /home/$USER
 
@@ -63,7 +63,7 @@ WORKDIR /home/$USER/workspace/project
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD task --version || exit 1
-  
+
 # Set entrypoint to ensure .bashrc is always sourced
 ENTRYPOINT ["/bin/bash", "-l", "-c"]
 CMD ["bash", "-l"]
