@@ -13,12 +13,14 @@ tasks:
           if [[ "{{.TASK_COMMITIZEN_ENABLED}}" == "true" ]]; then
             echo "📦 Running commitizen bump for release..."
 
+            export OVERRIDE_TASK_CZ_BUMP_YES="true"
+            export OVERRIDE_TASK_CZ_BUMP_DRY_RUN="true"
+
             # Configure Commitizen variables for default branch
             if [[ "{{.TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH}}" == "{{.TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH}}" ]]; then
               export OVERRIDE_TASK_CZ_BUMP_CHANGELOG="true"
+              export OVERRIDE_TASK_CZ_BUMP_DRY_RUN="false"
             fi
-
-            export OVERRIDE_TASK_CZ_BUMP_YES="true"
 
             task {{.TASK_FLAGS}} commitizen:bump
             echo "{{.TASK_SEPARATOR}}"
