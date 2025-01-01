@@ -64,6 +64,5 @@ WORKDIR /home/$USER/workspace/project
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD task --version || exit 1
 
-# Set entrypoint to ensure .bashrc is always sourced
-ENTRYPOINT ["/bin/bash", "-l", "-c"]
-CMD ["bash", "-l"]
+# Set default command to start a login shell
+CMD ["/bin/bash", "-l"]
