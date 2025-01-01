@@ -1,5 +1,5 @@
 ---
-image: registry.mim-libre.fr/digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin:4.0.0-dev.20250101194859
+image: registry.mim-libre.fr/digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin:4.0.0-dev.20250101230735
 
 variables:
   TERM: xterm
