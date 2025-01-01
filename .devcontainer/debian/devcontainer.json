@@ -5,6 +5,7 @@
   "shutdownAction": "none",
   "workspaceFolder": "${localWorkspaceFolder}",
   "updateRemoteUserUID": true,
+  "overrideCommand": false,
   "customizations": {
     "vscode": {
       "settings": {
@@ -34,6 +35,6 @@
     "docker" : "sudo chmod 666 /var/run/docker.sock"
   },
   "remoteEnv": {
-    "PATH": "${containerEnv:PATH}:/home/vscode/.local/bin"
+    "PATH": "${containerEnv:PATH}:/home/developer/.local/bin"
   }
 }
