@@ -4,7 +4,7 @@ commitizen:
   name: cz_conventional_commits
   tag_format: $version
   update_changelog_on_bump: false
-  version: 4.0.0-dev.20241222213709
+  version: 4.0.0-dev.20250101194859
   version_files:
   - VERSION
   - .gitlab-ci.yml
