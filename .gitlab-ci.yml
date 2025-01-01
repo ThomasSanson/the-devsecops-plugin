@@ -33,6 +33,17 @@ services:
   - docker:24.0.5-dind # The rule [ce76b7d0-9e77-464d-b86f-c5c48e03e22d,698ed579-b239-4f8f-a388-baa4bcb13ef8,610e266e-6c12-4bca-9925-1ed0cd29742b] are ignored here because it causes false positives specifically related to the Docker-in-Docker service.
 
 before_script:
+  # Debug information
+  - whoami
+  - id
+  - pwd
+  - ls -la ~
+  - echo "Home directory permissions:"
+  - ls -ld ~
+  # Fix permissions if needed
+  - if [ ! -w ~ ]; then sudo chown -R $(whoami):$(whoami) ~ || true; fi
+  # Create bash_profile with correct permissions
+  - touch ~/.bash_profile || (sudo touch ~/.bash_profile && sudo chown $(whoami):$(whoami) ~/.bash_profile)
   - echo 'source ~/.bashrc' >> ~/.bash_profile
   - apt-get update && apt-get install -y curl sudo gnupg2 lsb-release git unzip python3-venv
   - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )"
