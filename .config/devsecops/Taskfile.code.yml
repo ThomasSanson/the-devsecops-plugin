@@ -29,7 +29,11 @@ tasks:
             task {{.TASK_FLAGS}} commitizen:check
             echo "{{.TASK_SEPARATOR}}"
             echo "📝 Running commitizen bump..."
-            task OVERRIDE_TASK_CZ_BUMP_DRY_RUN=true OVERRIDE_TASK_CZ_BUMP_YES=true {{.TASK_FLAGS}} commitizen:bump
+
+            export OVERRIDE_TASK_CZ_BUMP_YES="true"
+            export OVERRIDE_TASK_CZ_BUMP_DRY_RUN="true"
+
+            task {{.TASK_FLAGS}} commitizen:bump
             echo "{{.TASK_SEPARATOR}}"
           else
             echo "⚠️ Skipping commitizen (disabled via TASK_COMMITIZEN_ENABLED=false)"
