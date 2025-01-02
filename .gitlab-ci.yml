@@ -125,23 +125,22 @@ release:
     OVERRIDE_TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH: $CI_COMMIT_BRANCH
   script:
     - |
-      echo "=== Diagnostic du registre ==="
+      echo "=== Registry Diagnostics ==="
       echo "CI_REGISTRY: $CI_REGISTRY"
       echo "CI_REGISTRY_IMAGE: $CI_REGISTRY_IMAGE"
-      echo "CI_REGISTRY_USER est défini: $([[ -n $CI_REGISTRY_USER ]] && echo 'oui' || echo 'non')"
-      echo "CI_REGISTRY_PASSWORD est défini: $([[ -n $CI_REGISTRY_PASSWORD ]] && echo 'oui' || echo 'non')"
+      echo "CI_REGISTRY_USER is defined: $([[ -n $CI_REGISTRY_USER ]] && echo 'yes' || echo 'no')"
+      echo "CI_REGISTRY_PASSWORD is defined: $([[ -n $CI_REGISTRY_PASSWORD ]] && echo 'yes' || echo 'no')"
 
       echo "OVERRIDE_TASK_KANIKO_REGISTRY_URL: $OVERRIDE_TASK_KANIKO_REGISTRY_URL"
       echo "OVERRIDE_TASK_KANIKO_IMAGE_NAME: $OVERRIDE_TASK_KANIKO_IMAGE_NAME"
       echo "OVERRIDE_TASK_KANIKO_REGISTRY_USERNAME: $OVERRIDE_TASK_KANIKO_REGISTRY_USERNAME"
       echo "OVERRIDE_TASK_KANIKO_REGISTRY_PASSWORD: $OVERRIDE_TASK_KANIKO_REGISTRY_PASSWORD"
 
-      # Test de connexion au registre
-      echo "=== Test de connexion au registre ==="
+      echo "=== Registry Connection Test ==="
       if curl -s -o /dev/null -w "%{http_code}" "https://${CI_REGISTRY}/v2/"; then
-        echo "✅ Le registre est accessible"
+        echo "✅ Registry is accessible"
       else
-        echo "❌ Le registre n'est pas accessible"
+        echo "❌ Registry is not accessible"
       fi
     - task release
     - |
