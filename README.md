@@ -299,7 +299,7 @@ Please see our [Contributing Guide](CONTRIBUTING.md) for details on how to set u
 
 ## Contributors
 
-- Thomas Sanson (https://github.com/ThomasSanson)
+- Thomas Sanson ([https://github.com/ThomasSanson](https://github.com/ThomasSanson))
 
 ## License
 
