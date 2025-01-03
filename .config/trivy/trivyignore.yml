@@ -5,6 +5,30 @@ misconfigurations:
       - ".devcontainer/Dockerfile"
     statement: Including sudo in the Dockerfile is essential to allow necessary administrative tasks during development within the DevContainer environment.
 
+  - id: DS001
+    path: .config/kaniko/Dockerfile
+    statement: >
+      The use of the 'latest' tag is intentional for this development container
+      as we require continuous access to the most recent Kaniko features.
+      This is acceptable in our build pipeline context where we maintain
+      full control over the build environment.
+
+  - id: DS002
+    path: .config/kaniko/Dockerfile
+    statement: >
+      Running as root is a fundamental requirement for Kaniko's operation
+      as it needs elevated privileges to perform container operations.
+      This is an inherent characteristic of Kaniko's architecture and
+      cannot be modified without compromising its core functionality.
+
+  - id: DS026
+    path: .config/kaniko/Dockerfile
+    statement: >
+      The HEALTHCHECK instruction is deliberately omitted as this is a
+      build-only container that does not operate as a long-running service.
+      Health checks are not applicable for containers that execute
+      single-purpose build tasks and terminate upon completion.
+
 scan:
   skip-dirs:
     - megalinter-reports
