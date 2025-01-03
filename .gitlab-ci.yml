@@ -108,14 +108,11 @@ test:
 
 release:
   stage: release
-  rules:
-    - when: manual
-    - when: on_success
-      needs:
-        - job: plan
-        - job: code
-        - job: build
-        - job: test
+  needs:
+    - job: plan
+    - job: code
+    - job: build
+    - job: test
   variables:
     OVERRIDE_TASK_COMMITIZEN_ENABLED: "false"
     OVERRIDE_TASK_KANIKO_AUTH_ENABLED: "false"
