@@ -36,7 +36,10 @@ vars:
 tasks:
   default:
     desc: |
-      Build a container image with Kaniko
+      Build a container image with Kaniko using a two-step process:
+      1. Create secret.json if authentication is enabled
+      2. Build local Kaniko image
+      3. Use the local image to build the final container
 
       Variables:
         TASK_KANIKO_IMAGE_NAME: Name for the built image (default: test)
@@ -45,71 +48,53 @@ tasks:
         TASK_KANIKO_CUSTOM_LABELS: Additional custom labels (format: key=value,key2=value2)
         TASK_KANIKO_PUSH: Push the image to registry (default: false)
         TASK_KANIKO_AUTH_ENABLED: Enable registry authentication (default: false)
-        TASK_KANIKO_REGISTRY_USERNAME: Registry username
-        TASK_KANIKO_REGISTRY_PASSWORD: Registry password
-        TASK_KANIKO_REGISTRY_URL: Registry URL
     cmds:
-      - cmd: |
-          # Validate paths
-          TASK_KANIKO_CONTEXT_PATH=$(realpath {{.TASK_KANIKO_CONTEXT}})
-          if [ ! -d "$TASK_KANIKO_CONTEXT_PATH" ]; then
-            echo "Error: Build context directory does not exist: $TASK_KANIKO_CONTEXT_PATH"
-            exit 1
-          fi
-
-          if [ ! -f "$TASK_KANIKO_CONTEXT_PATH/{{.TASK_KANIKO_DOCKERFILE}}" ]; then
-            echo "Error: Dockerfile not found at: $TASK_KANIKO_CONTEXT_PATH/{{.TASK_KANIKO_DOCKERFILE}}"
-            exit 1
-          fi
-
-          # Setup authentication if enabled
-          if [ "{{.TASK_KANIKO_AUTH_ENABLED}}" = "true" ]; then
-            if [ -z "{{.TASK_KANIKO_REGISTRY_USERNAME}}" ] || [ -z "{{.TASK_KANIKO_REGISTRY_PASSWORD}}" ]; then
-              echo "Error: Registry credentials are required when authentication is enabled"
-              exit 1
-            fi
-
-            # Create docker config directory locally
-            mkdir -p $HOME/.docker
-
-            # Create docker config.json with auth credentials
-            echo "{
-              \"auths\": {
-                \"{{.TASK_KANIKO_REGISTRY_URL}}\": {
-                  \"auth\": \"$(echo -n "{{.TASK_KANIKO_REGISTRY_USERNAME}}:{{.TASK_KANIKO_REGISTRY_PASSWORD}}" | base64)\"
-                }
+      - |
+        if [ "{{.TASK_KANIKO_AUTH_ENABLED}}" = "true" ]; then
+          echo "Creating secret.json for authentication..."
+          echo '{
+            "auths": {
+              "{{.TASK_KANIKO_REGISTRY_URL}}": {
+                "username": "{{.TASK_KANIKO_REGISTRY_USERNAME}}",
+                "password": "{{.TASK_KANIKO_REGISTRY_PASSWORD}}"
               }
-            }" > $HOME/.docker/config.json
-          fi
+            }
+          }' > .config/kaniko/secret.json
+        else
+          echo "" > .config/kaniko/secret.json
+        fi
 
-          # Prepare labels
-          LABEL_ARGS="${TASK_KANIKO_BASE_LABELS}"
-          if [ -n "{{.TASK_KANIKO_CUSTOM_LABELS}}" ]; then
-            IFS=',' read -ra LABELS <<< "{{.TASK_KANIKO_CUSTOM_LABELS}}"
-            for LABEL in "${LABELS[@]}"; do
-              LABEL_ARGS="$LABEL_ARGS --label $LABEL"
-            done
-          fi
+      - |
+        echo "Building local Kaniko image..."
+        docker build -t local-kaniko:latest -f .config/kaniko/Dockerfile .
 
-          # Prepare cache directory if enabled
-          if [ "{{.TASK_KANIKO_CACHE_ENABLED}}" = "true" ]; then
-            CACHE_DIR=$(echo "{{.TASK_KANIKO_CACHE_REPO}}" | sed 's|^oci:||')
-            mkdir -p "$CACHE_DIR"
-            chmod -R 777 "$CACHE_DIR"
-          fi
+      - |
+        echo "Using local Kaniko image to build final container..."
+        KANIKO_ARGS=""
+        if [ "{{.TASK_KANIKO_CACHE_ENABLED}}" = "true" ]; then
+          KANIKO_ARGS="$KANIKO_ARGS --cache=true --cache-repo={{.TASK_KANIKO_CACHE_REPO}} --cache-ttl={{.TASK_KANIKO_CACHE_TTL}}"
+        fi
 
-          # Build image
-          {{.TASK_KANIKO_RUNTIME_CMD}} \
-            {{.TASK_KANIKO_VOLUME_FLAG}} "$TASK_KANIKO_CONTEXT_PATH:/workspace" \
-            {{if eq .TASK_KANIKO_AUTH_ENABLED "true"}}{{.TASK_KANIKO_VOLUME_FLAG}} "$HOME/.docker:/kaniko/.docker"{{end}} \
-            {{.TASK_KANIKO_EXECUTOR}} \
-            --context "/workspace" \
-            --dockerfile "/workspace/{{.TASK_KANIKO_DOCKERFILE}}" \
-            --destination {{.TASK_KANIKO_IMAGE_NAME}}:{{.TASK_KANIKO_IMAGE_TAG}} \
-            {{if ne .TASK_KANIKO_PUSH "true"}}--no-push{{end}} \
-            {{if eq .TASK_KANIKO_CACHE_ENABLED "true"}}--cache=true --cache-repo={{.TASK_KANIKO_CACHE_REPO}} --cache-ttl={{.TASK_KANIKO_CACHE_TTL}}{{end}} \
-            $LABEL_ARGS
-        silent: true
+        if [ -n "{{.TASK_KANIKO_CUSTOM_LABELS}}" ]; then
+          KANIKO_ARGS="$KANIKO_ARGS {{.TASK_KANIKO_BASE_LABELS}} {{.TASK_KANIKO_CUSTOM_LABELS}}"
+        fi
+
+        if [ "{{.TASK_KANIKO_PUSH}}" = "true" ]; then
+          DESTINATION_FLAG="--destination={{.TASK_KANIKO_IMAGE_NAME}}:{{.TASK_KANIKO_IMAGE_TAG}}"
+        else
+          DESTINATION_FLAG="--no-push"
+        fi
+
+        {{.TASK_KANIKO_RUNTIME_CMD}} \
+          --rm \
+          {{.TASK_KANIKO_VOLUME_FLAG}} "$(pwd):/workspace" \
+          local-kaniko:latest \
+          --dockerfile=/workspace/{{.TASK_KANIKO_DOCKERFILE}} \
+          --context=/workspace \
+          $DESTINATION_FLAG \
+          $KANIKO_ARGS
+
+      - rm -f .config/kaniko/secret.json
 
   warmup:
     desc: |
