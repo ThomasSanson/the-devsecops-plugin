@@ -87,7 +87,6 @@ tasks:
 
         {{.TASK_KANIKO_RUNTIME_CMD}} \
           --rm \
-          {{.TASK_KANIKO_VOLUME_FLAG}} "$(pwd):/workspace" \
           local-kaniko:latest \
           --dockerfile=/workspace/{{.TASK_KANIKO_DOCKERFILE}} \
           --context=/workspace \
