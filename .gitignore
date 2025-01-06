@@ -6,3 +6,4 @@
 megalinter-reports
 node_modules
 venv
+*.tar
