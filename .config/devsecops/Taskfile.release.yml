@@ -44,3 +44,20 @@ tasks:
             echo "⚠️ Skipping Kaniko push (disabled via TASK_KANIKO_ENABLED=false)"
           fi
         silent: true
+      - cmd: |
+          if [[ "{{.TASK_DOCKER_CE_ENABLED}}" == "true" ]]; then
+            echo "🐳 Running Docker CE build and push..."
+
+            export OVERRIDE_TASK_DOCKER_CE_PUSH="true"
+
+            # Read version from VERSION file
+            if [ -f "VERSION" ]; then
+              export OVERRIDE_TASK_DOCKER_CE_IMAGE_TAG=$(cat VERSION)
+            fi
+
+            task docker-ce:build
+            task docker-ce:push
+          else
+            echo "⚠️ Skipping Docker CE push (disabled via TASK_DOCKER_CE_ENABLED=false)"
+          fi
+        silent: true
