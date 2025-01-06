@@ -25,8 +25,8 @@ tasks:
     vars:
       TASK_BUN_VERSION: '{{.OVERRIDE_TASK_BUN_VERSION | default "latest"}}'
     status:
-      - command -v bun &> /dev/null
-      - command -v bunx &> /dev/null
+      - command -v $HOME/.bun/bin/bun &> /dev/null
+      - command -v $HOME/.bun/bin/bunx &> /dev/null
     preconditions:
       - sh: "command -v unzip &> /dev/null"
         msg: "❌ unzip is not installed. Please install unzip and try again."
