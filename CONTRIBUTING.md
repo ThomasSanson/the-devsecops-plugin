@@ -10,9 +10,22 @@ Thank you for considering contributing to The DevSecOps Plugin. This document pr
 - [GitLab Workflow](#gitlab-workflow)
   - [Issue Creation](#issue-creation)
 - [Development Standards](#development-standards)
+  - [Code Organisation](#code-organisation)
+  - [Naming Conventions](#naming-conventions)
+  - [Language Standards](#language-standards)
+  - [Task Management](#task-management)
+  - [Code Quality Standards](#code-quality-standards)
+  - [Security Practices](#security-practices)
 - [Testing Requirements](#testing-requirements)
 - [Documentation Guidelines](#documentation-guidelines)
+  - [Code Documentation](#code-documentation)
+  - [User Documentation](#user-documentation)
+  - [Documentation Requirements](#documentation-requirements)
 - [Communication Standards](#communication-standards)
+- [Version Control Practices](#version-control-practices)
+- [Continuous Integration](#continuous-integration)
+- [Review Process](#review-process)
+- [Licensing](#licensing)
 
 ## Development Environment
 
@@ -223,16 +236,50 @@ Choose the appropriate type:
 
 ## Development Standards
 
-### Code Quality Requirements
+### Code Organisation
 
-- No code smells (SonarQube)
-- Test coverage >85%
-- Documentation updated
-- Conventional commits
-- English-language comments
-- Proper error handling
+- Each technology or tool must have its dedicated directory within `.config/`
+- All operations must be abstracted through Taskfile.yml
+- Pipeline configurations should only call tasks with appropriate parameters
+- Avoid direct code execution in CI pipelines
 
-### Testing Requirements
+### Naming Conventions
+
+- Use UPPERCASE for Taskfile variables
+- Follow the pattern: `TASK_TOOLNAME_PARAMETER: '{{.OVERRIDE_TASK_TOOLNAME_PARAMETER | default "default_value"}}'`
+- Keep variable names descriptive and consistent
+- Use snake_case for task names and parameters
+
+### Language Standards
+
+- Use formal British English for all documentation and comments
+- Maintain consistent spelling across the project (e.g., 'organisation' not 'organization')
+- Write clear, concise commit messages following Conventional Commits specification
+
+### Task Management
+
+- Each tool or component should have its own Taskfile in its `.config` directory
+- Tasks should be modular and follow the single responsibility principle
+- Use meaningful default values for task parameters
+- Document all task parameters and their purposes
+
+### Code Quality Standards
+
+- Follow language-specific style guides
+- Maintain consistent code formatting
+- Use meaningful variable and function names
+- Keep functions focused and maintainable
+- Document complex logic and important decisions
+
+### Security Practices
+
+- Never commit sensitive information (API keys, credentials)
+- Use environment variables for sensitive configuration
+- Follow the principle of least privilege
+- Regularly update dependencies
+- Run security scans before merging
+
+## Testing Requirements
 
 1. Unit tests:
 
@@ -268,6 +315,14 @@ Choose the appropriate type:
 - Troubleshooting sections
 - Version compatibility
 
+### Documentation Requirements
+
+- Maintain comprehensive README files for each component
+- Document all configuration options
+- Include usage examples
+- Keep documentation up-to-date with code changes
+- Provide clear error messages and troubleshooting guides
+
 ## Communication Standards
 
 ### Issue Discussions
@@ -285,6 +340,29 @@ Choose the appropriate type:
 - Suggest improvements
 - Acknowledge good practices
 - Respond promptly
+
+## Version Control Practices
+
+- Follow GitFlow branching strategy
+- Use meaningful branch names (feature/, bugfix/, etc.)
+- Create atomic commits with clear messages
+- Reference issues in commit messages and merge requests
+- Keep changes focused and reviewable
+
+## Continuous Integration
+
+- All CI/CD operations must use task abstractions
+- Configure appropriate timeouts for CI jobs
+- Maintain consistent pipeline structure across projects
+- Document CI/CD variables and their purposes
+
+## Review Process
+
+- Code reviews are mandatory for all changes
+- Use merge request templates
+- Address all review comments
+- Ensure CI passes before merging
+- Verify documentation updates
 
 ## Licensing
 
