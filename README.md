@@ -13,20 +13,24 @@
 <summary>Table of Contents</summary>
 
 - [About](#about)
+  - [Key Features](#key-features)
   - [Built With](#built-with)
+  - [Project Structure](#project-structure)
   - [Pipeline Stages](#pipeline-stages)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
 - [Usage](#usage)
-  - [Project Customization](#project-customization)
   - [Task Control](#task-control)
+  - [Common Operations](#common-operations)
+  - [Project Customization](#project-customization)
   - [Available Commands](#available-commands)
 - [Environment Variables](#environment-variables)
 - [Development Setup](#development-setup)
 - [Architecture](#architecture)
 - [Features](#features)
 - [Security](#security)
+  - [Security Best Practices](#security-best-practices)
 - [Contributing](#contributing)
 - [Contributors](#contributors)
 - [License](#license)
@@ -39,6 +43,15 @@
 
 The DevSecOps Plugin is a comprehensive toolset designed to streamline and enforce DevSecOps practices in your development workflow. It integrates various tools and best practices for continuous integration, security scanning, code quality analysis, and deployment automation.
 
+### Key Features
+
+- **Modular Architecture**: Each tool and component has its dedicated configuration in `.config/`
+- **Task Abstraction**: All operations are abstracted through Taskfile.yml for consistency
+- **Comprehensive Security**: Integrated security scanning and vulnerability assessment
+- **Code Quality Assurance**: Automated linting, formatting, and complexity analysis
+- **Standardised Workflow**: Enforced commit messages and code review processes
+- **Containerised Development**: DevContainer support for consistent environments
+
 ### Built With
 
 - [Task](https://taskfile.dev) - Task runner & build tool
@@ -49,6 +62,21 @@ The DevSecOps Plugin is a comprehensive toolset designed to streamline and enfor
 - [Grype](https://github.com/anchore/grype) - Vulnerability scanning
 - [Trivy](https://github.com/aquasecurity/trivy) - Security scanner
 - [Copier](https://copier.readthedocs.io) - Project templating and scaffolding
+
+### Project Structure
+
+```
+.
+├── .config/           # Tool-specific configurations
+│   ├── bun/          # Bun package manager configuration
+│   ├── commitizen/   # Commit message standardisation
+│   ├── devsecops/   # DevSecOps pipeline stages
+│   ├── docker-ce/   # Docker configuration
+│   └── ...          # Other tool configurations
+├── .devcontainer/    # Development container configuration
+├── src/             # Source code
+└── Taskfile.yml     # Task runner configuration
+```
 
 ### Pipeline Stages
 
@@ -89,6 +117,9 @@ The plugin implements a complete DevSecOps lifecycle through distinct stages:
 Before using the DevSecOps Plugin, ensure you have the following installed:
 
 - Python 3.11 or higher
+- Docker Desktop 4.x or newer (for container support)
+- Visual Studio Code (recommended)
+- Git
 
 ### Installation
 
@@ -119,6 +150,50 @@ Replace `/path/to/your/new/project` with your desired project location.
 Use `.` to create in the current directory
 
 ## Usage
+
+### Task Control
+
+The plugin uses Task for operation control. Key environment variables:
+
+```bash
+# Core Controls
+export TASK_FLAGS=""
+export TASK_SEPARATOR="----------------------------------------"
+
+# Component Controls
+export TASK_BUN_ENABLED=true
+export TASK_COMMITIZEN_ENABLED=true
+export TASK_DOCKER_CE_ENABLED=true
+export TASK_MEGALINTER_ENABLED=true
+export TASK_LIZARD_ENABLED=true
+
+# Pipeline Stage Controls
+export TASK_DEVSECOPS_PLAN_ENABLED=true
+export TASK_DEVSECOPS_CODE_ENABLED=true
+export TASK_DEVSECOPS_BUILD_ENABLED=true
+```
+
+### Common Operations
+
+1. **Setup Development Environment**:
+   ```bash
+   task dev:setup-environment
+   ```
+
+2. **Run Security Scans**:
+   ```bash
+   task devsecops:code:security
+   ```
+
+3. **Validate Code Quality**:
+   ```bash
+   task devsecops:code:quality
+   ```
+
+4. **Create Release**:
+   ```bash
+   task devsecops:release
+   ```
 
 ### Project Customization
 
@@ -153,18 +228,6 @@ These project-specific tasks will be automatically integrated into the main pipe
 - Include project-specific deployment steps
 - Add custom monitoring solutions
 - Implement project-specific security checks
-
-### Task Control
-
-All tasks can be enabled/disabled via environment variables:
-
-```bash
-# Enable/disable specific features
-export TASK_COMMITIZEN_ENABLED=true
-export TASK_MEGALINTER_ENABLED=true
-export TASK_DOCKER_CE_ENABLED=true
-export TASK_LIZARD_ENABLED=true
-```
 
 ### Available Commands
 
@@ -285,13 +348,21 @@ which are automatically integrated into the main pipeline while preserving the c
 
 ## Security
 
-The DevSecOps Plugin integrates multiple security tools and practices:
+The plugin implements multiple security measures:
 
-- Container security scanning with Trivy
-- Vulnerability scanning with Grype
-- Code security analysis with DevSkim
+- Automated vulnerability scanning with Grype and Trivy
+- Code quality checks with MegaLinter
+- Dependency scanning
+- Container security analysis
 - Secure configuration validation
-- Automated security checks in CI/CD pipeline
+
+### Security Best Practices
+
+- Keep all dependencies updated
+- Follow the principle of least privilege
+- Use environment variables for sensitive data
+- Regular security scans
+- Code review enforcement
 
 ## Contributing
 
