@@ -12,6 +12,7 @@
   "language": "en,en-GB",
   "version": "0.2",
   "words": [
+      "BUILDKIT",
       "CERTDIR",
       "COMMITLINT",
       "DEVSKIM",
