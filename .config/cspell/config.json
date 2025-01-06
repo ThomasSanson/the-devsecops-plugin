@@ -25,6 +25,7 @@
       "Qube",
       "SARIF",
       "SYFT",
+      "TOOLNAME",
       "Taskfile",
       "VIRTUALENV",
       "azuretools",
