@@ -65,7 +65,7 @@ The DevSecOps Plugin is a comprehensive toolset designed to streamline and enfor
 
 ### Project Structure
 
-```
+```bash
 .
 ├── .config/           # Tool-specific configurations
 │   ├── bun/          # Bun package manager configuration
@@ -176,24 +176,24 @@ export TASK_DEVSECOPS_BUILD_ENABLED=true
 ### Common Operations
 
 1. **Setup Development Environment**:
-   ```bash
-   task dev:setup-environment
-   ```
+  ```bash
+  task dev:setup-environment
+  ```
 
 2. **Run Security Scans**:
-   ```bash
-   task devsecops:code:security
-   ```
+  ```bash
+  task devsecops:code:security
+  ```
 
 3. **Validate Code Quality**:
-   ```bash
-   task devsecops:code:quality
-   ```
+  ```bash
+  task devsecops:code:quality
+  ```
 
 4. **Create Release**:
-   ```bash
-   task devsecops:release
-   ```
+  ```bash
+  task devsecops:release
+  ```
 
 ### Project Customization
 
