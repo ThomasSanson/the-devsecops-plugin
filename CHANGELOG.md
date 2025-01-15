@@ -2,6 +2,18 @@
 
 # Changelog
 
+## 4.0.0 (2025-01-15)
+
+### Feat
+
+- **Taskfile**: add build and push tasks for Docker images with authentication support and customizable labels to enhance Docker management capabilities
+- **Taskfile.release.yml**: add Docker CE build and push task with conditional execution based on TASK_DOCKER_CE_ENABLED variable to enhance deployment flexibility
+
+### Fix
+
+- **Taskfile.yml**: update bun and bunx command paths to use absolute paths for better reliability in task execution
+- **ci**: enable DOCKER_TLS_VERIFY by setting it to 1 for improved security in CI pipeline
+
 ## 3.0.0 (2024-12-15)
 
 ### Feat
