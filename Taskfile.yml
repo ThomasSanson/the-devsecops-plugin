@@ -5,31 +5,6 @@ version: "3"
 vars:
   # Environment variables for task control
   TASK_FLAGS: '{{.OVERRIDE_TASK_FLAGS | default ""}}'
-  TASK_BUN_ENABLED: '{{.OVERRIDE_TASK_BUN_ENABLED | default "true"}}'
-  TASK_COMMITIZEN_ENABLED: '{{.OVERRIDE_TASK_COMMITIZEN_ENABLED | default "true"}}'
-  TASK_COMMITLINT_ENABLED: '{{.OVERRIDE_TASK_COMMITLINT_ENABLED | default "true"}}'
-  TASK_COPIER_ENABLED: '{{.OVERRIDE_TASK_COPIER_ENABLED | default "true"}}'
-  TASK_DEV_ENABLED: '{{.OVERRIDE_TASK_DEV_ENABLED | default "true"}}'
-  TASK_DOCKER_CE_ENABLED: '{{.OVERRIDE_TASK_DOCKER_CE_ENABLED | default "true"}}'
-  TASK_KANIKO_ENABLED: '{{.OVERRIDE_TASK_KANIKO_ENABLED | default "false"}}'
-  TASK_LIZARD_ENABLED: '{{.OVERRIDE_TASK_LIZARD_ENABLED | default "true"}}'
-  TASK_MEGALINTER_ENABLED: '{{.OVERRIDE_TASK_MEGALINTER_ENABLED | default "true"}}'
-  TASK_NODEJS_ENABLED: '{{.OVERRIDE_TASK_NODEJS_ENABLED | default "true"}}'
-  TASK_PODMAN_ENABLED: '{{.OVERRIDE_TASK_PODMAN_ENABLED | default "true"}}'
-  TASK_YAMLLINT_ENABLED: '{{.OVERRIDE_TASK_YAMLLINT_ENABLED | default "true"}}'
-
-  # DevSecOps variables
-  TASK_DEVSECOPS_PLAN_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_PLAN_ENABLED | default "true"}}'
-  TASK_DEVSECOPS_CODE_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_CODE_ENABLED | default "true"}}'
-  TASK_DEVSECOPS_BUILD_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_BUILD_ENABLED | default "false"}}'
-  TASK_DEVSECOPS_TEST_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_TEST_ENABLED | default "false"}}'
-  TASK_DEVSECOPS_RELEASE_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_RELEASE_ENABLED | default "true"}}'
-  TASK_DEVSECOPS_DEPLOY_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_DEPLOY_ENABLED | default "false"}}'
-  TASK_DEVSECOPS_OPERATE_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_OPERATE_ENABLED | default "false"}}'
-  TASK_DEVSECOPS_MONITOR_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_MONITOR_ENABLED | default "false"}}'
-  TASK_DEVSECOPS_FEEDBACK_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_FEEDBACK_ENABLED | default "true"}}'
-
-  # Simple separator
   TASK_SEPARATOR: '{{.OVERRIDE_TASK_SEPARATOR | default (print (repeat 120 "-") "\n" (repeat 120 "-") "\n" (repeat 120 "-"))}}'
   TASK_DEVSECOPS_ICON: '{{.OVERRIDE_TASK_DEVSECOPS_ICON | default "♾️"}}'
 
@@ -57,9 +32,12 @@ includes:
   devsecops:feedback:
     taskfile: .config/devsecops/Taskfile.feedback.yml
   project:
-    taskfile: src/Taskfile.yml
+    taskfile: project/Taskfile.yml
 
   # Optional includes (For dev, testing, linting, etc.)
+  ansible:
+    taskfile: .config/ansible/Taskfile.yml
+    optional: true
   bun:
     taskfile: .config/bun/Taskfile.yml
     optional: true
@@ -78,8 +56,20 @@ includes:
   docker-ce:
     taskfile: .config/docker-ce/Taskfile.yml
     optional: true
+  helm:
+    taskfile: .config/helm/Taskfile.yml
+    optional: true
   kaniko:
     taskfile: .config/kaniko/Taskfile.yml
+    optional: true
+  kind:
+    taskfile: .config/kind/Taskfile.yml
+    optional: true
+  kubectl:
+    taskfile: .config/kubectl/Taskfile.yml
+    optional: true
+  kubeseal:
+    taskfile: .config/kubeseal/Taskfile.yaml
     optional: true
   lizard:
     taskfile: .config/lizard/Taskfile.yml
@@ -93,18 +83,43 @@ includes:
   podman:
     taskfile: .config/podman/Taskfile.yml
     optional: true
+  sealed-secrets:
+    taskfile: .config/sealed-secrets/Taskfile.yaml
+    optional: true
   yamllint:
     taskfile: .config/yamllint/Taskfile.yml
     optional: true
 
+  test:infrastructure:dependency:
+    taskfile: ./tests/infrastructure/dependency.taskfile.yaml
+  test:infrastructure:syntax:
+    taskfile: ./tests/infrastructure/syntax.taskfile.yaml
+  test:infrastructure:create:
+    taskfile: ./tests/infrastructure/create.taskfile.yaml
+  test:infrastructure:prepare:
+    taskfile: ./tests/infrastructure/prepare.taskfile.yaml
+  test:infrastructure:converge:
+    taskfile: ./tests/infrastructure/converge.taskfile.yaml
+  test:infrastructure:idempotence:
+    taskfile: ./tests/infrastructure/idempotence.taskfile.yaml
+  test:infrastructure:side_effect:
+    taskfile: ./tests/infrastructure/side_effect.taskfile.yaml
+  test:infrastructure:verify:
+    taskfile: ./tests/infrastructure/verify.taskfile.yaml
+  test:infrastructure:destroy:
+    taskfile: ./tests/infrastructure/destroy.taskfile.yaml
+  test:infrastructure:cleanup:
+    taskfile: ./tests/infrastructure/cleanup.taskfile.yaml
+
 tasks:
-  default:
-    # Orchestrates Test Driven Development workflows.
+  tdd:
+    # Orchestrates Test Driven Development (TDD) workflows.
+    aliases:
+      - default
     cmds:
       - task: code
       - task: build
-      - task: test
-      - task: deploy
+      - task: test:tdd
 
   devsecops:
     # Orchestrates DevSecOps workflows.
@@ -124,14 +139,8 @@ tasks:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Plan"
         silent: true
       - task: project:plan
-      - cmd: |
-          if [[ "{{.TASK_DEVSECOPS_PLAN_ENABLED | default "true"}}" == "true" ]]; then
-            echo "📋 Running DevSecOps plan tasks..."
-            task {{.TASK_FLAGS}} devsecops:plan
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping DevSecOps plan tasks (disabled via TASK_DEVSECOPS_PLAN_ENABLED=false)"
-          fi
+      - task: devsecops:plan
+      - cmd: echo "{{.TASK_SEPARATOR}}"
         silent: true
 
   code:
@@ -139,14 +148,8 @@ tasks:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Code"
         silent: true
       - task: project:code
-      - cmd: |
-          if [[ "{{.TASK_DEVSECOPS_CODE_ENABLED | default "true"}}" == "true" ]]; then
-            echo "💻 Running DevSecOps code tasks..."
-            task {{.TASK_FLAGS}} devsecops:code
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping DevSecOps code tasks (disabled via TASK_DEVSECOPS_CODE_ENABLED=false)"
-          fi
+      - task: devsecops:code
+      - cmd: echo "{{.TASK_SEPARATOR}}"
         silent: true
 
   build:
@@ -154,14 +157,8 @@ tasks:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Build"
         silent: true
       - task: project:build
-      - cmd: |
-          if [[ "{{.TASK_DEVSECOPS_BUILD_ENABLED | default "true"}}" == "true" ]]; then
-            echo "🔨 Running DevSecOps build tasks..."
-            task {{.TASK_FLAGS}} devsecops:build
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping DevSecOps build tasks (disabled via TASK_DEVSECOPS_BUILD_ENABLED=false)"
-          fi
+      - task: devsecops:build
+      - cmd: echo "{{.TASK_SEPARATOR}}"
         silent: true
 
   test:
@@ -169,14 +166,17 @@ tasks:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Test"
         silent: true
       - task: project:test
-      - cmd: |
-          if [[ "{{.TASK_DEVSECOPS_TEST_ENABLED | default "true"}}" == "true" ]]; then
-            echo "🧪 Running DevSecOps test tasks..."
-            task {{.TASK_FLAGS}} devsecops:test
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping DevSecOps test tasks (disabled via TASK_DEVSECOPS_TEST_ENABLED=false)"
-          fi
+      - task: devsecops:test
+      - cmd: echo "{{.TASK_SEPARATOR}}"
+        silent: true
+
+  test:tdd:
+    cmds:
+      - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Test Tdd"
+        silent: true
+      - task: project:test:tdd
+      - task: devsecops:test:tdd
+      - cmd: echo "{{.TASK_SEPARATOR}}"
         silent: true
 
   release:
@@ -184,14 +184,8 @@ tasks:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Release"
         silent: true
       - task: project:release
-      - cmd: |
-          if [[ "{{.TASK_DEVSECOPS_RELEASE_ENABLED | default "true"}}" == "true" ]]; then
-            echo "📦 Running DevSecOps release tasks..."
-            task {{.TASK_FLAGS}} devsecops:release
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping DevSecOps release tasks (disabled via TASK_DEVSECOPS_RELEASE_ENABLED=false)"
-          fi
+      - task: devsecops:release
+      - cmd: echo "{{.TASK_SEPARATOR}}"
         silent: true
 
   deploy:
@@ -199,14 +193,8 @@ tasks:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Deploy"
         silent: true
       - task: project:deploy
-      - cmd: |
-          if [[ "{{.TASK_DEVSECOPS_DEPLOY_ENABLED | default "true"}}" == "true" ]]; then
-            echo "🚀 Running DevSecOps deploy tasks..."
-            task {{.TASK_FLAGS}} devsecops:deploy
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping DevSecOps deploy tasks (disabled via TASK_DEVSECOPS_DEPLOY_ENABLED=false)"
-          fi
+      - task: devsecops:deploy
+      - cmd: echo "{{.TASK_SEPARATOR}}"
         silent: true
 
   operate:
@@ -214,14 +202,8 @@ tasks:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Operate"
         silent: true
       - task: project:operate
-      - cmd: |
-          if [[ "{{.TASK_DEVSECOPS_OPERATE_ENABLED | default "true"}}" == "true" ]]; then
-            echo "⚙️ Running DevSecOps operate tasks..."
-            task {{.TASK_FLAGS}} devsecops:operate
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping DevSecOps operate tasks (disabled via TASK_DEVSECOPS_OPERATE_ENABLED=false)"
-          fi
+      - task: devsecops:operate
+      - cmd: echo "{{.TASK_SEPARATOR}}"
         silent: true
 
   monitor:
@@ -229,14 +211,8 @@ tasks:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Monitor"
         silent: true
       - task: project:monitor
-      - cmd: |
-          if [[ "{{.TASK_DEVSECOPS_MONITOR_ENABLED | default "true"}}" == "true" ]]; then
-            echo "📊 Running DevSecOps monitor tasks..."
-            task {{.TASK_FLAGS}} devsecops:monitor
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping DevSecOps monitor tasks (disabled via TASK_DEVSECOPS_MONITOR_ENABLED=false)"
-          fi
+      - task: devsecops:monitor
+      - cmd: echo "{{.TASK_SEPARATOR}}"
         silent: true
 
   feedback:
@@ -244,12 +220,6 @@ tasks:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Feedback"
         silent: true
       - task: project:feedback
-      - cmd: |
-          if [[ "{{.TASK_DEVSECOPS_FEEDBACK_ENABLED | default "true"}}" == "true" ]]; then
-            echo "💭 Running DevSecOps feedback tasks..."
-            task {{.TASK_FLAGS}} devsecops:feedback
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping DevSecOps feedback tasks (disabled via TASK_DEVSECOPS_FEEDBACK_ENABLED=false)"
-          fi
+      - task: devsecops:feedback
+      - cmd: echo "{{.TASK_SEPARATOR}}"
         silent: true
