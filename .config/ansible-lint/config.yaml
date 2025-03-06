@@ -1,0 +1,16 @@
+---
+exclude_paths:
+  - virtualenv/
+  - venv/
+  - megalinter-reports/
+  - .config/helm/roles
+  - .config/docker-ce/roles
+  - .config/nodejs/roles
+  - .config/podman/roles
+
+skip_list:
+  - args[module]
+  - galaxy[no-changelog]
+  - galaxy[version-incorrect]
+  - name[template]
+  - yaml[line-length]
