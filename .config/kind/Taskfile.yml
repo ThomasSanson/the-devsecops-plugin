@@ -1,0 +1,85 @@
+---
+version: "3"
+
+vars:
+  TASK_KIND_ENABLED: '{{.OVERRIDE_TASK_KIND_ENABLED | default "false"}}'
+  TASK_KIND_VENV_DIR: '{{.OVERRIDE_TASK_KIND_VENV_DIR | default "./venv/kind"}}'
+  TASK_KIND_ANSIBLE_CMD: '{{.OVERRIDE_TASK_KIND_ANSIBLE_CMD | default "./venv/kind/bin/ansible-playbook"}}'
+  TASK_KIND_ANSIBLE_GALAXY_CMD: '{{.OVERRIDE_TASK_KIND_ANSIBLE_GALAXY_CMD | default "./venv/kind/bin/ansible-galaxy"}}'
+  TASK_KIND_ANSIBLE_REQUIREMENTS_FILE: '{{.OVERRIDE_TASK_KIND_ANSIBLE_REQUIREMENTS_FILE | default ".config/kind/requirements.txt"}}'
+  TASK_KIND_ANSIBLE_PLAYBOOK_FILE: '{{.OVERRIDE_TASK_KIND_ANSIBLE_PLAYBOOK_FILE | default ".config/kind/playbook.yml"}}'
+  TASK_KIND_PYTHON_VERSION_FILE: '{{.OVERRIDE_TASK_KIND_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
+  TASK_KIND_ANSIBLE_INVENTORY_TARGET: "localhost" # DevSkim: ignore DS162092
+  TASK_KIND_VERSION: '{{.OVERRIDE_TASK_KIND_VERSION | default "v0.26.0"}}'
+
+env:
+  LANG: "C.UTF-8"
+  LC_ALL: "C.UTF-8"
+  LANGUAGE: "C.UTF-8"
+
+tasks:
+  install:dependencies:
+    desc: |
+      ℹ️ Description:
+        Sets up Ansible and its dependencies in a dedicated virtual environment
+
+      🔧 Variables:
+        - TASK_KIND_VENV_DIR: Virtual environment location
+        - TASK_KIND_ANSIBLE_REQUIREMENTS_FILE: Dependencies file path
+
+      🔐 Preconditions:
+        - Python 3.x must be installed
+        - Internet connectivity required
+
+      🔄 Execution:
+        Creates virtualenv and installs required packages
+    deps: [cleanup]
+    preconditions:
+      - sh: "command -v python3 >/dev/null 2>&1"
+        msg: "❌ Python 3 is not installed"
+      - sh: "test -f {{.TASK_KIND_PYTHON_VERSION_FILE}}"
+        msg: "❌ Python version file not found at {{.TASK_KIND_PYTHON_VERSION_FILE}}"
+      - sh: "test -f {{.TASK_KIND_ANSIBLE_REQUIREMENTS_FILE}}"
+        msg: "❌ Requirements file not found at {{.TASK_KIND_ANSIBLE_REQUIREMENTS_FILE}}"
+    cmds:
+      - python$(cut -d '=' -f 2 {{.TASK_KIND_PYTHON_VERSION_FILE}}) -m venv {{.TASK_KIND_VENV_DIR}}
+      - "{{.TASK_KIND_VENV_DIR}}/bin/pip install -r {{.TASK_KIND_ANSIBLE_REQUIREMENTS_FILE}}"
+      - cmd: echo "✅ Dependencies installed successfully"
+        silent: true
+
+  install:
+    desc: |
+      ℹ️ Description:
+        Installs Kind using Ansible automation
+
+      🔧 Variables:
+        - TASK_KIND_ANSIBLE_CMD: Ansible command path
+        - TASK_KIND_ANSIBLE_PLAYBOOK_FILE: Ansible playbook location
+        - TASK_KIND_VERSION: Version of Kind to install (default: v0.20.0)
+
+      🔐 Preconditions:
+        - Dependencies must be installed
+
+      🔄 Execution:
+        Runs Ansible playbook for Kind installation
+    status:
+      - command -v kind &> /dev/null
+    preconditions:
+      - sh: "test -f {{.TASK_KIND_ANSIBLE_PLAYBOOK_FILE}}"
+        msg: "❌ Playbook file not found at {{.TASK_KIND_ANSIBLE_PLAYBOOK_FILE}}"
+    cmds:
+      - task: install:dependencies
+      - |
+        {{.TASK_KIND_ANSIBLE_CMD}} \
+          -i {{.TASK_KIND_ANSIBLE_INVENTORY_TARGET}}, \
+          -e "kind_version={{.TASK_KIND_VERSION}}" \
+          {{.TASK_KIND_ANSIBLE_PLAYBOOK_FILE}}
+      - task: cleanup
+      - cmd: echo "✅ Kind installed successfully"
+        silent: true
+
+  cleanup:
+    desc: Removes temporary files and directories
+    cmds:
+      - cmd: rm -rf {{.TASK_KIND_VENV_DIR}}
+        ignore_error: true
