@@ -1,0 +1,10 @@
+defaults: {}
+
+# Configuration for sealed-secrets
+sealed-secrets:
+  # Disable sealed-secrets installation if set to false
+  enabled: false
+  # Namespace where sealed-secrets is already installed
+  namespace: "kube-system"
+  # Name of the existing release
+  releaseName: "sealed-secrets"
