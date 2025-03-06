@@ -2,6 +2,7 @@
 version: "3"
 
 vars:
+  TASK_COPIER_ENABLED: '{{.OVERRIDE_TASK_COPIER_ENABLED | default "true"}}'
   TASK_COPIER_VIRTUALENV: '{{.OVERRIDE_TASK_COPIER_VIRTUALENV | default "./venv/copier"}}'
   TASK_COPIER_COMMAND: '{{.OVERRIDE_TASK_COPIER_COMMAND | default "./venv/copier/bin/copier"}}'
   TASK_COPIER_PYTHON_VERSION_FILE: '{{.OVERRIDE_TASK_COPIER_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
