@@ -1,0 +1,58 @@
+version: "3"
+
+vars:
+  TASK_SEALED_SECRETS_NAMESPACE: '{{.OVERRIDE_TASK_SEALED_SECRETS_NAMESPACE | default "kube-system"}}'
+  TASK_SEALED_SECRETS_CONTROLLER: '{{.OVERRIDE_TASK_SEALED_SECRETS_CONTROLLER | default "sealed-secrets"}}'
+  TASK_SEALED_SECRETS_KUBECONFIG: '{{.OVERRIDE_TASK_SEALED_SECRETS_KUBECONFIG | default "iac/environment/testing/kubeconfig.yaml"}}'
+  TASK_SEALED_SECRETS_SECRETS_FILE: '{{.OVERRIDE_TASK_SEALED_SECRETS_SECRETS_FILE | default "iac/environment/testing/secrets.yaml"}}'
+  TASK_SEALED_SECRETS_SEALED_FILE: '{{.OVERRIDE_TASK_SEALED_SECRETS_SEALED_FILE | default "iac/environment/testing/sealed-secrets.yaml"}}'
+  TASK_SEALED_SECRETS_HELM_DIR: '{{.OVERRIDE_TASK_SEALED_SECRETS_HELM_DIR | default "iac/helm"}}'
+
+tasks:
+  install:
+    desc: |
+      ℹ️ Description:
+        Installs and verifies the sealed-secrets controller in the specified Kubernetes cluster.
+        Uses Helm dependencies defined in Chart.yaml.
+
+      🔧 Variables:
+        - TASK_SEALED_SECRETS_NAMESPACE: Kubernetes namespace for sealed-secrets (default: kube-system)
+        - TASK_SEALED_SECRETS_CONTROLLER: Name of the sealed-secrets controller (default: sealed-secrets)
+        - TASK_SEALED_SECRETS_KUBECONFIG: Path to kubeconfig file (default: iac/environment/testing/kubeconfig.yaml)
+        - TASK_SEALED_SECRETS_HELM_DIR: Path to Helm directory (default: iac/helm)
+    preconditions:
+      - sh: "command -v helm >/dev/null 2>&1"
+        msg: "❌ Helm is not installed"
+      - sh: "test -f {{.TASK_SEALED_SECRETS_KUBECONFIG}}"
+        msg: "❌ Kubeconfig file not found at {{.TASK_SEALED_SECRETS_KUBECONFIG}}"
+      - sh: "test -f {{.TASK_SEALED_SECRETS_HELM_DIR}}/Chart.yaml"
+        msg: "❌ Chart.yaml not found at {{.TASK_SEALED_SECRETS_HELM_DIR}}/Chart.yaml"
+    cmds:
+      - cmd: echo "🔍 Performing initial verification..."
+        silent: true
+      - |
+        if ! kubectl --kubeconfig {{.TASK_SEALED_SECRETS_KUBECONFIG}} cluster-info &>/dev/null; then
+          echo "❌ Error: Cannot establish connection to cluster using provided kubeconfig"
+          exit 1
+        fi
+      - task: :helm:dependency:update
+        vars:
+          TASK_HELM_DIR: "{{.TASK_SEALED_SECRETS_HELM_DIR}}"
+      - cmd: |
+          echo "🚀 Installing/Upgrading sealed-secrets..."
+          helm upgrade --install {{.TASK_SEALED_SECRETS_CONTROLLER}} {{.TASK_SEALED_SECRETS_HELM_DIR}} \
+            --kubeconfig {{.TASK_SEALED_SECRETS_KUBECONFIG}} \
+            --set sealed-secrets.enabled=true \
+            --wait \
+            --timeout 5m
+      - cmd: |
+          echo "✅ Verifying sealed-secrets deployment..."
+          kubectl --namespace {{.TASK_SEALED_SECRETS_NAMESPACE}} \
+            --kubeconfig {{.TASK_SEALED_SECRETS_KUBECONFIG}} \
+            wait --for=condition=available deployment/{{.TASK_SEALED_SECRETS_CONTROLLER}} \
+            --timeout=300s
+      - cmd: |
+          echo "✅ Sealed-secrets controller installation verified"
+          echo "📊 Current controller status:"
+          kubectl --kubeconfig {{.TASK_SEALED_SECRETS_KUBECONFIG}} -n {{.TASK_SEALED_SECRETS_NAMESPACE}} get pods -l app.kubernetes.io/name=sealed-secrets
+        silent: false
