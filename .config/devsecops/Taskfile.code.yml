@@ -10,11 +10,11 @@ tasks:
     status:
       - test "{{.TASK_DEVSECOPS_CODE_ENABLED}}" = "false"
     cmds:
-      # - task: :commitlint
-      # - task: :megalinter
+      - task: :commitlint
+      - task: :megalinter
       - task: :commitizen:check
       - task: :commitizen:bump
         vars:
           TASK_COMMITIZEN_BUMP_YES: "true"
           TASK_COMMITIZEN_BUMP_DRY_RUN: "true"
-      # - task: :lizard
+      - task: :lizard
