@@ -1,6 +1,11 @@
 ---
 version: "3"
 
+vars:
+  TASK_DEVSECOPS_OPERATE_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_OPERATE_ENABLED | default "true"}}'
+
 tasks:
   default:
     desc: Run all generic operate tasks
+    status:
+      - test "{{.TASK_DEVSECOPS_OPERATE_ENABLED}}" = "false"
