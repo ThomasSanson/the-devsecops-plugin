@@ -1,6 +1,11 @@
 ---
 version: "3"
 
+vars:
+  TASK_DEVSECOPS_FEEDBACK_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_FEEDBACK_ENABLED | default "true"}}'
+
 tasks:
   default:
     desc: Run all generic feedback tasks
+    status:
+      - test "{{.TASK_DEVSECOPS_FEEDBACK_ENABLED}}" = "false"
