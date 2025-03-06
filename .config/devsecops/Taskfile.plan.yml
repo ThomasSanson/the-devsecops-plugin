@@ -1,6 +1,11 @@
 ---
 version: "3"
 
+vars:
+  TASK_DEVSECOPS_PLAN_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_PLAN_ENABLED | default "true"}}'
+
 tasks:
   default:
     desc: Run all generic plan tasks
+    status:
+      - test "{{.TASK_DEVSECOPS_PLAN_ENABLED}}" = "false"
