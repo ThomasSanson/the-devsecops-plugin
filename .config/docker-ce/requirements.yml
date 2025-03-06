@@ -6,3 +6,6 @@ roles:
   - name: robertdebock.python_pip
   - name: robertdebock.core_dependencies
   - name: robertdebock.docker_ce
+
+collections:
+  - name: community.general
