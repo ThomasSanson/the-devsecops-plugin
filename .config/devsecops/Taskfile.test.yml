@@ -1,6 +1,52 @@
 ---
 version: "3"
 
+vars:
+  TASK_DEVSECOPS_TEST_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_TEST_ENABLED | default "true"}}'
+
 tasks:
   default:
-    desc: Run all generic test tasks
+    desc: Run all tests tasks
+    status:
+      - test "{{.TASK_DEVSECOPS_TEST_ENABLED}}" = "false"
+    cmds:
+      - task: infrastructure
+
+  tdd:
+    desc: Run all tdd tests tasks
+    status:
+      - test "{{.TASK_DEVSECOPS_TEST_ENABLED}}" = "false"
+    cmds:
+      - task: infrastructure:tdd
+
+  infrastructure:
+    desc: Run all infrastructure tests tasks
+    status:
+      - test "{{.TASK_DEVSECOPS_TEST_ENABLED}}" = "false"
+    cmds:
+      - task: :test:infrastructure:dependency
+      - task: :test:infrastructure:cleanup
+      - task: :test:infrastructure:destroy
+      - task: :test:infrastructure:syntax
+      - task: :test:infrastructure:create
+      - task: :test:infrastructure:prepare
+      - task: :test:infrastructure:converge
+      - task: :test:infrastructure:idempotence
+      - task: :test:infrastructure:side_effect
+      - task: :test:infrastructure:verify
+      - task: :test:infrastructure:destroy
+      - task: :test:infrastructure:cleanup
+
+  infrastructure:tdd:
+    desc: Run tdd infrastructure tests tasks
+    status:
+      - test "{{.TASK_DEVSECOPS_TEST_ENABLED}}" = "false"
+    cmds:
+      - task: :test:infrastructure:dependency
+      - task: :test:infrastructure:syntax
+      - task: :test:infrastructure:create
+      - task: :test:infrastructure:prepare
+      - task: :test:infrastructure:converge
+      - task: :test:infrastructure:idempotence
+      - task: :test:infrastructure:side_effect
+      - task: :test:infrastructure:verify
