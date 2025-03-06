@@ -2,6 +2,7 @@
 version: "3"
 
 vars:
+  TASK_KANIKO_ENABLED: '{{.OVERRIDE_TASK_KANIKO_ENABLED | default "false"}}'
   # Core settings
   TASK_KANIKO_EXECUTOR: '{{.OVERRIDE_TASK_KANIKO_EXECUTOR | default "gcr.io/kaniko-project/executor:latest"}}'
   TASK_KANIKO_WARMER: '{{.OVERRIDE_TASK_KANIKO_WARMER | default "gcr.io/kaniko-project/warmer:latest"}}'
