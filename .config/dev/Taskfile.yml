@@ -1,13 +1,16 @@
 ---
 version: "3"
 
+vars:
+  TASK_DEV_ENABLED: '{{.OVERRIDE_TASK_DEV_ENABLED | default "true"}}'
+
 tasks:
   setup-environment:
     desc: Configure the development environment.
     cmds:
       - cmd: |
           if [[ "{{.TASK_BUN_ENABLED}}" == "true" ]]; then
-            echo "🔍 Running bun..."
+            echo "🔄 Running bun..."
             task {{.TASK_FLAGS}} bun:install
             echo "{{.TASK_SEPARATOR}}"
           else
@@ -16,7 +19,7 @@ tasks:
         silent: true
       - cmd: |
           if [[ "{{.TASK_COPIER_ENABLED}}" == "true" ]]; then
-            echo "🔍 Running copier..."
+            echo "🔄 Running copier..."
             task {{.TASK_FLAGS}} copier:install
             echo "{{.TASK_SEPARATOR}}"
           else
@@ -25,7 +28,7 @@ tasks:
         silent: true
       - cmd: |
           if [[ "{{.TASK_DOCKER_CE_ENABLED}}" == "true" ]]; then
-            echo "🔍 Running docker-ce..."
+            echo "🔄 Running docker-ce..."
             task {{.TASK_FLAGS}} docker-ce:install
             echo "{{.TASK_SEPARATOR}}"
           else
@@ -34,7 +37,7 @@ tasks:
         silent: true
       - cmd: |
           if [[ "{{.TASK_PODMAN_ENABLED}}" == "true" ]]; then
-            echo "🔍 Running podman..."
+            echo "🔄 Running podman..."
             task {{.TASK_FLAGS}} podman:install
             echo "{{.TASK_SEPARATOR}}"
           else
@@ -43,7 +46,7 @@ tasks:
         silent: true
       - cmd: |
           if [[ "{{.TASK_NODEJS_ENABLED}}" == "true" ]]; then
-            echo "🔍 Running nodejs..."
+            echo "🔄 Running nodejs..."
             task {{.TASK_FLAGS}} nodejs:install
             echo "{{.TASK_SEPARATOR}}"
           else
