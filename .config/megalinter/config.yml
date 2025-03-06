@@ -18,12 +18,33 @@ EXCLUDED_DIRECTORIES:
 COPYPASTE_JSCPD_CONFIG_FILE: .config/jscpd/config.json
 REPOSITORY_DEVSKIM_CONFIG_FILE: .config/devskim/config.json
 REPOSITORY_GRYPE_CONFIG_FILE: .config/grype/config.yml
-SPELL_CSPELL_CONFIG_FILE: .config/cspell/config.json
+SPELL_CSPELL_CONFIG_FILE: .config/cspell/config.yaml
 YAML_YAMLLINT_CONFIG_FILE: .config/yamllint/config.yml
 REPOSITORY_TRIVY_CONFIG_FILE: .config/trivy/config.yml
 REPOSITORY_KICS_CONFIG_FILE: .config/kics/config.yml
+SPELL_LYCHEE_CONFIG_FILE: .config/lychee/config.toml
+ANSIBLE_ANSIBLE_LINT_CONFIG_FILE: .config/ansible-lint/config.yaml
 
 SHOW_ELAPSED_TIME: true
 SARIF_REPORTER: true
 CLEAR_REPORT_FOLDER: true
 PARALLEL_PROCESS_NUMBER: 2 # Limiting to 2 cores is necessary to prevent Dustilock or Checkov from crashing.
+
+PRE_COMMANDS:
+  - command: rm -rf /tmp/lint/venv
+  - command: rm -rf /tmp/lint/megalinter-reports
+  - command: rm -rf /tmp/lint/tmp
+  - command: find /tmp/lint/.config -type d -name "roles" -exec rm -rf {} +
+  - command: find /tmp/lint/ -type f \( -name "kubeconfig.yml" -o -name "kubeconfig.yaml" \) -exec rm -f {} \;
+  - command: rm -f /tmp/lint/iac/environment/testing/sealed-secrets.yaml
+  - command: find /tmp/lint/ -name requirements.yml -exec ansible-galaxy install -r {} \;
+  - command: |
+      npm install -g \
+        @cspell/dict-companies \
+        @cspell/dict-en-gb \
+        @cspell/dict-fr-fr \
+        @cspell/dict-python \
+        @cspell/dict-software-terms
+
+POST_COMMANDS:
+  - command: chmod -R 777 /tmp/lint/megalinter-reports
