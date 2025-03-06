@@ -2,6 +2,7 @@
 version: "3"
 
 vars:
+  TASK_NODEJS_ENABLED: '{{.OVERRIDE_TASK_NODEJS_ENABLED | default "true"}}'
   TASK_NODEJS_VENV_DIR: '{{.OVERRIDE_TASK_NODEJS_VENV_DIR | default "./venv/nodejs"}}'
   TASK_NODEJS_ANSIBLE_CMD: '{{.OVERRIDE_TASK_NODEJS_ANSIBLE_CMD | default "./venv/nodejs/bin/ansible-playbook"}}'
   TASK_NODEJS_ANSIBLE_GALAXY_CMD: '{{.OVERRIDE_TASK_NODEJS_ANSIBLE_GALAXY_CMD | default "./venv/nodejs/bin/ansible-galaxy"}}'
@@ -34,7 +35,6 @@ tasks:
 
       🔄 Execution:
         Creates virtualenv and installs required packages
-    deps: [cleanup]
     preconditions:
       - sh: "command -v python3 >/dev/null 2>&1"
         msg: "❌ Python 3 is not installed"
@@ -43,7 +43,6 @@ tasks:
       - sh: "test -f {{.TASK_NODEJS_ANSIBLE_REQUIREMENTS_FILE}}"
         msg: "❌ Requirements file not found at {{.TASK_NODEJS_ANSIBLE_REQUIREMENTS_FILE}}"
     cmds:
-      - defer: { task: cleanup }
       - python$(cut -d '=' -f 2 {{.TASK_NODEJS_PYTHON_VERSION_FILE}}) -m venv {{.TASK_NODEJS_VENV_DIR}}
       - "{{.TASK_NODEJS_VENV_DIR}}/bin/pip install -r {{.TASK_NODEJS_ANSIBLE_REQUIREMENTS_FILE}}"
       - cmd: echo "✅ Dependencies installed successfully"
@@ -110,3 +109,6 @@ tasks:
     internal: true
     cmds:
       - rm -rf .config/nodejs/roles
+      - rm -rf {{.TASK_NODEJS_VENV_DIR}}
+      - cmd: echo "✅ Cleanup completed"
+        silent: true
