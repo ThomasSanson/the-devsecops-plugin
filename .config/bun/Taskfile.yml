@@ -1,6 +1,9 @@
 ---
 version: "3"
 
+vars:
+  TASK_BUN_ENABLED: '{{.OVERRIDE_TASK_BUN_ENABLED | default "true"}}'
+
 tasks:
   install:
     desc: Install Bun JavaScript runtime.
