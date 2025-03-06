@@ -2,6 +2,7 @@
 version: "3"
 
 vars:
+  TASK_COMMITLINT_ENABLED: '{{.OVERRIDE_TASK_COMMITLINT_ENABLED | default "true"}}'
   TASK_COMMITLINT_DIR: '{{.OVERRIDE_TASK_COMMITLINT_DIR | default ".config/commitlint"}}'
   TASK_COMMITLINT_COMMAND: '{{.OVERRIDE_TASK_COMMITLINT_COMMAND | default "$HOME/.bun/bin/bunx --install=force --bun commitlint"}}'
   TASK_COMMITLINT_CONFIG: '{{.OVERRIDE_TASK_COMMITLINT_CONFIG | default ".config/commitlint/config.yml"}}'
@@ -29,7 +30,8 @@ tasks:
 
       📝 Note:
         This task checks commit messages against the configured rules.
-    # deps: [install]
+    status:
+      - test "{{.TASK_COMMITLINT_ENABLED}}" = "false"
     vars:
       COMMITLINT_LINT_COMMAND: "{{.TASK_COMMITLINT_COMMAND}} --config {{.TASK_COMMITLINT_CONFIG}} --from {{.TASK_COMMITLINT_FROM}} --to {{.TASK_COMMITLINT_TO}}"
       RED: '\033[0;31m'
@@ -38,7 +40,10 @@ tasks:
       PURPLE: '\033[0;35m'
       NC: '\033[0m' # No Color
     cmds:
-      - echo "{{.COMMITLINT_LINT_COMMAND}}"
+      - cmd: echo "🔄 Running commitlint..."
+        silent: true
+      - cmd: echo "{{.COMMITLINT_LINT_COMMAND}}"
+        silent: true
       - cmd: |
           # Run commitlint and capture the exit status
           if ! {{.COMMITLINT_LINT_COMMAND}}; then
