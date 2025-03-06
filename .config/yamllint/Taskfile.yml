@@ -2,6 +2,7 @@
 version: "3"
 
 vars:
+  TASK_YAMLLINT_ENABLED: '{{.OVERRIDE_TASK_YAMLLINT_ENABLED | default "true"}}'
   TASK_YAMLLINT_VIRTUALENV: '{{.OVERRIDE_TASK_YAMLLINT_VIRTUALENV | default "./venv/yamllint"}}'
   TASK_YAMLLINT_COMMAND: '{{.OVERRIDE_TASK_YAMLLINT_COMMAND | default "./venv/yamllint/bin/yamllint"}}'
   TASK_YAMLLINT_CONFIG_FULL_PATH: '{{.OVERRIDE_TASK_YAMLLINT_CONFIG_FULL_PATH | default ".config/yamllint/config.yml"}}'
