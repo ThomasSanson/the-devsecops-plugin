@@ -2,6 +2,7 @@
 version: "3"
 
 vars:
+  TASK_LIZARD_ENABLED: '{{.OVERRIDE_TASK_LIZARD_ENABLED | default "true"}}'
   TASK_LIZARD_CLI_OPTS: '{{.OVERRIDE_TASK_LIZARD_CLI_OPTS | default ""}}'
   TASK_LIZARD_COMMAND: '{{.OVERRIDE_TASK_LIZARD_COMMAND | default "./venv/lizard/bin/lizard"}}'
   TASK_LIZARD_PATH_TO_ANALYSE: '{{.OVERRIDE_TASK_LIZARD_PATH_TO_ANALYSE | default "."}}'
@@ -32,7 +33,11 @@ tasks:
 
       📝 Note:
         Execute after code modifications to maintain quality standards
+    status:
+      - test "{{.TASK_LIZARD_ENABLED}}" = "false"
     cmds:
+      - cmd: echo "🔄 Running lizard code analysis..."
+        silent: true
       - |
         {{.TASK_LIZARD_COMMAND}} $(grep -v '^#' .gitignore | grep -v '^$' | awk '{if ($0 ~ /\./) print "-x"$0; else print "-x./"$0"/*"}' | tr '\n' ' ') {{.TASK_LIZARD_CLI_OPTS}} {{.TASK_LIZARD_PATH_TO_ANALYSE}}
       - cmd: echo "✅ Lizard analysis completed successfully."
