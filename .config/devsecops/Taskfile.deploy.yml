@@ -1,6 +1,22 @@
 ---
 version: "3"
 
+vars:
+  TASK_DEVSECOPS_DEPLOY_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_DEPLOY_ENABLED | default "true"}}'
+
 tasks:
   default:
     desc: Run all generic deploy tasks
+    status:
+      - test "{{.TASK_DEVSECOPS_DEPLOY_ENABLED}}" = "false"
+    cmds:
+      - task: bootstrap
+
+  bootstrap:
+    desc: |
+      ℹ️ Description:
+        Prepares the infrastructure with required components
+    cmds:
+      - task: :helm:dependency:update
+      - task: :sealed-secrets:install
+      - task: :kubeseal:seal
