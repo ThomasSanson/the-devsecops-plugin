@@ -1,9 +1,12 @@
+.cache
+.config/**/roles
 .mega-linter.yml
 .vscode
 *.log
+*.tar
 *megalinter*.txt
 /*.sh
 megalinter-reports
 node_modules
+tmp
 venv
-*.tar
