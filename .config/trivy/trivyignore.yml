@@ -36,3 +36,4 @@ scan:
     - venv
     - .git
     - .config/**/roles
+    - iac/helm/charts/vendor
