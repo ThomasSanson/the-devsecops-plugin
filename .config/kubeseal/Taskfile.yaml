@@ -1,0 +1,188 @@
+version: "3"
+
+vars:
+  TASK_KUBESEAL_VERSION: '{{.OVERRIDE_TASK_KUBESEAL_VERSION | default "v0.28.0"}}'
+  TASK_KUBESEAL_VENV_DIR: '{{.OVERRIDE_TASK_KUBESEAL_VENV_DIR | default "./venv/kubeseal"}}'
+  TASK_KUBESEAL_ANSIBLE_CMD: '{{.OVERRIDE_TASK_KUBESEAL_ANSIBLE_CMD | default "./venv/kubeseal/bin/ansible-playbook"}}'
+  TASK_KUBESEAL_ANSIBLE_REQUIREMENTS_FILE: '{{.OVERRIDE_TASK_KUBESEAL_ANSIBLE_REQUIREMENTS_FILE | default ".config/kubeseal/requirements.txt"}}'
+  TASK_KUBESEAL_ANSIBLE_PLAYBOOK_FILE: '{{.OVERRIDE_TASK_KUBESEAL_ANSIBLE_PLAYBOOK_FILE | default ".config/kubeseal/playbook.yml"}}'
+  TASK_KUBESEAL_PYTHON_VERSION_FILE: '{{.OVERRIDE_TASK_KUBESEAL_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
+  TASK_KUBESEAL_ANSIBLE_INVENTORY_TARGET: "localhost" # DevSkim: ignore DS162092
+  TASK_KUBESEAL_NAMESPACE: '{{.OVERRIDE_TASK_KUBESEAL_NAMESPACE | default "kube-system"}}'
+  TASK_KUBESEAL_CONTROLLER: '{{.OVERRIDE_TASK_KUBESEAL_CONTROLLER | default "sealed-secrets"}}'
+  TASK_KUBESEAL_KUBECONFIG: '{{.OVERRIDE_TASK_KUBESEAL_KUBECONFIG | default "iac/environment/testing/kubeconfig.yaml"}}'
+  TASK_KUBESEAL_SECRETS_FILE: '{{.OVERRIDE_TASK_KUBESEAL_SECRETS_FILE | default "iac/environment/testing/secrets.yaml"}}'
+  TASK_KUBESEAL_SEALED_FILE: '{{.OVERRIDE_TASK_KUBESEAL_SEALED_FILE | default "iac/environment/testing/sealed-secrets.yaml"}}'
+
+env:
+  LANG: "C.UTF-8"
+  LC_ALL: "C.UTF-8"
+  LANGUAGE: "C.UTF-8"
+
+tasks:
+  install:dependencies:
+    desc: |
+      ℹ️ Description:
+        Sets up Ansible and its dependencies in a dedicated virtual environment
+
+      🔧 Variables:
+        - TASK_KUBESEAL_VENV_DIR: Virtual environment location
+        - TASK_KUBESEAL_ANSIBLE_REQUIREMENTS_FILE: Dependencies file path
+
+      🔐 Preconditions:
+        - Python 3.x must be installed
+        - Internet connectivity required
+
+      🔄 Execution:
+        Creates virtualenv and installs required packages
+    deps: [cleanup]
+    preconditions:
+      - sh: "command -v python3 >/dev/null 2>&1"
+        msg: "❌ Python 3 is not installed"
+      - sh: "test -f {{.TASK_KUBESEAL_PYTHON_VERSION_FILE}}"
+        msg: "❌ Python version file not found at {{.TASK_KUBESEAL_PYTHON_VERSION_FILE}}"
+      - sh: "test -f {{.TASK_KUBESEAL_ANSIBLE_REQUIREMENTS_FILE}}"
+        msg: "❌ Requirements file not found at {{.TASK_KUBESEAL_ANSIBLE_REQUIREMENTS_FILE}}"
+    cmds:
+      - python$(cut -d '=' -f 2 {{.TASK_KUBESEAL_PYTHON_VERSION_FILE}}) -m venv {{.TASK_KUBESEAL_VENV_DIR}}
+      - "{{.TASK_KUBESEAL_VENV_DIR}}/bin/pip install -r {{.TASK_KUBESEAL_ANSIBLE_REQUIREMENTS_FILE}}"
+      - cmd: echo "✅ Dependencies installed successfully"
+        silent: true
+
+  install:
+    desc: |
+      ℹ️ Description:
+        Installs Kubeseal using Ansible automation
+
+      🔧 Variables:
+        - TASK_KUBESEAL_ANSIBLE_CMD: Ansible command path
+        - TASK_KUBESEAL_ANSIBLE_PLAYBOOK_FILE: Ansible playbook location
+        - TASK_KUBESEAL_VERSION: Version of Kubeseal to install
+
+      🔐 Preconditions:
+        - Dependencies must be installed
+
+      🔄 Execution:
+        Runs Ansible playbook for Kubeseal installation
+    status:
+      - command -v kubeseal &> /dev/null
+      - |
+        CURRENT_VERSION=$(kubeseal --version 2>&1 | grep -oP 'kubeseal version: v\K[0-9]+\.[0-9]+\.[0-9]+')
+        TARGET_VERSION=$(echo {{.TASK_KUBESEAL_VERSION}} | cut -c 2-)
+        if [ "$CURRENT_VERSION" = "$TARGET_VERSION" ]; then
+          exit 0
+        fi
+        exit 1
+    preconditions:
+      - sh: "test -f {{.TASK_KUBESEAL_ANSIBLE_PLAYBOOK_FILE}}"
+        msg: "❌ Playbook file not found at {{.TASK_KUBESEAL_ANSIBLE_PLAYBOOK_FILE}}"
+    cmds:
+      - task: install:dependencies
+      - |
+        {{.TASK_KUBESEAL_ANSIBLE_CMD}} \
+          -i {{.TASK_KUBESEAL_ANSIBLE_INVENTORY_TARGET}}, \
+          -e "kubeseal_version={{.TASK_KUBESEAL_VERSION}}" \
+          {{.TASK_KUBESEAL_ANSIBLE_PLAYBOOK_FILE}}
+      - task: cleanup
+      - cmd: echo "✅ Kubeseal installed successfully"
+        silent: true
+
+  cleanup:
+    desc: Removes temporary files and directories
+    cmds:
+      - cmd: rm -rf {{.TASK_KUBESEAL_VENV_DIR}}
+        ignore_error: true
+
+  validate:
+    desc: |
+      ℹ️ Description:
+        Validates the integrity and format of sealed secrets files.
+        Ensures secrets are properly encrypted and compatible with the controller.
+
+      🔧 Variables:
+        - TASK_KUBESEAL_KUBECONFIG: Path to kubeconfig file
+        - TASK_KUBESEAL_SEALED_FILE: Path to sealed secrets file
+        - TASK_KUBESEAL_NAMESPACE: Namespace where sealed-secrets is installed
+        - TASK_KUBESEAL_CONTROLLER: Name of the sealed-secrets controller
+
+      🔐 Preconditions:
+        - Sealed-secrets controller must be installed
+        - Sealed secrets file must exist
+    preconditions:
+      - sh: "command -v kubeseal >/dev/null 2>&1"
+        msg: "❌ Kubeseal is not installed"
+      - sh: "test -f {{.TASK_KUBESEAL_SEALED_FILE}}"
+        msg: "❌ Sealed secrets file not found at {{.TASK_KUBESEAL_SEALED_FILE}}"
+    cmds:
+      - cmd: echo "🔍 Validating sealed secrets format and integrity..."
+        silent: true
+      - |
+        kubeseal --validate \
+          --controller-namespace {{.TASK_KUBESEAL_NAMESPACE}} \
+          --controller-name {{.TASK_KUBESEAL_CONTROLLER}} \
+          --kubeconfig {{.TASK_KUBESEAL_KUBECONFIG}} \
+          < {{.TASK_KUBESEAL_SEALED_FILE}}
+      - cmd: echo "✅ Sealed secrets validation successful"
+        silent: true
+
+  seal:
+    desc: |
+      ℹ️ Description:
+        Encrypts Kubernetes secrets from cleartext into sealed secrets format.
+        Implements secure handling with hash verification to prevent unnecessary resealing.
+
+      🔧 Variables:
+        - TASK_KUBESEAL_KUBECONFIG: Path to kubeconfig file
+        - TASK_KUBESEAL_SECRETS_FILE: Path to cleartext secrets file
+        - TASK_KUBESEAL_SEALED_FILE: Path to store sealed secrets
+        - TASK_KUBESEAL_NAMESPACE: Namespace where sealed-secrets is installed
+        - TASK_KUBESEAL_CONTROLLER: Name of the sealed-secrets controller
+
+      🔐 Preconditions:
+        - Sealed-secrets controller must be installed
+        - Cleartext secrets file must exist
+
+      🔒 Security Measures:
+        1. Validates input file existence
+        2. Implements hash-based change detection
+        3. Performs post-sealing validation
+    preconditions:
+      - sh: "command -v kubeseal >/dev/null 2>&1"
+        msg: "❌ Kubeseal is not installed"
+      - sh: "test -f {{.TASK_KUBESEAL_SECRETS_FILE}}"
+        msg: "❌ Cleartext secrets file not found at {{.TASK_KUBESEAL_SECRETS_FILE}}"
+    cmds:
+      - cmd: echo "🔍 Performing initial verification..."
+        silent: true
+
+      - mkdir -p $(dirname {{.TASK_KUBESEAL_SEALED_FILE}})
+
+      - cmd: echo "🔍 Checking for changes in secrets..."
+        silent: true
+      - |
+        CURRENT_HASH=$(sha256sum {{.TASK_KUBESEAL_SECRETS_FILE}} | cut -d' ' -f1)
+        HASH_FILE="$(dirname {{.TASK_KUBESEAL_SEALED_FILE}})/.secrets.hash"
+
+        if [ -f "$HASH_FILE" ]; then
+          STORED_HASH=$(cat "$HASH_FILE")
+        else
+          STORED_HASH=""
+        fi
+
+        if [ "$CURRENT_HASH" != "$STORED_HASH" ]; then
+          echo "🔄 Changes detected in secrets file"
+          echo "🔒 Sealing secrets..."
+          kubeseal --format yaml \
+            --controller-namespace {{.TASK_KUBESEAL_NAMESPACE}} \
+            --controller-name {{.TASK_KUBESEAL_CONTROLLER}} \
+            --kubeconfig {{.TASK_KUBESEAL_KUBECONFIG}} \
+            < {{.TASK_KUBESEAL_SECRETS_FILE}} > {{.TASK_KUBESEAL_SEALED_FILE}}
+
+          echo "$CURRENT_HASH" > "$HASH_FILE"
+        else
+          echo "✅ No changes detected in secrets file"
+        fi
+
+      - task: validate
+      - cmd: echo "✅ Secrets sealing process completed successfully"
+        silent: true
