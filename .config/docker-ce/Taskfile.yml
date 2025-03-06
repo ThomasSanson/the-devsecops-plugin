@@ -2,6 +2,7 @@
 version: "3"
 
 vars:
+  TASK_DOCKER_CE_ENABLED: '{{.OVERRIDE_TASK_DOCKER_CE_ENABLED | default "true"}}'
   TASK_DOCKER_CE_VENV_DIR: '{{.OVERRIDE_TASK_DOCKER_CE_VENV_DIR | default "./venv/docker-ce"}}'
   TASK_DOCKER_CE_ANSIBLE_CMD: '{{.OVERRIDE_TASK_DOCKER_CE_ANSIBLE_CMD | default "./venv/docker-ce/bin/ansible-playbook"}}'
   TASK_DOCKER_CE_ANSIBLE_GALAXY_CMD: '{{.OVERRIDE_TASK_DOCKER_CE_ANSIBLE_GALAXY_CMD | default "./venv/docker-ce/bin/ansible-galaxy"}}'
@@ -53,7 +54,6 @@ tasks:
 
       🔄 Execution:
         Creates virtualenv and installs required packages
-    deps: [cleanup]
     preconditions:
       - sh: "command -v python3 >/dev/null 2>&1"
         msg: "❌ Python 3 is not installed"
@@ -89,6 +89,7 @@ tasks:
     cmds:
       - mkdir -p .config/docker-ce/roles
       - "{{.TASK_DOCKER_CE_ANSIBLE_GALAXY_CMD}} install -r {{.TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS}} --roles-path .config/docker-ce/roles"
+      - "{{.TASK_DOCKER_CE_ANSIBLE_GALAXY_CMD}} collection install -r {{.TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS}}"
       - cmd: echo "✅ Ansible roles installed successfully"
         silent: true
 
