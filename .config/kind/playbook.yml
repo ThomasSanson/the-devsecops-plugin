@@ -1,0 +1,62 @@
+---
+- name: Install Kind using Go
+  hosts: localhost # DevSkim: ignore DS162092 # Debug context restricted to development environments
+  connection: local
+  gather_facts: true
+
+  vars:
+    kind_version: "{{ kind_version | default('v0.26.0') }}"
+    go_bin_path: "{{ ansible_env.HOME }}/go/bin"
+
+  tasks:
+    - name: Check if Go is installed
+      ansible.builtin.command: "go version"
+      register: go_check
+      ignore_errors: true
+      changed_when: false
+      failed_when: false
+
+    - name: Fail if Go is not installed
+      ansible.builtin.fail:
+        msg: "Go is required but not installed. Please install Go before running this playbook."
+      when: go_check.rc != 0
+
+    - name: Ensure GOPATH/bin directory exists
+      ansible.builtin.file:
+        path: "{{ go_bin_path }}"
+        state: directory
+        mode: '0755'
+
+    - name: Install Kind using Go install
+      environment:
+        PATH: "{{ ansible_env.PATH }}:{{ go_bin_path }}"
+        GOPATH: "{{ ansible_env.HOME }}/go"
+      ansible.builtin.shell: |
+        go install sigs.k8s.io/kind@{{ kind_version }}
+      args:
+        creates: "{{ go_bin_path }}/kind"
+
+    - name: Add GOPATH/bin to PATH in .bashrc if not present
+      ansible.builtin.lineinfile:
+        path: "{{ ansible_env.HOME }}/.bashrc"
+        line: 'export PATH=$PATH:{{ go_bin_path }}'
+        regexp: '^export PATH=.*{{ go_bin_path | regex_escape }}.*$'
+        state: present
+
+    - name: Source .bashrc
+      ansible.builtin.shell: |
+        source {{ ansible_env.HOME }}/.bashrc
+        echo "Bashrc sourced"
+      args:
+        executable: /bin/bash
+      changed_when: "'sourced' in result.stdout"
+
+    - name: Verify Kind installation
+      ansible.builtin.command: "{{ go_bin_path }}/kind version"
+      register: kind_version_check
+      changed_when: false
+
+    - name: Display installation result
+      ansible.builtin.debug:
+        msg: "Kind {{ kind_version }} has been successfully installed in {{ go_bin_path }}/kind. Please restart your shell or run 'source ~/.bashrc' to use kind command directly."
+      when: kind_version_check.rc == 0
