@@ -1,0 +1,11 @@
+---
+- name: Install Helm
+  hosts: localhost # DevSkim: ignore DS162092
+  become: true
+  gather_facts: true
+
+  roles:
+    - role: robertdebock.bootstrap
+    - role: geerlingguy.helm
+      vars:
+        helm_version: "{{ helm_version | default('v3.17.1') }}"
