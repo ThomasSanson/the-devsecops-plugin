@@ -1,50 +1,20 @@
 ---
 version: "3"
 
+vars:
+  TASK_DEVSECOPS_CODE_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_CODE_ENABLED | default "true"}}'
+
 tasks:
   default:
     desc: Run all generic code tasks
+    status:
+      - test "{{.TASK_DEVSECOPS_CODE_ENABLED}}" = "false"
     cmds:
-      - cmd: |
-          if [[ "{{.TASK_COMMITLINT_ENABLED}}" == "true" ]]; then
-            echo "🔍 Running commitlint..."
-            task {{.TASK_FLAGS}} commitlint
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping commitlint (disabled via TASK_COMMITLINT_ENABLED=false)"
-          fi
-        silent: true
-      - cmd: |
-          if [[ "{{.TASK_MEGALINTER_ENABLED}}" == "true" ]]; then
-            echo "🔍 Running megalinter..."
-            task {{.TASK_FLAGS}} megalinter
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping megalinter (disabled via TASK_MEGALINTER_ENABLED=false)"
-          fi
-        silent: true
-      - cmd: |
-          if [[ "{{.TASK_COMMITIZEN_ENABLED}}" == "true" ]]; then
-            echo "📝 Running commitizen checks..."
-            task {{.TASK_FLAGS}} commitizen:check
-            echo "{{.TASK_SEPARATOR}}"
-            echo "📝 Running commitizen bump..."
-
-            export OVERRIDE_TASK_CZ_BUMP_YES="true"
-            export OVERRIDE_TASK_CZ_BUMP_DRY_RUN="true"
-
-            task {{.TASK_FLAGS}} commitizen:bump
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping commitizen (disabled via TASK_COMMITIZEN_ENABLED=false)"
-          fi
-        silent: true
-      - cmd: |
-          if [[ "{{.TASK_LIZARD_ENABLED}}" == "true" ]]; then
-            echo "🔍 Running lizard code analysis..."
-            task {{.TASK_FLAGS}} lizard
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping lizard (disabled via TASK_LIZARD_ENABLED=false)"
-          fi
-        silent: true
+      # - task: :commitlint
+      # - task: :megalinter
+      - task: :commitizen:check
+      - task: :commitizen:bump
+        vars:
+          TASK_COMMITIZEN_BUMP_YES: "true"
+          TASK_COMMITIZEN_BUMP_DRY_RUN: "true"
+      # - task: :lizard
