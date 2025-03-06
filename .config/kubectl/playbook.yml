@@ -1,0 +1,74 @@
+---
+- name: Install kubectl
+  hosts: localhost # DevSkim: ignore DS162092 # Debug context restricted to development environments
+  connection: local
+  gather_facts: true
+
+  vars:
+    kubectl_version: "{{ kubectl_version | default('v1.32.0') }}"
+    kubectl_install_dir: "{{ ansible_env.HOME }}/.local/bin"
+    kubectl_os: "{{ ansible_system | lower }}"
+    kubectl_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture }}"
+
+  tasks:
+    - name: Ensure installation directory exists
+      ansible.builtin.file:
+        path: "{{ kubectl_install_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Download kubectl binary
+      ansible.builtin.get_url:
+        url: "https://dl.k8s.io/release/{{ kubectl_version }}/bin/{{ kubectl_os }}/{{ kubectl_arch }}/kubectl"
+        dest: "{{ kubectl_install_dir }}/kubectl"
+        mode: '0755'
+        force: true
+      register: kubectl_download
+
+    - name: Download kubectl checksum
+      ansible.builtin.get_url:
+        url: "https://dl.k8s.io/release/{{ kubectl_version }}/bin/{{ kubectl_os }}/{{ kubectl_arch }}/kubectl.sha256"
+        dest: "{{ kubectl_install_dir }}/kubectl.sha256"
+        mode: '0755'
+      register: kubectl_checksum
+
+    - name: Verify kubectl binary
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          echo "$(cat {{ kubectl_install_dir }}/kubectl.sha256)  {{ kubectl_install_dir }}/kubectl" | sha256sum --check
+      register: kubectl_verify
+      changed_when: false
+      failed_when: kubectl_verify.rc != 0
+
+    - name: Add installation directory to PATH in .bashrc if not present
+      ansible.builtin.lineinfile:
+        path: "{{ ansible_env.HOME }}/.bashrc"
+        line: 'export PATH=$PATH:{{ kubectl_install_dir }}'
+        regexp: '^export PATH=.*{{ kubectl_install_dir | regex_escape }}.*$'
+        state: present
+
+    - name: Source .bashrc
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          source {{ ansible_env.HOME }}/.bashrc
+          echo "Bashrc sourced"
+      args:
+        executable: /bin/bash
+      changed_when: "'sourced' in result.stdout"
+
+    - name: Verify kubectl installation
+      ansible.builtin.command: "{{ kubectl_install_dir }}/kubectl version --client"
+      register: kubectl_version_check
+      changed_when: false
+
+    - name: Display installation result
+      ansible.builtin.debug:
+        msg: "kubectl {{ kubectl_version }} has been successfully installed in {{ kubectl_install_dir }}/kubectl. Please restart your shell or run 'source ~/.bashrc' to use kubectl command directly."
+      when: kubectl_version_check.rc == 0
+
+    - name: Clean up checksum file
+      ansible.builtin.file:
+        path: "{{ kubectl_install_dir }}/kubectl.sha256"
+        state: absent
