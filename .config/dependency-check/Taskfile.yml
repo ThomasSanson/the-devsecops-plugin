@@ -32,11 +32,11 @@ tasks:
       - |
         docker run --rm \
           -e user={{.TASK_DEPENDENCY_CHECK_USER}} \
-          --volume {{.PWD}}:/src:z \
+          --volume {{.PWD}}:/project:z \
           --volume {{.TASK_DEPENDENCY_CHECK_DATA_DIRECTORY}}:/usr/share/dependency-check/data:z \
           --volume {{.TASK_DEPENDENCY_CHECK_REPORT_DIRECTORY}}:/report:z \
           owasp/dependency-check:{{.TASK_DEPENDENCY_CHECK_VERSION}} \
-          --scan /src \
+          --scan /project \
           --format "ALL" \
           --project "{{.TASK_DEPENDENCY_CHECK_PROJECT}}" \
           --out /report
