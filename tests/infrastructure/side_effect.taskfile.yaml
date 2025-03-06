@@ -1,0 +1,33 @@
+---
+version: "3"
+
+vars:
+  TASK_ANSIBLE_VIRTUALENV: '{{.OVERRIDE_TASK_ANSIBLE_VIRTUALENV | default "./venv/ansible"}}'
+
+tasks:
+  default:
+    desc: |
+      ℹ️ Description:
+        Simulates side effects to test system resilience in the following order:
+        1. Executes Ansible playbooks that disrupt normal operation
+        2. Waits for automatic recovery mechanisms to engage
+    cmds:
+      - cmd: echo "🚀 Starting side effect simulation phase..."
+        silent: true
+      - task: ansible
+      - cmd: echo "✅ Side effect simulation phase completed."
+        silent: true
+
+  ansible:
+    desc: |
+      ℹ️ Description:
+        Executes infrastructure disruption playbooks
+
+      🔧 Variables:
+        - TASK_ANSIBLE_VIRTUALENV: Path to Ansible virtual environment
+    cmds:
+      - |
+        find tests/infrastructure/ansible/side_effects -type f \( -name "*.yml" -o -name "*.yaml" \) | while read playbook; do
+          echo "⚠️ Executing side effect playbook: $playbook"
+          {{.TASK_ANSIBLE_VIRTUALENV}}/bin/ansible-playbook "$playbook"
+        done
