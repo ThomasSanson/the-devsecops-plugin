@@ -2,25 +2,27 @@
 version: "3"
 
 vars:
+  TASK_MEGALINTER_ENABLED: '{{.OVERRIDE_TASK_MEGALINTER_ENABLED | default "true"}}'
   TASK_MEGALINTER_CONTAINER_NAME: '{{.OVERRIDE_TASK_MEGALINTER_CONTAINER_NAME | default "megalinter-container"}}'
-  TASK_MEGALINTER_CONTAINER_VERSION: '{{.OVERRIDE_TASK_MEGALINTER_CONTAINER_VERSION | default "v7"}}'
+  TASK_MEGALINTER_CONTAINER_VERSION: '{{.OVERRIDE_TASK_MEGALINTER_CONTAINER_VERSION | default "v8"}}'
 
 tasks:
   default:
     desc: Run MegaLinter for comprehensive code analysis.
+    status:
+      - test "{{.TASK_MEGALINTER_ENABLED}}" = "false"
     preconditions:
       - sh: "command -v docker &> /dev/null"
         msg: "❌ Docker is not installed. Please run the 'docker-ce:install' task first."
     cmds:
+      - cmd: echo "🔄 Running megalinter..."
+        silent: true
       - docker rm -f {{.TASK_MEGALINTER_CONTAINER_NAME}}
-      - sudo rm -rf ./megalinter-reports
+      - rm -rf ./megalinter-reports
       - defer: docker rm -f {{.TASK_MEGALINTER_CONTAINER_NAME}}
-      - defer: docker cp {{.TASK_MEGALINTER_CONTAINER_NAME}}:/tmp/lint/megalinter-reports ./megalinter-reports && sudo chown -R $(id -u):$(id -g) megalinter-reports
+      - defer: docker cp {{.TASK_MEGALINTER_CONTAINER_NAME}}:/tmp/lint/megalinter-reports ./megalinter-reports && chown -R $(id -u):$(id -g) megalinter-reports
       - docker run --rm -d --name {{.TASK_MEGALINTER_CONTAINER_NAME}} -e MEGALINTER_CONFIG='.config/megalinter/config.yml' -v /var/run/docker.sock:/var/run/docker.sock:rw --entrypoint sleep oxsecurity/megalinter:{{.TASK_MEGALINTER_CONTAINER_VERSION}} infinity
       - docker cp {{.USER_WORKING_DIR}} {{.TASK_MEGALINTER_CONTAINER_NAME}}:/tmp/lint
-      - docker exec {{.TASK_MEGALINTER_CONTAINER_NAME}} /bin/bash -c 'rm -rf /tmp/lint/venv'
-      - docker exec {{.TASK_MEGALINTER_CONTAINER_NAME}} /bin/bash -c 'rm -rf /tmp/lint/megalinter-reports'
-      - docker exec {{.TASK_MEGALINTER_CONTAINER_NAME}} /bin/bash -c 'find /tmp/lint/.config -type d -name "roles" -exec rm -rf {} +'
       - docker exec {{.TASK_MEGALINTER_CONTAINER_NAME}} /bin/bash /entrypoint.sh
       - cmd: echo "🎉 All files correctly linted with megalinter!"
         silent: true
