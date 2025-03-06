@@ -1,0 +1,23 @@
+---
+version: "3"
+
+tasks:
+  default:
+    desc: Verify and install required dependencies tools for testing
+    cmds:
+      - cmd: echo "🚀 Starting dependency phase..."
+        silent: true
+      # Install Ansible and its dependencies first
+      - task: :ansible:install
+      # Verify kubectl installation
+      - task: :kubectl:install
+      # Verify kind installation
+      - task: :kind:install
+      # Verify kubeseal installation
+      - task: :kubeseal:install
+      # Verify helm installation
+      - task: :helm:install
+      # Install infrastructure test collections
+      - task: :ansible:galaxy:collection:install
+        vars:
+          TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE: tests/infrastructure/requirements.yml
