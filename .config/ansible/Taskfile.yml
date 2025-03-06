@@ -1,0 +1,146 @@
+---
+version: "3"
+
+vars:
+  TASK_ANSIBLE_ENABLED: '{{.OVERRIDE_TASK_ANSIBLE_ENABLED | default "true"}}'
+  TASK_ANSIBLE_VIRTUALENV: '{{.OVERRIDE_TASK_ANSIBLE_VIRTUALENV | default "./venv/ansible"}}'
+  TASK_ANSIBLE_COMMAND: '{{.OVERRIDE_TASK_ANSIBLE_COMMAND | default "./venv/ansible/bin/ansible"}}'
+  TASK_ANSIBLE_CONFIG_FULL_PATH: '{{.OVERRIDE_TASK_ANSIBLE_CONFIG_FULL_PATH | default ".config/ansible/ansible.cfg"}}'
+  TASK_ANSIBLE_CLI_OPTS: '{{.OVERRIDE_TASK_ANSIBLE_CLI_OPTS | default ""}}'
+  TASK_ANSIBLE_CLI_CHECK_OPTS: '{{.OVERRIDE_TASK_ANSIBLE_CLI_CHECK_OPTS | default "--check"}}'
+  TASK_ANSIBLE_PYTHON_VERSION_FILE: '{{.OVERRIDE_TASK_ANSIBLE_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
+  TASK_ANSIBLE_REQUIREMENTS_FILE: '{{.OVERRIDE_TASK_ANSIBLE_REQUIREMENTS_FILE | default ".config/ansible/requirements.txt"}}'
+  TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE: '{{.OVERRIDE_TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE | default "tests/infrastructure/requirements.yml"}}'
+
+tasks:
+  default:
+    deps: [install]
+    interactive: true
+    desc: Run Ansible with default configuration.
+    summary: |
+      ℹ️ Description:
+        Executes Ansible with the default configuration to display version and settings.
+
+      🔧 Variables:
+        - TASK_ANSIBLE_VIRTUALENV: Path to the virtual environment. Default: "./venv/ansible"
+        - TASK_ANSIBLE_COMMAND: Command to run ansible. Default: "./venv/ansible/bin/ansible"
+        - TASK_ANSIBLE_CONFIG_FULL_PATH: Path to the ansible configuration file. Default: ".config/ansible/ansible.cfg"
+        - TASK_ANSIBLE_CLI_OPTS: Command line options for ansible. Default: ""
+
+      🔐 Preconditions:
+        - The 'install' task must have been successfully executed.
+        - An ansible configuration file must exist at the specified location.
+
+      🔄 Execution:
+        Runs ansible with the specified options and configuration to display version information.
+
+      📝 Note:
+        This task should be executed to verify ansible installation and configuration.
+    cmds:
+      - |
+        source {{.TASK_ANSIBLE_VIRTUALENV}}/bin/activate && \
+        {{.TASK_ANSIBLE_COMMAND}} --version && \
+        echo "Ansible Configuration:" && \
+        echo "- Config File: {{.TASK_ANSIBLE_CONFIG_FULL_PATH}}"
+
+  install:
+    desc: Set up Ansible in a virtual environment.
+    summary: |
+      ℹ️ Description:
+        Configures Ansible and its dependencies within a controlled virtual environment.
+
+      🔧 Variables:
+        - TASK_ANSIBLE_PYTHON_VERSION_FILE: Path to the file specifying the Python version.
+          Default: ".config/python/.python-version"
+          Example content: "3.11"
+        - TASK_ANSIBLE_REQUIREMENTS_FILE: Path to the file listing required packages.
+          Default: ".config/ansible/requirements.txt"
+          Example content: "ansible-core==2.18.2"
+        - TASK_ANSIBLE_VIRTUALENV: Location of the virtual environment for Ansible.
+          Default: "./venv/ansible"
+
+      🔐 Preconditions:
+        - Python must be installed on the system.
+        - A Python version file must exist at the specified location.
+        - An active internet connection is required to download Ansible and its dependencies.
+
+      🔄 Execution:
+        1. Creates a new Python virtual environment using the version specified in TASK_ANSIBLE_PYTHON_VERSION_FILE.
+        2. Installs Ansible and its dependencies using the TASK_ANSIBLE_REQUIREMENTS_FILE.
+        3. Verifies the installation by checking the installed Ansible version.
+
+      📝 Note:
+        Ensure the Python version file specifies a version compatible with Ansible and its dependencies.
+    preconditions:
+      - sh: command -v python3 >/dev/null 2>&1
+        msg: "❌ Error: Python is not installed. Please install Python before proceeding."
+      - sh: test -f {{.TASK_ANSIBLE_PYTHON_VERSION_FILE}}
+        msg: |
+          ❌ Error: missing file {{.TASK_ANSIBLE_PYTHON_VERSION_FILE}}.
+          Please create it as follows:
+          ```bash
+          mkdir -p $(dirname "{{.TASK_ANSIBLE_PYTHON_VERSION_FILE}}")
+          echo "3.11" > {{.TASK_ANSIBLE_PYTHON_VERSION_FILE}}
+          ```
+    status:
+      - |
+        {{.TASK_ANSIBLE_VIRTUALENV}}/bin/ansible --version | grep -q $(awk -F '==' '/ansible-core==/{print $2}' {{.TASK_ANSIBLE_REQUIREMENTS_FILE}})
+    cmds:
+      - python$(cut -d '=' -f 2 {{.TASK_ANSIBLE_PYTHON_VERSION_FILE}}) -m venv {{.TASK_ANSIBLE_VIRTUALENV}}
+      - "{{.TASK_ANSIBLE_VIRTUALENV}}/bin/pip install -r {{.TASK_ANSIBLE_REQUIREMENTS_FILE}}"
+      - cmd: echo "✅ Ansible and dependencies are successfully installed in the virtual environment."
+        silent: true
+
+  galaxy:collection:install:
+    desc: Install Ansible Galaxy collections from requirements file.
+    summary: |
+      ℹ️ Description:
+        Installs Ansible collections specified in the requirements file within the virtual environment.
+
+      🔧 Variables:
+        - TASK_ANSIBLE_VIRTUALENV: Path to the virtual environment. Default: "./venv/ansible"
+        - TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE: Path to the collections requirements file.
+          Default: "tests/infrastructure/requirements.yml"
+          Example content:
+            ```yaml
+            ---
+            collections:
+              - name: kubernetes.core
+                version: "5.1.0"
+            ```
+
+      🔐 Preconditions:
+        - The 'install' task must have been successfully executed.
+        - A collections requirements file must exist at the specified location.
+        - An active internet connection is required to download collections.
+
+      🔄 Execution:
+        Installs all specified collections using ansible-galaxy collection install command.
+
+      📝 Note:
+        This task should be executed after the base Ansible installation to ensure all required collections are available.
+    deps: [install]
+    preconditions:
+      - sh: test -d {{.TASK_ANSIBLE_VIRTUALENV}}
+        msg: "❌ Error: Virtual environment not found. Please run the 'install' task first."
+      - sh: test -f {{.TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE}}
+        msg: |
+          ❌ Error: Missing collections requirements file at {{.TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE}}.
+          Please ensure the file exists and contains valid collection requirements.
+    status:
+      - |
+        grep -E "name:|version:" {{.TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE}} | \
+        awk 'NR%2 {name=$3; next} {gsub(/"/, "", $2); \
+            cmd=sprintf("{{.TASK_ANSIBLE_VIRTUALENV}}/bin/ansible-galaxy collection list | awk -v c=%s -v v=%s '\''BEGIN{f=0} $1==c && $2==v {f=1} END{exit !f}'\''", name, $2); \
+            if (system(cmd) != 0) { \
+                printf "❌ Error: Collection %s version %s is not installed\n", name, $2 > "/dev/stderr"; \
+                exit 1 \
+            } \
+        }'
+    cmds:
+      - cmd: echo "📦 Installing collections..."
+        silent: true
+      - |
+        {{.TASK_ANSIBLE_VIRTUALENV}}/bin/ansible-galaxy collection install -r {{.TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE}}
+      - cmd: echo "✅ Ansible collections successfully installed."
+        silent: true
