@@ -1,0 +1,28 @@
+---
+version: "3"
+
+vars:
+  TASK_ANSIBLE_VIRTUALENV: '{{.OVERRIDE_TASK_ANSIBLE_VIRTUALENV | default "./venv/ansible"}}'
+  ANSIBLE_SYNTAX_CHECK_CMD: '{{.TASK_ANSIBLE_VIRTUALENV}}/bin/ansible-playbook --inventory localhost, --connection local --syntax-check' # DevSkim: ignore DS162092 # Required for Ansible syntax checking in test environment
+
+tasks:
+  default:
+    desc: Perform syntax checks and linting using MegaLinter
+    cmds:
+      - cmd: echo "🚀 Starting syntax phase..."
+        silent: true
+      # Verify Helm charts syntax
+      - |
+        for chart in iac/helm/*/; do
+          if [ -d "$chart" ] && [ -f "${chart}Chart.yaml" ]; then
+            echo "Linting Helm chart in $chart"
+            helm lint "$chart"
+          fi
+        done
+      # Verify Ansible playbooks syntax
+      - |
+        for playbook in tests/infrastructure/ansible/**/*; do
+          echo "Checking syntax of $playbook"
+          # DevSkim: ignore DS162092 # Required for Ansible syntax checking in test environment
+          {{.ANSIBLE_SYNTAX_CHECK_CMD}} "$playbook"
+        done
