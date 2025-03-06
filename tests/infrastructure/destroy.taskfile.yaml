@@ -1,0 +1,39 @@
+version: "3"
+
+vars:
+  TASK_TEST_INFRASTRUCTURE_DESTROY_CLUSTER_NAME: '{{.OVERRIDE_TASK_TEST_INFRASTRUCTURE_DESTROY_CLUSTER_NAME | default "test"}}'
+  TASK_TEST_INFRASTRUCTURE_DESTROY_KUBECONFIG_DIR: '{{.OVERRIDE_TASK_TEST_INFRASTRUCTURE_DESTROY_KUBECONFIG_DIR | default "iac/environment/testing"}}'
+  TASK_TEST_INFRASTRUCTURE_DESTROY_KUBECONFIG_FILE: '{{.TASK_TEST_INFRASTRUCTURE_DESTROY_KUBECONFIG_DIR}}/kubeconfig.yaml'
+
+tasks:
+  default:
+    desc: |
+      ℹ️ Description:
+        Performs destroy operations in the following order:
+        1. Removes kind cluster
+    cmds:
+      - cmd: echo "🚀 Starting destroy phase..."
+        silent: true
+      - task: kind
+      - cmd: echo "✅ Destroy phase completed successfully."
+        silent: true
+
+  kind:
+    desc: |
+      ℹ️ Description:
+        Deletes the Kind cluster if it exists
+
+      🔧 Variables:
+        - TASK_TEST_INFRASTRUCTURE_DESTROY_CLUSTER_NAME: Name of the Kind cluster
+        - TASK_TEST_INFRASTRUCTURE_DESTROY_KUBECONFIG_FILE: Path to kubeconfig file
+
+      🔄 Execution:
+        1. Verifies cluster existence
+        2. Deletes cluster
+    status:
+      - '! kind get clusters | grep -q "^{{.TASK_TEST_INFRASTRUCTURE_DESTROY_CLUSTER_NAME}}$"'
+    cmds:
+      - |
+        kind delete cluster \
+          --name {{.TASK_TEST_INFRASTRUCTURE_DESTROY_CLUSTER_NAME}} \
+          --kubeconfig {{.TASK_TEST_INFRASTRUCTURE_DESTROY_KUBECONFIG_FILE}}
