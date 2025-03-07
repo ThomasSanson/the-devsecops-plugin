@@ -43,7 +43,9 @@ services:
       - "dockerd"
       - "--data-root=${DOCKER_CACHE_DIR}"
       - "--storage-driver=overlay2"
-      - "--tls=false"
+      - "--tls=true"
+      - "--tlscert=${DOCKER_TLS_CERTDIR}/server/cert.pem"
+      - "--tlskey=${DOCKER_TLS_CERTDIR}/server/key.pem"
       - "--host=tcp://0.0.0.0:2376"
 
 before_script:
