@@ -10,7 +10,7 @@
 
   tasks:
     - name: Check if Go is installed
-      ansible.builtin.command: "go version"
+      ansible.builtin.command: "/usr/local/go/bin/go version"
       register: go_check
       ignore_errors: true
       changed_when: false
@@ -32,9 +32,10 @@
         PATH: "{{ ansible_env.PATH }}:{{ go_bin_path }}"
         GOPATH: "{{ ansible_env.HOME }}/go"
       ansible.builtin.shell: |
-        go install sigs.k8s.io/kind@{{ kind_version }}
+        /usr/local/go/bin/go install sigs.k8s.io/kind@{{ kind_version }}
       args:
         creates: "{{ go_bin_path }}/kind"
+        executable: /bin/bash
 
     - name: Add GOPATH/bin to PATH in .bashrc if not present
       ansible.builtin.lineinfile:
@@ -49,6 +50,7 @@
         echo "Bashrc sourced"
       args:
         executable: /bin/bash
+      register: result
       changed_when: "'sourced' in result.stdout"
 
     - name: Verify Kind installation
