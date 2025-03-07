@@ -1,0 +1,12 @@
+---
+- name: Install Go
+  hosts: localhost # DevSkim: ignore DS162092
+  become: true
+  gather_facts: true
+
+  roles:
+    - role: robertdebock.bootstrap
+    - role: geerlingguy.go
+      vars:
+        go_version: "{{ go_version | default('1.24.1') }}"
+        go_checksum: "{{ go_checksum | default('cb2396bae64183cdccf81a9a6df0aea3bce9511fc21469fb89a0c00470088073') }}" # DevSkim: ignore DS173237
