@@ -70,7 +70,6 @@ before_script:
 
     task --version
   - source ~/.bash_profile
-  - echo $KUBECONFIG
 
 stages:
   - plan
@@ -142,7 +141,8 @@ release:
 
 deploy:
   stage: deploy
-  needs: []
+  needs:
+    - job: release
   script:
     - task deploy
 
