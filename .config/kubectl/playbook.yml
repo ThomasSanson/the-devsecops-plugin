@@ -58,6 +58,7 @@
           echo "Bashrc sourced"
       args:
         executable: /bin/bash
+      register: result
       changed_when: "'sourced' in result.stdout"
 
     - name: Verify kubectl installation
