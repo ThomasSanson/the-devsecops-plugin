@@ -23,6 +23,7 @@ services:
     working_dir: ${PWD:-/home/developer/workspace/project}
     init: true
     privileged: true
+    network_mode: host
     group_add:
       - docker
     cap_add:
