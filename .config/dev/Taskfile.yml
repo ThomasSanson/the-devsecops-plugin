@@ -8,48 +8,83 @@ tasks:
   setup-environment:
     desc: Configure the development environment.
     cmds:
-      - cmd: |
-          if [[ "{{.TASK_BUN_ENABLED}}" == "true" ]]; then
-            echo "🔄 Running bun..."
-            task {{.TASK_FLAGS}} bun:install
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping bun (disabled via TASK_BUN_ENABLED=false)"
-          fi
-        silent: true
-      - cmd: |
-          if [[ "{{.TASK_COPIER_ENABLED}}" == "true" ]]; then
-            echo "🔄 Running copier..."
-            task {{.TASK_FLAGS}} copier:install
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping copier (disabled via TASK_COPIER_ENABLED=false)"
-          fi
-        silent: true
-      - cmd: |
-          if [[ "{{.TASK_DOCKER_CE_ENABLED}}" == "true" ]]; then
-            echo "🔄 Running docker-ce..."
-            task {{.TASK_FLAGS}} docker-ce:install
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping docker-ce (disabled via TASK_DOCKER_CE_ENABLED=false)"
-          fi
-        silent: true
-      - cmd: |
-          if [[ "{{.TASK_PODMAN_ENABLED}}" == "true" ]]; then
-            echo "🔄 Running podman..."
-            task {{.TASK_FLAGS}} podman:install
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping podman (disabled via TASK_PODMAN_ENABLED=false)"
-          fi
-        silent: true
-      - cmd: |
-          if [[ "{{.TASK_NODEJS_ENABLED}}" == "true" ]]; then
-            echo "🔄 Running nodejs..."
-            task {{.TASK_FLAGS}} nodejs:install
-            echo "{{.TASK_SEPARATOR}}"
-          else
-            echo "⚠️ Skipping nodejs (disabled via TASK_NODEJS_ENABLED=false)"
-          fi
-        silent: true
+      - task: ansible
+      - task: bun
+      - task: docker-ce
+      - task: go
+      - task: helm
+      - task: kind
+      - task: kubectl
+      - task: kubeseal
+      - task: nodejs
+      - task: podman
+
+  ansible:
+    internal: true
+    status:
+      - test "{{.TASK_ANSIBLE_ENABLED}}" = "false"
+    cmds:
+      - task: :ansible:install
+
+  bun:
+    internal: true
+    status:
+      - test "{{.TASK_BUN_ENABLED}}" = "false"
+    cmds:
+      - task: :bun:install
+
+  docker-ce:
+    internal: true
+    status:
+      - test "{{.TASK_DOCKER_CE_ENABLED}}" = "false"
+    cmds:
+      - task: :docker-ce:install
+
+  go:
+    internal: true
+    status:
+      - test "{{.TASK_GO_ENABLED}}" = "false"
+    cmds:
+      - task: :go:install
+
+  helm:
+    internal: true
+    status:
+      - test "{{.TASK_HELM_ENABLED}}" = "false"
+    cmds:
+      - task: :helm:install
+
+  kind:
+    internal: true
+    status:
+      - test "{{.TASK_KIND_ENABLED}}" = "false"
+    cmds:
+      - task: :kind:install
+
+  kubectl:
+    internal: true
+    status:
+      - test "{{.TASK_KUBECTL_ENABLED}}" = "false"
+    cmds:
+      - task: :kubectl:install
+
+  kubeseal:
+    internal: true
+    status:
+      - test "{{.TASK_KUBESEAL_ENABLED}}" = "false"
+    cmds:
+      - task: :kubeseal:install
+
+  nodejs:
+    internal: true
+    status:
+      - test "{{.TASK_NODEJS_ENABLED}}" = "false"
+    cmds:
+      - task: :nodejs:install
+
+  podman:
+    internal: true
+    status:
+      - test "{{.TASK_PODMAN_ENABLED}}" = "false"
+    cmds:
+      - task: :podman:install
