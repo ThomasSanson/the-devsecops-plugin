@@ -56,6 +56,9 @@ includes:
   docker-ce:
     taskfile: .config/docker-ce/Taskfile.yml
     optional: true
+  go:
+    taskfile: .config/go/Taskfile.yml
+    optional: true
   helm:
     taskfile: .config/helm/Taskfile.yml
     optional: true
