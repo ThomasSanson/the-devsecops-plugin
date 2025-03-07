@@ -10,6 +10,7 @@ tasks:
     status:
       - test "{{.TASK_DEVSECOPS_DEPLOY_ENABLED}}" = "false"
     cmds:
+      - task: check-testing-environment
       - task: bootstrap
 
   bootstrap:
@@ -20,3 +21,14 @@ tasks:
       - task: :helm:dependency:update
       - task: :sealed-secrets:install
       - task: :kubeseal:seal
+
+  check-testing-environment:
+    internal: true
+    desc: Check if any of the KUBECONFIG variables contain "testing" and run TDD tests if so
+    run: once
+    status:
+      - test -f $KUBECONFIG
+    cmds:
+      - task: :test:infrastructure:dependency
+      - task: :test:infrastructure:create
+      - task: :test:infrastructure:prepare
