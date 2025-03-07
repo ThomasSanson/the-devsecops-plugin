@@ -28,28 +28,12 @@ variables:
   DOCKER_TLS_VERIFY: 1
   DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   DOCKER_DRIVER: overlay2
-  DOCKER_CACHE_DIR: "${CI_PROJECT_DIR}/.cache/docker"
-
-cache:
-  key: "docker-cache"
-  paths:
-    - .cache/docker/
-  policy: pull-push
 
 services:
   # kics-scan ignore-line
-  - name: docker:24.0.5-dind # The rule [ce76b7d0-9e77-464d-b86f-c5c48e03e22d,698ed579-b239-4f8f-a388-baa4bcb13ef8,610e266e-6c12-4bca-9925-1ed0cd29742b] are ignored here because it causes false positives specifically related to the Docker-in-Docker service.
-    command:
-      - "dockerd"
-      - "--data-root=${DOCKER_CACHE_DIR}"
-      - "--storage-driver=overlay2"
-      - "--tls=true"
-      - "--tlscert=${DOCKER_TLS_CERTDIR}/server/cert.pem"
-      - "--tlskey=${DOCKER_TLS_CERTDIR}/server/key.pem"
-      - "--host=tcp://0.0.0.0:2376"
+  - docker:24.0.5-dind # The rule [ce76b7d0-9e77-464d-b86f-c5c48e03e22d,698ed579-b239-4f8f-a388-baa4bcb13ef8,610e266e-6c12-4bca-9925-1ed0cd29742b] are ignored here because it causes false positives specifically related to the Docker-in-Docker service.
 
 before_script:
-  - mkdir -p ${DOCKER_CACHE_DIR}
   # Fix git security
   - git config --global --add safe.directory "${CI_PROJECT_DIR}"
   # Fix permissions
