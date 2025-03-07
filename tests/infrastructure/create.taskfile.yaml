@@ -66,10 +66,7 @@ tasks:
       - test -f {{.TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_FILE}}
     cmds:
       - mkdir -p {{.TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_DIR}}
-      - |
-        kind create cluster \
-          --name {{.TASK_TEST_INFRASTRUCTURE_CREATE_CLUSTER_NAME}} \
-          --kubeconfig {{.TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_FILE}}
+      - kind create cluster --name {{.TASK_TEST_INFRASTRUCTURE_CREATE_CLUSTER_NAME}} --kubeconfig {{.TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_FILE}}
 
   cluster:verify:
     desc: |
