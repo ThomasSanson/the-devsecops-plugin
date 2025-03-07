@@ -37,28 +37,42 @@
         creates: "{{ go_bin_path }}/kubeseal"
         executable: /bin/bash
 
-    - name: Add GOPATH/bin to PATH in .bashrc if not present
-      ansible.builtin.lineinfile:
-        path: "{{ ansible_env.HOME }}/.bashrc"
-        line: 'export PATH=$PATH:{{ go_bin_path }}'
-        regexp: '^export PATH=.*{{ go_bin_path | regex_escape }}.*$'
-        state: present
+    - name: Create symlink to kubeseal in /usr/local/bin for global access
+      ansible.builtin.file:
+        src: "{{ go_bin_path }}/kubeseal"
+        dest: "/usr/local/bin/kubeseal"
+        state: link
+        mode: '0755'
+      become: true
+      ignore_errors: true
 
-    - name: Source .bashrc
-      ansible.builtin.shell: |
-        source {{ ansible_env.HOME }}/.bashrc
-        echo "Bashrc sourced"
-      args:
-        executable: /bin/bash
-      register: result
-      changed_when: "'sourced' in result.stdout"
+    - name: Alternative - Copy kubeseal to /usr/local/bin if symlink fails (permissions issue)
+      ansible.builtin.copy:
+        src: "{{ go_bin_path }}/kubeseal"
+        dest: "/usr/local/bin/kubeseal"
+        mode: '0755'
+        remote_src: true
+      become: true
+      ignore_errors: true
+      when: not ansible_check_mode
 
-    - name: Verify Kubeseal installation
+    - name: Verify Kubeseal installation in GOPATH
       ansible.builtin.command: "{{ go_bin_path }}/kubeseal --version"
       register: kubeseal_version_check
       changed_when: false
 
+    - name: Verify Kubeseal is accessible globally
+      ansible.builtin.command: "which kubeseal"
+      register: kubeseal_which_check
+      changed_when: false
+      ignore_errors: true
+
+    - name: Display Kubeseal path
+      ansible.builtin.debug:
+        msg: "Kubeseal is available at: {{ kubeseal_which_check.stdout }}"
+      when: kubeseal_which_check.rc == 0
+
     - name: Display installation result
       ansible.builtin.debug:
-        msg: "Kubeseal {{ kubeseal_version }} has been successfully installed in {{ go_bin_path }}/kubeseal. Please restart your shell or run 'source ~/.bashrc' to use kubeseal command directly."
+        msg: "Kubeseal {{ kubeseal_version }} has been successfully installed and made available globally through /usr/local/bin/kubeseal"
       when: kubeseal_version_check.rc == 0
