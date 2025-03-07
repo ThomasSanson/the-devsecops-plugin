@@ -42,6 +42,8 @@ tasks:
           echo "🚀 Installing/Upgrading sealed-secrets..."
           helm upgrade --install {{.TASK_SEALED_SECRETS_CONTROLLER}} {{.TASK_SEALED_SECRETS_HELM_DIR}} \
             --kubeconfig {{.TASK_SEALED_SECRETS_KUBECONFIG}} \
+            --namespace {{.TASK_SEALED_SECRETS_NAMESPACE}} \
+            --create-namespace \
             --set sealed-secrets.enabled=true \
             --wait \
             --timeout 5m
