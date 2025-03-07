@@ -31,4 +31,3 @@ tasks:
     cmds:
       - task: :test:infrastructure:dependency
       - task: :test:infrastructure:create
-      - task: :test:infrastructure:prepare
