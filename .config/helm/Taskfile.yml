@@ -2,6 +2,7 @@
 version: "3"
 
 vars:
+  TASK_HELM_ENABLED: '{{.OVERRIDE_TASK_HELM_ENABLED | default "true"}}'
   TASK_HELM_VENV_DIR: '{{.OVERRIDE_TASK_HELM_VENV_DIR | default "./venv/helm"}}'
   TASK_HELM_ANSIBLE_CMD: '{{.OVERRIDE_TASK_HELM_ANSIBLE_CMD | default "./venv/helm/bin/ansible-playbook"}}'
   TASK_HELM_ANSIBLE_GALAXY_CMD: '{{.OVERRIDE_TASK_HELM_ANSIBLE_GALAXY_CMD | default "./venv/helm/bin/ansible-galaxy"}}'
@@ -78,21 +79,21 @@ tasks:
   install:
     desc: |
       ℹ️ Description:
-        Installs Node.js using Ansible automation
+        Installs Helm using Ansible automation
 
       🔧 Variables:
         - TASK_HELM_ANSIBLE_CMD: Ansible command path
         - TASK_HELM_ANSIBLE_PLAYBOOK_FILE: Ansible playbook location
-        - TASK_HELM_MAJOR_VERSION: Major version of Node.js to install (default: 20.x)
+        - TASK_HELM_MAJOR_VERSION: Major version of Helm to install (default: 20.x)
 
       🔐 Preconditions:
         - Dependencies must be installed
         - Roles must be installed
 
       🔄 Execution:
-        Runs Ansible playbook for Node.js installation
+        Runs Ansible playbook for Helm installation
     status:
-      - command -v node &> /dev/null
+      - command -v helm &> /dev/null
     preconditions:
       - sh: "test -f {{.TASK_HELM_ANSIBLE_PLAYBOOK_FILE}}"
         msg: "❌ Playbook file not found at {{.TASK_HELM_ANSIBLE_PLAYBOOK_FILE}}"
@@ -105,7 +106,7 @@ tasks:
           -c local \
           -e "helm_version={{.TASK_HELM_MAJOR_VERSION}}" \
           {{.TASK_HELM_ANSIBLE_PLAYBOOK_FILE}}
-      - cmd: echo "✅ Node.js installed successfully"
+      - cmd: echo "✅ Helm installed successfully"
         silent: true
 
   cleanup:
@@ -148,6 +149,7 @@ tasks:
       🔄 Execution:
         - Creates build directory if it doesn't exist
         - Packages the Helm chart with dependency update
+    deps: [install]
     preconditions:
       - sh: command -v helm >/dev/null 2>&1
         msg: "❌ Helm is not installed. Please run 'task helm:install' first."
