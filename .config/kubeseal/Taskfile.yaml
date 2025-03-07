@@ -1,6 +1,7 @@
 version: "3"
 
 vars:
+  TASK_KUBESEAL_ENABLED: '{{.OVERRIDE_TASK_KUBESEAL_ENABLED | default "true"}}'
   TASK_KUBESEAL_VERSION: '{{.OVERRIDE_TASK_KUBESEAL_VERSION | default "v0.28.0"}}'
   TASK_KUBESEAL_VENV_DIR: '{{.OVERRIDE_TASK_KUBESEAL_VENV_DIR | default "./venv/kubeseal"}}'
   TASK_KUBESEAL_ANSIBLE_CMD: '{{.OVERRIDE_TASK_KUBESEAL_ANSIBLE_CMD | default "./venv/kubeseal/bin/ansible-playbook"}}'
