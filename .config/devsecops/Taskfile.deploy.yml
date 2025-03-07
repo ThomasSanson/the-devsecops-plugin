@@ -19,6 +19,7 @@ tasks:
         Prepares the infrastructure with required components
     cmds:
       - task: :helm:dependency:update
+      - task: :helm:build
       - task: :sealed-secrets:install
       - task: :kubeseal:seal
 
