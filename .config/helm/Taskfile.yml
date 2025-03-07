@@ -122,6 +122,7 @@ tasks:
 
       🔧 Variables:
         - TASK_HELM_DIR: Path to Helm charts directory
+    deps: [install]
     preconditions:
       - sh: test -f {{.TASK_HELM_DIR}}/Chart.yaml
         msg: ❌ Helm Chart.yaml not found at {{.TASK_HELM_DIR}}/Chart.yaml
