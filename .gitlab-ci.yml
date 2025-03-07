@@ -156,8 +156,7 @@ release:
 
 deploy:
   stage: deploy
-  needs:
-    - job: release
+  needs: []
   script:
     - task deploy
 
