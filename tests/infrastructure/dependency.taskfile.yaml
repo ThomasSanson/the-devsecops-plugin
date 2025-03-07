@@ -9,6 +9,8 @@ tasks:
         silent: true
       # Install Ansible and its dependencies first
       - task: :ansible:install
+      # Verify Go installation
+      - task: :go:install
       # Verify kubectl installation
       - task: :kubectl:install
       # Verify kind installation
