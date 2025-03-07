@@ -38,6 +38,8 @@
           set -o pipefail
           echo "$(cat {{ kubectl_install_dir }}/kubectl.sha256)  {{ kubectl_install_dir }}/kubectl" | sha256sum --check
       register: kubectl_verify
+      args:
+        executable: /bin/bash
       changed_when: false
       failed_when: kubectl_verify.rc != 0
 
