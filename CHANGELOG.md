@@ -2,6 +2,86 @@
 
 # Changelog
 
+## 5.0.0 (2025-03-09)
+
+### Feat
+
+- **Taskfile.deploy.yml**: add helm build task to prepare infrastructure for deployment
+- **Taskfile.deploy.yml**: add check-testing-environment task to validate KUBECONFIG variables and run TDD tests for better deployment safety
+- **Taskfile.yaml**: add namespace and create-namespace options to helm upgrade for sealed-secrets installation to ensure proper namespace handling
+- **kubeseal**: enhance installation playbook to create a global symlink for kubeseal and verify accessibility
+- **playbook.yml**: enhance Kind installation process by creating a symlink in /usr/local/bin for global access and adding verification steps for accessibility
+- **playbook.yml**: add result registration for bashrc sourcing to improve task verification
+- **dependency.taskfile.yaml**: add Go installation verification task to ensure Go is properly set up in the environment
+- **Taskfile**: add optional Go taskfile inclusion for better modularity
+- **Taskfile.yaml**: add TASK_KUBESEAL_ENABLED variable for better task control and configuration flexibility
+- **Taskfile.yml**: update tasks to install Helm instead of Node.js and add TASK_HELM_ENABLED variable for configuration
+- **go**: add requirements.yml to define Ansible roles for Go setup
+- **requirements**: add ansible-core dependency to requirements.txt for automation support
+- **playbook.yml**: add Ansible playbook for installing Go with configurable version and checksum
+- **Taskfile**: add Taskfile for managing Go installation and dependencies using Ansible automation to streamline setup process
+- **Taskfile.yml**: add TASK_LIZARD_ENABLED variable to control lizard task execution and enhance configurability
+- **docker**: add community.general collection to requirements for enhanced functionality
+- **Taskfile.yml**: add TASK_DOCKER_CE_ENABLED variable for better configuration management and enhance role installation with collection support
+- **Taskfile.test.yml**: add new tasks for running tests and TDD for infrastructure with conditional execution based on environment variable
+- **Taskfile.plan.yml**: add variable for enabling/disabling devsecops plan and update default task status check
+- **Taskfile.operate.yml**: add variable for enabling/disabling devsecops operate tasks to enhance configurability
+- **Taskfile.monitor.yml**: add variable for enabling/disabling DevSecOps monitor tasks to enhance configurability
+- **tests**: add verification taskfile for Ansible playbook execution to streamline infrastructure verification process
+- **tests**: add syntax checking taskfile for Helm charts and Ansible playbooks to ensure code quality in the test environment
+- **tests**: add side effect simulation taskfile for testing system resilience with Ansible playbooks
+- **tests**: add requirements.yml for Ansible collections needed for infrastructure testing
+- **prepare.taskfile.yaml**: add a new task file to prepare test infrastructure with required components
+- **tests**: add idempotence testing task to verify infrastructure deployment consistency
+- **tests**: add destroy taskfile for managing Kind cluster destruction in testing environment
+- **tests**: add dependency taskfile for managing testing dependencies and tools installation
+- **tests**: add create.taskfile.yaml for managing test infrastructure setup and verification in Kind clusters
+- **tests**: add converge taskfile for managing test infrastructure setup and deployment process
+- **tests**: add cleanup taskfile for infrastructure to manage resource removal
+- **tests**: add Ansible playbook to verify Sealed Secrets controller deployment and service readiness for testing environment
+- **tests**: add Ansible playbook to disrupt Sealed Secrets controller for resilience testing
+- **Taskfile**: add Taskfile.yml to define project-specific tasks for planning, coding, building, testing, releasing, deploying, operating, monitoring, and feedback
+- **helm**: add values.yaml for sealed-secrets configuration to manage installation settings and namespace details
+- **helm**: add Chart.yaml for Helm chart deployment with dependencies for sealed-secrets
+- **helm**: add Chart.lock file to manage dependencies for sealed-secrets Helm chart
+- **secrets.yaml**: add secrets configuration for testing environment to manage sensitive data securely
+- **sealed-secrets**: add Taskfile.yaml for managing sealed-secrets installation and verification in Kubernetes
+- **config**: add lychee configuration file to exclude specific URLs from checks
+- **kubeseal**: add requirements.txt to specify ansible-core dependency for better environment management
+- **kubeseal**: add Ansible playbook for installing Kubeseal using Go to streamline the setup process and ensure proper environment configuration
+- **kubeseal**: add Taskfile.yaml for managing Kubeseal installation and operations with Ansible automation
+- **kubectl**: add Ansible playbook for installing kubectl with verification and PATH setup to streamline development environment setup
+- **kubectl**: add Taskfile.yml for managing kubectl installation and dependencies using Ansible automation
+- **requirements**: add ansible-core version 2.18.2 to requirements for improved automation capabilities
+- **playbook**: add Ansible playbook for installing Kind using Go to streamline setup process
+- **taskfile**: add Taskfile.yml for managing Kind installation and dependencies with Ansible automation
+- **helm**: add requirements.yml to define Helm chart dependencies for better management
+- **helm**: add playbook.yml for installing Helm with specified roles and version management
+- **helm**: add Taskfile.yml for managing Ansible and Helm tasks to streamline setup and installation processes
+- **Taskfile.feedback.yml**: add variable for enabling/disabling feedback tasks to enhance configurability
+- **Taskfile.deploy.yml**: add deploy task with bootstrap preparation steps and environment variable for enabling/disabling deployment
+- **Taskfile.yml**: add TASK_DEV_ENABLED variable to allow overriding task execution in development environment
+- **Taskfile.yml**: add TASK_COPIER_ENABLED variable to allow overriding task copier enablement for better configuration flexibility
+- **ansible**: add requirements.txt to specify ansible-core and kubernetes versions for dependency management
+- **ansible**: add Taskfile.yml to manage Ansible setup and execution tasks in a virtual environment
+
+### Fix
+
+- **ci**: add dependency on release job for deploy stage to ensure proper execution order
+- **Taskfile.deploy.yml**: update KUBECONFIG check to ensure it is not empty before running tests
+- **playbook.yml**: improve error handling for Go installation checks and symlink creation to ensure proper execution flow and clarity in failure conditions
+- **playbook.yml**: improve error handling for Go and Kind installation checks to ensure accurate failure reporting and better debugging
+- **playbook.yml**: update Go command paths to use absolute paths for consistency and reliability
+- **playbook.yml**: update Go command paths to absolute to ensure correct execution in Ansible tasks
+- **megalinter**: remove unnecessary sudo commands and streamline report cleanup process
+- **dependency-check**: update volume mount path from /src to /project for consistency in scanning directory
+
+### Refactor
+
+- **kubeseal**: remove GOPATH modification steps and add fallback copy method for permissions issues
+- **devsecops**: restructure Taskfile.release.yml to improve task organization and readability by defining tasks for commitizen, kaniko, and docker separately
+- **Taskfile**: restructure task definitions for better organization and clarity by consolidating installation commands into individual tasks
+
 ## 4.0.0 (2025-01-15)
 
 ### Feat
