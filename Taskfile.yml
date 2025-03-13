@@ -93,26 +93,26 @@ includes:
     taskfile: .config/yamllint/Taskfile.yml
     optional: true
 
-  test:infrastructure:dependency:
-    taskfile: ./tests/infrastructure/dependency.taskfile.yaml
-  test:infrastructure:syntax:
-    taskfile: ./tests/infrastructure/syntax.taskfile.yaml
-  test:infrastructure:create:
-    taskfile: ./tests/infrastructure/create.taskfile.yaml
-  test:infrastructure:prepare:
-    taskfile: ./tests/infrastructure/prepare.taskfile.yaml
-  test:infrastructure:converge:
-    taskfile: ./tests/infrastructure/converge.taskfile.yaml
-  test:infrastructure:idempotence:
-    taskfile: ./tests/infrastructure/idempotence.taskfile.yaml
-  test:infrastructure:side_effect:
-    taskfile: ./tests/infrastructure/side_effect.taskfile.yaml
-  test:infrastructure:verify:
-    taskfile: ./tests/infrastructure/verify.taskfile.yaml
-  test:infrastructure:destroy:
-    taskfile: ./tests/infrastructure/destroy.taskfile.yaml
-  test:infrastructure:cleanup:
-    taskfile: ./tests/infrastructure/cleanup.taskfile.yaml
+  test:infra:kube:dependency:
+    taskfile: ./tests/infra/kube/dependency.taskfile.yaml
+  test:infra:kube:syntax:
+    taskfile: ./tests/infra/kube/syntax.taskfile.yaml
+  test:infra:kube:create:
+    taskfile: ./tests/infra/kube/create.taskfile.yaml
+  test:infra:kube:prepare:
+    taskfile: ./tests/infra/kube/prepare.taskfile.yaml
+  test:infra:kube:converge:
+    taskfile: ./tests/infra/kube/converge.taskfile.yaml
+  test:infra:kube:idempotence:
+    taskfile: ./tests/infra/kube/idempotence.taskfile.yaml
+  test:infra:kube:side_effect:
+    taskfile: ./tests/infra/kube/side_effect.taskfile.yaml
+  test:infra:kube:verify:
+    taskfile: ./tests/infra/kube/verify.taskfile.yaml
+  test:infra:kube:destroy:
+    taskfile: ./tests/infra/kube/destroy.taskfile.yaml
+  test:infra:kube:cleanup:
+    taskfile: ./tests/infra/kube/cleanup.taskfile.yaml
 
 tasks:
   tdd:
