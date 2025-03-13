@@ -1,0 +1,171 @@
+version: "3"
+
+vars:
+  TASK_TEST_INFRASTRUCTURE_CREATE_CLUSTER_NAME: '{{.OVERRIDE_TASK_TEST_INFRASTRUCTURE_CREATE_CLUSTER_NAME | default "test"}}'
+  TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_DIR: '{{.OVERRIDE_TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_DIR | default "iac/environment/testing"}}'
+  TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_FILE: '{{.TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_DIR}}/kubeconfig.yaml'
+
+tasks:
+  default:
+    desc: |
+      ℹ️ Description:
+        Creates and verifies the test infrastructure
+
+      🔄 Execution:
+        1. Creates Kind cluster
+        2. Verifies all components are running
+    cmds:
+      - cmd: echo "🚀 Starting create phase..."
+        silent: true
+      - task: ensure:kubeconfig
+      - task: cluster
+      - task: cluster:verify
+
+  ensure:kubeconfig:
+    desc: |
+      ℹ️ Description:
+        Ensures the kubeconfig file exists and is valid for the specified Kind cluster.
+        If the cluster exists, retrieves its kubeconfig. Otherwise, only creates the directory.
+
+      🔧 Variables:
+        - TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_DIR: Directory to store kubeconfig files
+        - TASK_TEST_INFRASTRUCTURE_CREATE_CLUSTER_NAME: Name of the Kind cluster
+        - TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_FILE: Path to kubeconfig file
+
+      ✅ Verifications:
+        1. Checks if the Kind cluster exists
+        2. Validates kubeconfig file if cluster exists
+    status:
+      - mkdir -p {{.TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_DIR}}
+      - |
+        if kind get clusters | grep -q "^{{.TASK_TEST_INFRASTRUCTURE_CREATE_CLUSTER_NAME}}$"; then
+          if [ ! -f "{{.TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_FILE}}" ]; then
+            exit 1
+          fi
+          exit 0
+        else
+          exit 0
+        fi
+    cmds:
+      - mkdir -p {{.TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_DIR}}
+      - |
+        if kind get clusters | grep -q "^{{.TASK_TEST_INFRASTRUCTURE_CREATE_CLUSTER_NAME}}$"; then
+          kind get kubeconfig --name {{.TASK_TEST_INFRASTRUCTURE_CREATE_CLUSTER_NAME}} > {{.TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_FILE}}
+        fi
+
+  cluster:
+    desc: |
+      ℹ️ Description:
+        Creates a new Kind cluster if it doesn't exist
+
+      🔧 Variables:
+        - TASK_TEST_INFRASTRUCTURE_CREATE_CLUSTER_NAME: Name of the Kind cluster
+        - TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_FILE: Path to kubeconfig file
+    status:
+      - kind get clusters | grep -q "^{{.TASK_TEST_INFRASTRUCTURE_CREATE_CLUSTER_NAME}}$"
+      - test -f {{.TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_FILE}}
+    cmds:
+      - mkdir -p {{.TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_DIR}}
+      - kind create cluster --name {{.TASK_TEST_INFRASTRUCTURE_CREATE_CLUSTER_NAME}} --kubeconfig {{.TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_FILE}}
+
+  cluster:verify:
+    desc: |
+      ℹ️ Description:
+        Verifies that all cluster components are operational
+
+      🔧 Variables:
+        - TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_FILE: Path to kubeconfig file
+    cmds:
+      - task: wait:nodes:ready
+      - task: wait:coredns:ready
+      - task: wait:control-plane:ready
+      - task: wait:storage:ready
+      - |
+        if ! kubectl --kubeconfig {{.TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_FILE}} get pods -A | grep -q "Running"; then
+          echo "❌ Some pods are not running"
+          exit 1
+        fi
+      - cmd: |
+          echo "🔍 Cluster components:"
+          kubectl --kubeconfig {{.TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_FILE}} get pods -A
+          echo ""
+          echo "📝 Kubeconfig: {{.TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_FILE}}"
+          echo "✅ Cluster '{{.TASK_TEST_INFRASTRUCTURE_CREATE_CLUSTER_NAME}}' is ready!"
+        silent: false
+
+  check:cluster:exists:
+    desc: |
+      ℹ️ Description:
+        Verifies if the Kind cluster already exists
+
+      🔧 Variables:
+        - TASK_TEST_INFRASTRUCTURE_CREATE_CLUSTER_NAME: Name of the Kind cluster
+    cmds:
+      - kind get clusters
+    silent: true
+
+  wait:nodes:ready:
+    desc: |
+      ℹ️ Description:
+        Waits for Kubernetes nodes to be in Ready state
+
+      🔧 Variables:
+        - TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_FILE: Path to kubeconfig file
+    cmds:
+      - cmd: echo 'kubectl --kubeconfig {{.TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_FILE}} get nodes | grep -q "Ready"'
+        silent: true
+      - cmd: |
+          for i in {1..15}; do
+            if kubectl --kubeconfig {{.TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_FILE}} get nodes | grep -q "Ready"; then
+              exit 0
+            fi
+            echo "⏳ Waiting for nodes to be ready (attempt $i/15)..."
+            sleep 20
+          done
+          exit 1
+        silent: true
+
+  wait:coredns:ready:
+    desc: |
+      ℹ️ Description:
+        Waits for CoreDNS pods to be running
+    cmds:
+      - |
+        for i in {1..15}; do
+          if kubectl --kubeconfig {{.TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_FILE}} -n kube-system get pods -l k8s-app=kube-dns | grep -q "Running"; then
+            exit 0
+          fi
+          echo "⏳ Waiting for CoreDNS pods to be ready (attempt $i/15)..."
+          sleep 20
+        done
+        exit 1
+
+  wait:control-plane:ready:
+    desc: |
+      ℹ️ Description:
+        Waits for control plane components to be running
+    cmds:
+      - |
+        for i in {1..15}; do
+          if kubectl --kubeconfig {{.TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_FILE}} -n kube-system get pods -l tier=control-plane | grep -q "Running"; then
+            exit 0
+          fi
+          echo "⏳ Waiting for control plane pods to be ready (attempt $i/15)..."
+          sleep 20
+        done
+        exit 1
+
+  wait:storage:ready:
+    desc: |
+      ℹ️ Description:
+        Waits for local-path-provisioner to be running
+    cmds:
+      - |
+        for i in {1..15}; do
+          if kubectl --kubeconfig {{.TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_FILE}} -n local-path-storage get pods -l app=local-path-provisioner | grep -q "Running"; then
+            exit 0
+          fi
+          echo "⏳ Waiting for local-path-provisioner to be ready (attempt $i/15)..."
+          sleep 20
+        done
+        exit 1
