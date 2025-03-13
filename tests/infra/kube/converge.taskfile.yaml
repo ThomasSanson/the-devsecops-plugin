@@ -1,0 +1,11 @@
+version: "3"
+
+tasks:
+  default:
+    desc: |
+      ℹ️ Description:
+        Converge the test infrastructure with required components
+    cmds:
+      - cmd: echo "🚀 Starting converge phase..."
+        silent: true
+      - task: :project:deploy
