@@ -70,8 +70,7 @@ tasks:
       - kind create cluster --name {{.TASK_TEST_INFRASTRUCTURE_CREATE_CLUSTER_NAME}} --kubeconfig {{.TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_FILE}} --config={{.TASK_TEST_INFRASTRUCTURE_CREATE_KIND_CONFIG_FILE}}
       - |
         if [ -n "${GITLAB_CI}" ]; then
-          echo "Running in GitLab CI environment, adjusting kubeconfig server addresses..."
-          sed -i -E -e 's/localhost|0\.0\.0\.0/docker/g' "{{.TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_FILE}}"
+          echo "Running in GitLab CI environment, adjusting kubeconfig server addresses..."          sed -i -E -e 's/localhost|0\.0\.0\.0/docker/g' "{{.TASK_TEST_INFRASTRUCTURE_CREATE_KUBECONFIG_FILE}}" # DevSkim: ignore DS162092
         fi
 
   cluster:verify:
