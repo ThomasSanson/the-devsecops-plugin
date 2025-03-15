@@ -1,0 +1,30 @@
+---
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+
+# This has the API server listen on all IP interfaces. In the Gitlab CI
+# environment, it allows us to access the kubernetes API from outside
+# of the dind service.
+# WARNING: In normal use of kind, it is _strongly_ recommended that you
+# keep this the default (127.0.0.1) for security reasons. However we
+# need to change this to work in gitlab CI with Docker-in-docker running
+# as a service.
+networking:
+  apiServerAddress: "0.0.0.0"
+
+# This adds the hostname 'docker' to the Subject Alt Name (SAN) list on the
+# certificates created by kubeadm for the kind cluster. This matches the
+# alias that Gtlab CI uses to start up the dind service. The Kube API port
+# is exposed on the dind service port, so we need to use that name.
+kubeadmConfigPatchesJSON6902:
+  - group: kubeadm.k8s.io
+    version: v1beta3
+    kind: ClusterConfiguration
+    patch: |
+      - op: add
+        path: /apiServer/certSANs/-
+        value: docker
+
+nodes:
+  - role: control-plane
+  - role: worker
