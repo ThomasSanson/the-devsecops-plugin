@@ -46,7 +46,7 @@ The DevContainer configuration ensures a standardised development environment wi
 1. Clone the repository:
 
 ```bash
-git clone git@gitlab.mim-libre.fr:digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin.git
+git clone git@gitlab.gitlab.com:digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin.git
 ```
 
 2. Open in Visual Studio Code:
