@@ -29,5 +29,5 @@ tasks:
     status:
       - test -n "$KUBECONFIG" && test -f "$KUBECONFIG"
     cmds:
-      - task: :test:infrastructure:dependency
-      - task: :test:infrastructure:create
+      - task: :test:infra:kube:dependency
+      - task: :test:infra:kube:create

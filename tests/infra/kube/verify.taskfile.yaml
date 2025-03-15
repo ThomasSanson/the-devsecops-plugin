@@ -26,7 +26,7 @@ tasks:
         - TASK_ANSIBLE_VIRTUALENV: Path to Ansible virtual environment
     cmds:
       - |
-        find tests/infrastructure/ansible/verify -type f \( -name "*.yml" -o -name "*.yaml" \) | while read playbook; do
+        find tests/infra/kube/ansible/verify -type f \( -name "*.yml" -o -name "*.yaml" \) | while read playbook; do
           echo "🔎 Executing verification playbook: $playbook"
           {{.TASK_ANSIBLE_VIRTUALENV}}/bin/ansible-playbook "$playbook"
         done
