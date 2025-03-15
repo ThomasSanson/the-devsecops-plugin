@@ -22,4 +22,4 @@ tasks:
       # Install infrastructure test collections
       - task: :ansible:galaxy:collection:install
         vars:
-          TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE: tests/infrastructure/requirements.yml
+          TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE: tests/infra/kube/requirements.yml

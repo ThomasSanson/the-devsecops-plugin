@@ -24,29 +24,29 @@ tasks:
     status:
       - test "{{.TASK_DEVSECOPS_TEST_ENABLED}}" = "false"
     cmds:
-      - task: :test:infrastructure:dependency
-      - task: :test:infrastructure:cleanup
-      - task: :test:infrastructure:destroy
-      - task: :test:infrastructure:syntax
-      - task: :test:infrastructure:create
-      - task: :test:infrastructure:prepare
-      - task: :test:infrastructure:converge
-      - task: :test:infrastructure:idempotence
-      - task: :test:infrastructure:side_effect
-      - task: :test:infrastructure:verify
-      - task: :test:infrastructure:destroy
-      - task: :test:infrastructure:cleanup
+      - task: :test:infra:kube:dependency
+      - task: :test:infra:kube:cleanup
+      - task: :test:infra:kube:destroy
+      - task: :test:infra:kube:syntax
+      - task: :test:infra:kube:create
+      - task: :test:infra:kube:prepare
+      - task: :test:infra:kube:converge
+      - task: :test:infra:kube:idempotence
+      - task: :test:infra:kube:side_effect
+      - task: :test:infra:kube:verify
+      - task: :test:infra:kube:destroy
+      - task: :test:infra:kube:cleanup
 
   infrastructure:tdd:
     desc: Run tdd infrastructure tests tasks
     status:
       - test "{{.TASK_DEVSECOPS_TEST_ENABLED}}" = "false"
     cmds:
-      - task: :test:infrastructure:dependency
-      - task: :test:infrastructure:syntax
-      - task: :test:infrastructure:create
-      - task: :test:infrastructure:prepare
-      - task: :test:infrastructure:converge
-      - task: :test:infrastructure:idempotence
-      - task: :test:infrastructure:side_effect
-      - task: :test:infrastructure:verify
+      - task: :test:infra:kube:dependency
+      - task: :test:infra:kube:syntax
+      - task: :test:infra:kube:create
+      - task: :test:infra:kube:prepare
+      - task: :test:infra:kube:converge
+      - task: :test:infra:kube:idempotence
+      - task: :test:infra:kube:side_effect
+      - task: :test:infra:kube:verify

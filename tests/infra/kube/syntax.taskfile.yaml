@@ -21,7 +21,7 @@ tasks:
         done
       # Verify Ansible playbooks syntax
       - |
-        for playbook in tests/infrastructure/ansible/**/*; do
+        for playbook in tests/infra/kube/ansible/**/*; do
           echo "Checking syntax of $playbook"
           # DevSkim: ignore DS162092 # Required for Ansible syntax checking in test environment
           {{.ANSIBLE_SYNTAX_CHECK_CMD}} "$playbook"
