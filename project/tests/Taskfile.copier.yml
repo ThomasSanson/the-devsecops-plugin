@@ -136,24 +136,13 @@ tasks:
       - |
         echo "🔍 Testing DevSecOps task execution in the generated project..."
         echo "📂 Working directory: {{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}"
-        
+
         # First, list available tasks to help with debugging
         echo "📋 Available tasks in the generated project:"
         cd {{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}} && task --list | grep devsecops
-        
+
+      - |
         # Now try to execute the devsecops task
         echo "🚀 Executing 'task devsecops'..."
-        OUTPUT=$(cd {{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}} && task devsecops 2>&1)
-        EXIT_CODE=$?
-        
-        # Display the output and result
-        echo "📄 Command output:"
-        echo "$OUTPUT"
-        
-        if [ $EXIT_CODE -eq 0 ]; then
-          echo "✅ Test passed: DevSecOps task executed successfully in the generated project"
-        else
-          echo "❌ Test failed: Unable to execute DevSecOps task in the generated project (exit code: $EXIT_CODE)"
-          echo "💡 Tip: Check if the task exists and if all dependencies are properly configured"
-          exit 1
-        fi
+        cd {{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}
+        time task test
