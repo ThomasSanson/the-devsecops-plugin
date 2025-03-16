@@ -3,9 +3,7 @@ version: "3"
 
 includes:
   tests:copier:
-    taskfile: ./tests/Taskfile.copier.yml
-    flatten: true
-    optional: true
+    taskfile: ../tests/copier/Taskfile.yml
 
 tasks:
   plan:
@@ -31,7 +29,7 @@ tasks:
     cmds:
       - cmd: echo "Running project-specific test tasks..."
         silent: true
-      - task: project:tests:copier
+      - task: tests:copier
 
   test:tdd:
     desc: Run project-specific TDD test tasks
