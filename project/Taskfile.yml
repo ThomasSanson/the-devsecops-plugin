@@ -1,6 +1,11 @@
 ---
 version: "3"
 
+includes:
+  tests:copier:
+    taskfile: ./tests/Taskfile.copier.yml
+    flatten: true
+
 tasks:
   plan:
     desc: Run project-specific plan tasks
@@ -25,6 +30,7 @@ tasks:
     cmds:
       - cmd: echo "Running project-specific test tasks..."
         silent: true
+      - task: test-copy-local
 
   test:tdd:
     desc: Run project-specific TDD test tasks
