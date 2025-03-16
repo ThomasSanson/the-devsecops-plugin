@@ -5,6 +5,7 @@ includes:
   tests:copier:
     taskfile: ./tests/Taskfile.copier.yml
     flatten: true
+    optional: true
 
 tasks:
   plan:
