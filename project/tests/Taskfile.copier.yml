@@ -1,0 +1,72 @@
+---
+version: "3"
+
+vars:
+  TEST_TMP_DIR: '{{.ROOT_DIR}}/tmp'
+  ROOT_DIR: '{{.ROOT_DIR}}'
+  CURRENT_DIR: '{{dir .TASKFILE_DIR}}'
+  TEST_DIR_NAME: 'test-copier-local'
+
+tasks:
+  test-copy-local:
+    desc: |
+      ℹ️ Description:
+        Tests the copier copy functionality by copying from the current
+        template to a temporary destination and verifying the existence
+        of essential files.
+
+      🔧 Variables:
+        - TEST_TMP_DIR: Temporary directory for test output
+          Default: "./tmp"
+        - TEST_DIR_NAME: Simple test directory name
+          Default: "test-copier-local"
+
+      🔄 Execution:
+        1. Cleans up previous test directories
+        2. Creates a test directory in tmp/
+        3. Runs copier copy command to copy template to test directory
+        4. Verifies the existence of .config/devsecops/.copier-answers.yml
+
+      📝 Usage:
+        task project:test
+    deps:
+      - :copier:install
+      - cleanup
+    cmds:
+      # Create a simple temporary directory for this test
+      - mkdir -p {{.TEST_TMP_DIR}}/{{.TEST_DIR_NAME}}
+
+      # Run the copier copy command (using the local template)
+      - task: :copier
+        vars:
+          CLI_ARGS: copy {{.ROOT_DIR}} --vcs-ref=HEAD {{.TEST_TMP_DIR}}/{{.TEST_DIR_NAME}}
+
+      # Verify that the .copier-answers.yml file exists in the destination
+      - |
+        if [ -f "{{.TEST_TMP_DIR}}/{{.TEST_DIR_NAME}}/.config/devsecops/.copier-answers.yml" ]; then
+          echo "✅ Test passed: .copier-answers.yml file exists in the destination"
+          exit 0
+        else
+          echo "❌ Test failed: .copier-answers.yml file does not exist in the destination"
+          exit 1
+        fi
+
+  cleanup:
+    desc: |
+      ℹ️ Description:
+        Cleans up test directories created by the copier tests.
+
+      🔧 Variables:
+        - TEST_TMP_DIR: Temporary directory for test output
+          Default: "./tmp"
+        - TEST_DIR_NAME: Simple test directory name
+          Default: "test-copier-local"
+
+      🔄 Execution:
+        Removes the test directory from tmp/
+
+      📝 Usage:
+        task project:tests:copier:cleanup
+    cmds:
+      - rm -rf {{.TEST_TMP_DIR}}/{{.TEST_DIR_NAME}}
+      - echo "✅ Copier test directory has been cleaned up"
