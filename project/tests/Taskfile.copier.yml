@@ -2,13 +2,12 @@
 version: "3"
 
 vars:
-  TEST_TMP_DIR: '{{.ROOT_DIR}}/tmp'
+  TEST_TMP_DIR: '{{.ROOT_DIR}}/tmp/tests/copier'
   ROOT_DIR: '{{.ROOT_DIR}}'
-  CURRENT_DIR: '{{dir .TASKFILE_DIR}}'
-  TEST_DIR_NAME: 'test-copier-local'
+  TEST_PROJECT_NAME: 'generated-project'
 
 tasks:
-  test-copy-local:
+  project:tests:copier:
     desc: |
       ℹ️ Description:
         Tests the copier copy functionality by copying from the current
@@ -17,56 +16,101 @@ tasks:
 
       🔧 Variables:
         - TEST_TMP_DIR: Temporary directory for test output
-          Default: "./tmp"
-        - TEST_DIR_NAME: Simple test directory name
-          Default: "test-copier-local"
+          Default: "./tmp/tests/copier"
+        - TEST_PROJECT_NAME: Name of the test project
+          Default: "generated-project"
 
       🔄 Execution:
         1. Cleans up previous test directories
-        2. Creates a test directory in tmp/
+        2. Creates a test directory in tmp/tests/copier/
         3. Runs copier copy command to copy template to test directory
-        4. Verifies the existence of .config/devsecops/.copier-answers.yml
+        4. Runs verification tests for the copied project
 
       📝 Usage:
         task project:test
     deps:
       - :copier:install
-      - cleanup
+      - project:tests:copier:cleanup
     cmds:
       # Create a simple temporary directory for this test
-      - mkdir -p {{.TEST_TMP_DIR}}/{{.TEST_DIR_NAME}}
+      - mkdir -p {{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}
 
       # Run the copier copy command (using the local template)
       - task: :copier
         vars:
-          CLI_ARGS: copy {{.ROOT_DIR}} --vcs-ref=HEAD {{.TEST_TMP_DIR}}/{{.TEST_DIR_NAME}}
+          CLI_ARGS: copy {{.ROOT_DIR}} --vcs-ref=HEAD {{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}
 
-      # Verify that the .copier-answers.yml file exists in the destination
-      - |
-        if [ -f "{{.TEST_TMP_DIR}}/{{.TEST_DIR_NAME}}/.config/devsecops/.copier-answers.yml" ]; then
-          echo "✅ Test passed: .copier-answers.yml file exists in the destination"
-          exit 0
-        else
-          echo "❌ Test failed: .copier-answers.yml file does not exist in the destination"
-          exit 1
-        fi
+      # Run verification tests
+      - task: project:tests:copier:verify:copier-answers
+      - task: project:tests:copier:verify:no-tests-directory
 
-  cleanup:
+  project:tests:copier:cleanup:
     desc: |
       ℹ️ Description:
         Cleans up test directories created by the copier tests.
 
       🔧 Variables:
         - TEST_TMP_DIR: Temporary directory for test output
-          Default: "./tmp"
-        - TEST_DIR_NAME: Simple test directory name
-          Default: "test-copier-local"
+          Default: "./tmp/tests/copier"
+        - TEST_PROJECT_NAME: Name of the test project
+          Default: "generated-project"
 
       🔄 Execution:
-        Removes the test directory from tmp/
+        Removes the test directory from tmp/tests/copier/
 
       📝 Usage:
         task project:tests:copier:cleanup
     cmds:
-      - rm -rf {{.TEST_TMP_DIR}}/{{.TEST_DIR_NAME}}
+      - rm -rf {{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}
       - echo "✅ Copier test directory has been cleaned up"
+
+
+  project:tests:copier:verify:copier-answers:
+    desc: |
+      ℹ️ Description:
+        Verifies that the .copier-answers.yml file exists in the destination.
+        This is a critical file that confirms the template was correctly copied.
+
+      🔧 Variables:
+        - TEST_TMP_DIR: Temporary directory for test output
+        - TEST_PROJECT_NAME: Name of the test project
+
+      🔄 Execution:
+        Checks for the existence of .config/devsecops/.copier-answers.yml
+
+      📝 Usage:
+        task project:tests:copier:verify:copier-answers
+    cmds:
+      - |
+        if [ -f "{{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}/.config/devsecops/.copier-answers.yml" ]; then
+          echo "✅ Test passed: .copier-answers.yml file exists in the destination"
+        else
+          echo "❌ Test failed: .copier-answers.yml file does not exist in the destination"
+          exit 1
+        fi
+
+  project:tests:copier:verify:no-tests-directory:
+    desc: |
+      ℹ️ Description:
+        Verifies that there is no 'tests' directory in the project directory.
+        This test ensures that the template is properly configured to exclude
+        test directories from the generated project.
+
+      🔧 Variables:
+        - TEST_TMP_DIR: Temporary directory for test output
+        - TEST_PROJECT_NAME: Name of the test project
+
+      🔄 Execution:
+        Checks that the project/tests directory does not exist in the generated project
+
+      📝 Usage:
+        task project:tests:copier:verify:no-tests-directory
+    cmds:
+      - |
+        if [ -d "{{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}/project/tests" ]; then
+          echo "❌ Test failed: 'tests' directory exists in the project directory"
+          echo "The 'tests' directory should not be copied to the generated project"
+          exit 1
+        else
+          echo "✅ Test passed: No 'tests' directory exists in the project directory"
+        fi
