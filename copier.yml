@@ -6,15 +6,21 @@ _skip_if_exists:
 _min_copier_version: "9.4.0"
 
 _exclude:
+  - .cache
+  - .config/**/roles
   - .git
+  - .vscode
   - CHANGELOG.md
   - CONTRIBUTING.md
   - copier.yml
   - LICENSE
+  - megalinter-reports
+  - node_modules
   - README.md
-  - VERSION
   - tests/copier
+  - tmp
   - venv
+  - VERSION
 
 _message_after_copy: |
   Your DevSecOps project has been created successfully!
