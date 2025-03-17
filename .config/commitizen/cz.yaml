@@ -8,6 +8,6 @@ commitizen:
   version_files:
   - VERSION
   - .gitlab-ci.yml
-  version_pattern: '(image: registry\.mim-libre\.fr/digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin:)([0-9]+\.[0-9]+\.[0-9]+.*)'
+  version_pattern: '(image: registry\.gitlab\.com/digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin:)([0-9]+\.[0-9]+\.[0-9]+.*)'
   version_provider: commitizen
   version_scheme: semver2
