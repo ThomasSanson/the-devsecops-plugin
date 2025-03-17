@@ -23,6 +23,13 @@ tasks:
     cmds:
       - cmd: echo "Running project-specific build tasks..."
         silent: true
+      - task: :docker-ce:build
+        vars:
+          TASK_DOCKER_CE_IMAGE_TAG:
+            sh: |
+                if [ -f "VERSION" ]; then
+                  echo $(cat VERSION)
+                fi
 
   test:
     desc: Run project-specific test tasks
@@ -42,6 +49,27 @@ tasks:
     cmds:
       - cmd: echo "Running project-specific release tasks..."
         silent: true
+      - task: :docker-ce:build
+        vars:
+          TASK_DOCKER_CE_IMAGE_TAG:
+            sh: |
+                if [ -f "VERSION" ]; then
+                  echo $(cat VERSION)
+                fi
+      - task: :docker-ce:push
+        vars:
+          TASK_DOCKER_CE_PUSH:
+            sh: |
+                if [[ "{{.TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH}}" == "{{.TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH}}" ]]; then
+                  echo "true"
+                  exit 0
+                fi
+                echo "false"
+          TASK_DOCKER_CE_IMAGE_TAG:
+            sh: |
+                if [ -f "VERSION" ]; then
+                  echo $(cat VERSION)
+                fi
 
   deploy:
     desc: Run project-specific deploy tasks
