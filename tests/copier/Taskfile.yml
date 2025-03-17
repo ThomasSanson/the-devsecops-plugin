@@ -42,6 +42,7 @@ tasks:
       # Run verification tests
       - task: verify:copier-answers
       - task: verify:no-directory
+      - task: verify:commitizen-config
       - task: verify:devsecops-task
 
   cleanup:
@@ -62,7 +63,7 @@ tasks:
         task cleanup
     cmds:
       - rm -rf {{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}
-      - echo "✅ Copier test directory has been cleaned up"
+      - echo "✅ [{{.TASK}}] Copier test directory has been cleaned up"
 
 
   verify:copier-answers:
@@ -83,9 +84,10 @@ tasks:
     cmds:
       - |
         if [ -f "{{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}/.config/devsecops/.copier-answers.yml" ]; then
-          echo "✅ Test passed: .copier-answers.yml file exists in the destination"
+          echo "✅ [{{.TASK}}] Test passed: .copier-answers.yml file exists in the destination"
         else
-          echo "❌ Test failed: .copier-answers.yml file does not exist in the destination"
+          echo "❌ [{{.TASK}}]"
+          echo "Failed: .copier-answers.yml file does not exist in the destination"
           exit 1
         fi
 
@@ -146,3 +148,51 @@ tasks:
         echo "🚀 Executing 'task devsecops'..."
         cd {{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}
         time task test
+
+  verify:commitizen-config:
+    desc: |
+      ℹ️ Description:
+        Verifies that the commitizen configuration file (cz.yaml) has the correct version
+        and does not include '.gitlab-ci.yml' in the version_files list.
+
+      🔧 Variables:
+        - TEST_TMP_DIR: Temporary directory for test output
+        - TEST_PROJECT_NAME: Name of the test project
+
+      🔄 Execution:
+        Checks the cz.yaml file for specific configuration values
+
+      📝 Usage:
+        task verify:commitizen-config
+    cmds:
+      - |
+        CZ_FILE="{{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}/.config/commitizen/cz.yaml"
+        echo "🔍 Checking commitizen configuration file: $CZ_FILE"
+
+        # Check if the file exists
+        if [ ! -f "$CZ_FILE" ]; then
+          echo "❌ [{{.TASK}}]"
+          echo "Failed: commitizen configuration file does not exist"
+          exit 1
+        fi
+
+        # Check version is 0.1.0
+        VERSION=$(grep "version:" "$CZ_FILE" | grep -v "version_" | awk '{print $2}')
+        if [ "$VERSION" != "0.1.0" ]; then
+          echo "❌ [{{.TASK}}]"
+          echo "Failed: Expected version 0.1.0, but found $VERSION"
+          exit 1
+        else
+          echo "✅ [{{.TASK}}] Version check passed: Found version 0.1.0"
+        fi
+
+        # Check that .gitlab-ci.yml is not in version_files
+        if grep -A10 "version_files:" "$CZ_FILE" | grep -q "\.gitlab-ci\.yml"; then
+          echo "❌ [{{.TASK}}]"
+          echo "Failed: .gitlab-ci.yml found in version_files"
+          exit 1
+        else
+          echo "✅ [{{.TASK}}] version_files check passed: .gitlab-ci.yml not found in version_files"
+        fi
+
+        echo "✅ [{{.TASK}}] All commitizen configuration checks passed"
