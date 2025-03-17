@@ -13,8 +13,6 @@ tasks:
       - test "{{.TASK_DEVSECOPS_RELEASE_ENABLED}}" = "false"
     cmds:
       - task: commitizen
-      - task: kaniko
-      - task: docker
 
   commitizen:
     status:
@@ -37,44 +35,3 @@ tasks:
                   exit 0
                 fi
                 echo "true"
-
-  kaniko:
-    internal: true
-    status:
-      - test "{{.TASK_KANIKO_ENABLED}}" = "false"
-    cmds:
-      - task: :kaniko
-        vars:
-          TASK_KANIKO_PUSH: "true"
-          TASK_KANIKO_IMAGE_TAG:
-            sh: |
-                if [ -f "VERSION" ]; then
-                  echo $(cat VERSION)
-                fi
-
-  docker:
-    internal: true
-    status:
-      - test "{{.TASK_DOCKER_CE_ENABLED}}" = "false"
-    cmds:
-      - task: :docker-ce:build
-        vars:
-          TASK_DOCKER_CE_IMAGE_TAG:
-            sh: |
-                if [ -f "VERSION" ]; then
-                  echo $(cat VERSION)
-                fi
-      - task: :docker-ce:push
-        vars:
-          TASK_DOCKER_CE_PUSH:
-            sh: |
-                if [[ "{{.TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH}}" == "{{.TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH}}" ]]; then
-                  echo "true"
-                  exit 0
-                fi
-                echo "false"
-          TASK_DOCKER_CE_IMAGE_TAG:
-            sh: |
-                if [ -f "VERSION" ]; then
-                  echo $(cat VERSION)
-                fi
