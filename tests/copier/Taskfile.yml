@@ -42,7 +42,7 @@ tasks:
 
       # Run verification tests
       - task: verify:copier-answers
-      - task: verify:no-tests-directory
+      - task: verify:no-directory
       - task: verify:devsecops-task
 
   cleanup:
@@ -90,31 +90,26 @@ tasks:
           exit 1
         fi
 
-  verify:no-tests-directory:
-    desc: |
-      ℹ️ Description:
-        Verifies that there is no 'tests/copier' directory in the generated project.
-        This test ensures that the template is properly configured to exclude
-        test directories from the generated project.
-
-      🔧 Variables:
-        - TEST_TMP_DIR: Temporary directory for test output
-        - TEST_PROJECT_NAME: Name of the test project
-
-      🔄 Execution:
-        Checks that the tests/copier directory does not exist in the generated project
-
-      📝 Usage:
-        task verify:no-tests-directory
+  verify:no-directory:
+    desc: Verifies that certain directories do not exist in the generated project
+    vars:
+      DIRS_TO_CHECK:
+        - tests/copier
+        - venv
     cmds:
-      - |
-        if [ -d "{{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}/tests/copier" ]; then
-          echo "❌ Test failed: 'tests/copier' directory exists in the generated project"
-          echo "The 'tests/copier' directory should not be copied to the generated project"
-          exit 1
-        else
-          echo "✅ Test passed: No 'tests/copier' directory exists in the generated project"
-        fi
+      - for:
+          var: DIRS_TO_CHECK
+          as: DIR
+        cmd: |
+          if [ -d "{{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}/{{.DIR}}" ]; then
+            echo "❌ [{{.TASK}}]"
+            echo "Failed: '{{.DIR}}' directory exists in the generated project"
+            echo "{{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}/{{.DIR}}"
+            exit 1
+          fi
+        silent: true
+      - cmd: echo "✅ [{{.TASK}}] All directory checks passed"
+        silent: true
 
   verify:devsecops-task:
     desc: |
