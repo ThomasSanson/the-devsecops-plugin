@@ -2,8 +2,7 @@
 version: "3"
 
 vars:
-  TEST_TMP_DIR: '{{.ROOT_DIR}}/tmp/tests/copier'
-  ROOT_DIR: '{{.ROOT_DIR}}'
+  TEST_TMP_DIR: '{{.USER_WORKING_DIR}}/tmp/tests/copier'
   TEST_PROJECT_NAME: 'generated-project'
 
 tasks:
@@ -38,7 +37,7 @@ tasks:
       # Run the copier copy command (using the local template)
       - task: ::copier
         vars:
-          CLI_ARGS: copy {{.ROOT_DIR}} --vcs-ref=HEAD {{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}
+          CLI_ARGS: copy {{.USER_WORKING_DIR}} --vcs-ref=HEAD {{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}
 
       # Run verification tests
       - task: verify:copier-answers
