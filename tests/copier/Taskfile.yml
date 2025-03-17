@@ -43,6 +43,7 @@ tasks:
       - task: verify:copier-answers
       - task: verify:no-directory
       - task: verify:commitizen-config
+      - task: verify:helm-chart-name
       - task: verify:devsecops-task
 
   cleanup:
@@ -196,3 +197,41 @@ tasks:
         fi
 
         echo "✅ [{{.TASK}}] All commitizen configuration checks passed"
+
+  verify:helm-chart-name:
+    desc: |
+      ℹ️ Description:
+        Verifies that the Helm Chart.yaml file has the correct project name.
+
+      🔧 Variables:
+        - TEST_TMP_DIR: Temporary directory for test output
+        - TEST_PROJECT_NAME: Name of the test project
+
+      🔄 Execution:
+        Checks the Chart.yaml file for the correct project name
+
+      📝 Usage:
+        task verify:helm-chart-name
+    cmds:
+      - |
+        CHART_FILE="{{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}/iac/helm/Chart.yaml"
+        echo "🔍 Checking Helm Chart file: $CHART_FILE"
+
+        # Check if the file exists
+        if [ ! -f "$CHART_FILE" ]; then
+          echo "❌ [{{.TASK}}]"
+          echo "Failed: Helm Chart file does not exist"
+          exit 1
+        fi
+        
+        # Check project name is 'generated-project'
+        PROJECT_NAME=$(grep "^name:" "$CHART_FILE" | awk '{print $2}')
+        if [ "$PROJECT_NAME" != "generated-project" ]; then
+          echo "❌ [{{.TASK}}]"
+          echo "Failed: Expected project name 'generated-project', but found '$PROJECT_NAME'"
+          exit 1
+        else
+          echo "✅ [{{.TASK}}] Project name check passed: Found 'generated-project'"
+        fi
+        
+        echo "✅ [{{.TASK}}] All Helm Chart name checks passed"
