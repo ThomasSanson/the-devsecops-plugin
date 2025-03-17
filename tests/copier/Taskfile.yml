@@ -93,7 +93,13 @@ tasks:
     desc: Verifies that certain directories do not exist in the generated project
     vars:
       DIRS_TO_CHECK:
+        - .cache
+        - .config/**/roles
+        - .vscode
+        - megalinter-reports
+        - node_modules
         - tests/copier
+        - tmp
         - venv
     cmds:
       - for:
