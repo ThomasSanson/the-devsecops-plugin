@@ -13,6 +13,7 @@ _exclude:
   - CHANGELOG.md
   - CONTRIBUTING.md
   - copier.yml
+  - iac/helm/Chart.lock
   - LICENSE
   - megalinter-reports
   - node_modules
