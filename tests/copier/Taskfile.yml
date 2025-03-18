@@ -41,6 +41,7 @@ tasks:
 
       # Run verification tests
       - task: verify:copier-answers
+      - task: verify:no-file
       - task: verify:no-directory
       - task: verify:commitizen-config
       - task: verify:helm-chart-name
@@ -91,6 +92,26 @@ tasks:
           echo "Failed: .copier-answers.yml file does not exist in the destination"
           exit 1
         fi
+
+  verify:no-file:
+    desc: Verifies that certain files do not exist in the generated project
+    vars:
+      FILES_TO_CHECK:
+        - iac/helm/Chart.lock
+    cmds:
+      - for:
+          var: FILES_TO_CHECK
+          as: FILE
+        cmd: |
+          if [ -f "{{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}/{{.FILE}}" ]; then
+            echo "❌ [{{.TASK}}]"
+            echo "Failed: '{{.FILE}}' file exists in the generated project"
+            echo "{{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}/{{.FILE}}"
+            exit 1
+          fi
+        silent: true
+      - cmd: echo "✅ [{{.TASK}}] All directory checks passed"
+        silent: true
 
   verify:no-directory:
     desc: Verifies that certain directories do not exist in the generated project
@@ -223,7 +244,7 @@ tasks:
           echo "Failed: Helm Chart file does not exist"
           exit 1
         fi
-        
+
         # Check project name is 'generated-project'
         PROJECT_NAME=$(grep "^name:" "$CHART_FILE" | awk '{print $2}')
         if [ "$PROJECT_NAME" != "generated-project" ]; then
@@ -233,5 +254,5 @@ tasks:
         else
           echo "✅ [{{.TASK}}] Project name check passed: Found 'generated-project'"
         fi
-        
+
         echo "✅ [{{.TASK}}] All Helm Chart name checks passed"
