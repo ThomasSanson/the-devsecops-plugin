@@ -2,6 +2,57 @@
 
 # Changelog
 
+## 5.1.0 (2025-03-18)
+
+### Feat
+
+- **Taskfile.yml**: add new verification task to check for non-existent files in the generated project to enhance project validation process
+- **Taskfile**: add Docker build and push tasks with versioning support to streamline container management and deployment processes
+- **helm**: add initial Chart.yaml.jinja for Helm chart configuration with dependencies for sealed-secrets
+- **Taskfile**: add helm chart name verification task to ensure correct project naming in Chart.yaml file
+- **Taskfile.yml**: add commitizen configuration verification task to ensure correct cz.yaml setup and version compliance
+- **tests/copier**: add Taskfile.yml for testing copier functionality with detailed tasks and verification steps
+- **Taskfile**: add initial Taskfile.yml.jinja with project-specific tasks
+- **tests**: add verification task for DevSecOps capabilities in generated project to ensure proper configuration and functionality
+- **tests**: add Taskfile.copier.yml for testing copier functionality and cleanup process
+- **Taskfile.yml**: add includes section for tests copier and integrate test-copy-local task to streamline testing process
+- **iac**: add Kind cluster configuration for testing in GitLab CI environment to enable Kubernetes API access from outside the dind service
+- **create.taskfile.yaml**: add KIND config file variable and update cluster creation command to use it
+- **create.taskfile.yaml**: add conditional adjustment for kubeconfig server addresses in GitLab CI environment
+- **tests**: add verification taskfile for Ansible playbook execution to streamline infrastructure verification process
+- **tests**: add syntax checking taskfile for Helm charts and Ansible playbooks to ensure code quality in the test environment
+- **tests**: add side effect simulation taskfile for testing system resilience with Ansible playbooks
+- **tests**: add prepare taskfile for setting up test infrastructure components
+- **tests**: add idempotence taskfile for testing infrastructure deployment consistency and ensuring no changes occur on re-deployment
+- **tests**: add destroy taskfile for managing Kind cluster lifecycle in testing environment
+- **tests**: add dependency taskfile for verifying and installing required tools for testing infrastructure
+- **tests**: add taskfile for creating and verifying Kubernetes test infrastructure to streamline testing setup and ensure environment consistency
+- **tests**: add converge taskfile for managing test infrastructure setup and deployment
+- **tests**: add cleanup taskfile for Kubernetes infrastructure to automate cleanup operations for kubeconfig, sealed secrets, and Helm chart archives
+- **tests**: add Ansible playbook to verify Sealed Secrets controller deployment and service readiness in Kubernetes environment
+- **tests**: add Ansible playbook to disrupt Sealed Secrets controller for resilience testing
+
+### Fix
+
+- **Taskfile.yml**: add additional directories to DIRS_TO_CHECK to ensure they do not exist in the generated project
+- **tests**: update TEST_TMP_DIR to use USER_WORKING_DIR for better compatibility with different environments and adjust CLI_ARGS accordingly
+- **Taskfile.yml**: update taskfile paths for tests to ensure correct inclusion and execution of test tasks
+- **copier.yml**: update excluded directory from project/tests to tests/copier for accurate project setup
+- **create.taskfile.yaml**: fix formatting of echo command in GitLab CI environment check for better readability
+- **create.taskfile.yaml**: correct formatting of echo command in GitLab CI environment check for better readability and maintainability
+- **docs**: update GitLab repository URLs in README to reflect the correct domain
+- **Taskfile.deploy.yml**: update task names for Kubernetes infrastructure tests to reflect new naming conventions
+- **ansible**: update path for TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE to reflect new directory structure
+
+### Refactor
+
+- **Taskfile.yml**: rename verification task and generalize directory checks to improve clarity and maintainability
+- **tests**: simplify DevSecOps task testing by removing output checks and using a direct task execution command for efficiency
+- **tests**: restructure copier test tasks
+- **Taskfile**: rename test-copy-local task to project:tests:copier for better clarity and organization
+- **Taskfile**: reorganize test tasks under a new 'infra:kube' namespace for better structure and clarity
+- **Taskfile.test.yml**: update infrastructure test tasks to use kube prefix for better clarity and organization
+
 ## 5.0.0 (2025-03-09)
 
 ### Feat
