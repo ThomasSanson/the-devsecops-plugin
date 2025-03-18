@@ -28,7 +28,6 @@ vars:
   # Labels (optional)
   TASK_DOCKER_CE_CUSTOM_LABELS: '{{.OVERRIDE_TASK_DOCKER_CE_CUSTOM_LABELS | default ""}}'
   TASK_DOCKER_CE_BASE_LABELS: >
-    --label org.opencontainers.image.created={{now | date "2006-01-02T15:04:05Z07:00"}}
     --label org.opencontainers.image.source={{.REPO_URL | default "local"}}
     --label org.opencontainers.image.version={{.TASK_DOCKER_CE_IMAGE_TAG}}
 
