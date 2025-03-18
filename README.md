@@ -281,6 +281,7 @@ TASK_DEVSECOPS_FEEDBACK_ENABLED=true  # Enable/disable Feedback stage
 ### GitLab CI/CD Variables
 The following variables need to be configured in your GitLab CI/CD settings:
 
+- `CZ_DEPLOY_KEY`: Base64 encoded SSH private key for git operations (required for releases)
 - `GITLAB_USER_LOGIN`: Your GitLab username (automatically provided)
 - `GITLAB_USER_EMAIL`: Your GitLab email (automatically provided)
 
