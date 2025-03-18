@@ -85,6 +85,7 @@ stages:
 
 plan:
   stage: plan
+  needs: []  # Allows parallel execution
   script:
     - task plan
 
@@ -109,11 +110,7 @@ test:
 
 release:
   stage: release
-  needs:
-    - job: plan
-    - job: code
-    - job: build
-    - job: test
+  needs: []  # Allows parallel execution
   variables:
     OVERRIDE_TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH: $CI_COMMIT_BRANCH
     OVERRIDE_TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH: $CI_DEFAULT_BRANCH
@@ -142,25 +139,24 @@ release:
 
 deploy:
   stage: deploy
-  needs:
-    - job: release
+  needs: []  # Allows parallel execution
   script:
     - task deploy
 
 operate:
   stage: operate
+  needs: []  # Allows parallel execution
   script:
     - task operate
 
 monitor:
   stage: monitor
+  needs: []  # Allows parallel execution
   script:
     - task monitor
 
 feedback:
   stage: feedback
-  needs:
-    - job: operate
-    - job: monitor
+  needs: []  # Allows parallel execution
   script:
     - task feedback
