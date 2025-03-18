@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 5.1.1 (2025-03-18)
+
+### Fix
+
+- **Taskfile**: reorder release tasks to ensure project release runs before devsecops release for correct execution flow
+
 ## 5.1.0 (2025-03-18)
 
 ### Feat

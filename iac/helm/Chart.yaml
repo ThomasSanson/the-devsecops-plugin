@@ -3,8 +3,8 @@ apiVersion: v2
 name: project
 description: A Helm chart for project deployment with required dependencies
 type: application
-version: 5.1.0
-appVersion: "5.1.0"
+version: 5.1.1
+appVersion: "5.1.1"
 
 dependencies:
   - name: sealed-secrets
