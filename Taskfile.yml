@@ -186,8 +186,8 @@ tasks:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Release"
         silent: true
-      - task: project:release
       - task: devsecops:release
+      - task: project:release
       - cmd: echo "{{.TASK_SEPARATOR}}"
         silent: true
 
