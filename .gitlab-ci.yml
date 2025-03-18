@@ -112,8 +112,6 @@ release:
   script:
     - task release
     - |
-      git remote set-url origin git@$CI_SERVER_SHELL_SSH_HOST:$CI_PROJECT_PATH.git
-
       # Push tags
       git push origin --tags
 
