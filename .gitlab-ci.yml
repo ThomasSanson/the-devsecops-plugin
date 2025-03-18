@@ -40,20 +40,6 @@ before_script:
   # Fix permissions
   - sudo chown -R developer:developer /home/developer
   - sudo chmod -R u+rw /home/developer
-  # Setup SSH
-  - eval $(ssh-agent -s)
-  - mkdir -p ~/.ssh
-  - chmod 700 ~/.ssh
-  - |
-    if [ -n "${CZ_DEPLOY_KEY}" ]; then
-      echo "${CZ_DEPLOY_KEY}" | base64 -d > ~/.ssh/id_rsa
-      chmod 600 ~/.ssh/id_rsa
-      ssh-add ~/.ssh/id_rsa
-    else
-      echo "Skip: CZ_DEPLOY_KEY is not defined"
-    fi
-  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-  - ssh-keyscan $CI_SERVER_HOST >> ~/.ssh/known_hosts
   - git fetch --all && git fetch --tags && git fetch origin --tags
   - |
     git config --local user.name "${GITLAB_USER_LOGIN}"
@@ -126,18 +112,14 @@ release:
   script:
     - task release
     - |
-      if [ -n "${CZ_DEPLOY_KEY}" ]; then
-        git remote set-url origin git@$CI_SERVER_SHELL_SSH_HOST:$CI_PROJECT_PATH.git
+      git remote set-url origin git@$CI_SERVER_SHELL_SSH_HOST:$CI_PROJECT_PATH.git
 
-        # Push tags
-        git push origin --tags
+      # Push tags
+      git push origin --tags
 
-        # When executing from the default branch, proceed with pushing the changes
-        if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
-          git push origin HEAD:$CI_DEFAULT_BRANCH
-        fi
-      else
-          echo "Skip: CZ_DEPLOY_KEY is not defined"
+      # When executing from the default branch, proceed with pushing the changes
+      if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
+        git push origin HEAD:$CI_DEFAULT_BRANCH
       fi
 
 deploy:
