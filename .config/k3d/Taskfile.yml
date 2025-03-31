@@ -2,7 +2,7 @@
 version: "3"
 
 vars:
-  TASK_K3D_ENABLED: '{{.OVERRIDE_TASK_K3D_ENABLED | default "false"}}'
+  TASK_K3D_ENABLED: '{{.OVERRIDE_TASK_K3D_ENABLED | default "true"}}'
   TASK_K3D_VENV_DIR: '{{.OVERRIDE_TASK_K3D_VENV_DIR | default "./venv/k3d"}}'
   TASK_K3D_ANSIBLE_CMD: '{{.OVERRIDE_TASK_K3D_ANSIBLE_CMD | default "./venv/k3d/bin/ansible-playbook"}}'
   TASK_K3D_ANSIBLE_GALAXY_CMD: '{{.OVERRIDE_TASK_K3D_ANSIBLE_GALAXY_CMD | default "./venv/k3d/bin/ansible-galaxy"}}'
