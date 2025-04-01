@@ -1,0 +1,24 @@
+configOverrides:
+  secret_key: |
+    SECRET_KEY = 'your_secret_goes_here'
+
+bootstrapScript: |
+  #!/bin/bash
+
+  # Install system-level dependencies
+  apt-get update && apt-get install -y \
+    python3-dev \
+    default-libmysqlclient-dev \
+    build-essential \
+    pkg-config
+
+  # Install required Python packages
+  pip install \
+    authlib \
+    psycopg2-binary \
+    mysqlclient \
+
+  # Create bootstrap file if it doesn't exist
+  if [ ! -f ~/bootstrap ]; then
+    echo "Running Superset with uid {{ .Values.runAsUser }}" > ~/bootstrap
+  fi
