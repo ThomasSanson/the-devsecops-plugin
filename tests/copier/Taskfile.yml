@@ -97,7 +97,10 @@ tasks:
     desc: Verifies that certain files do not exist in the generated project
     vars:
       FILES_TO_CHECK:
+        - iac/environment/testing/superset-values.yaml
         - iac/helm/Chart.lock
+        - tests/infra/kube/ansible/verify/superset_is_ready.yml
+        - tests/infra/kube/ansible/verify/superset_login_page_check.yml
     cmds:
       - for:
           var: FILES_TO_CHECK
