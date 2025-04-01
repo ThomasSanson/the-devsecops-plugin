@@ -13,8 +13,8 @@ tasks:
       - task: :go:install
       # Verify kubectl installation
       - task: :kubectl:install
-      # Verify kind installation
-      - task: :kind:install
+      # Verify k3d installation
+      - task: :k3d:install
       # Verify kubeseal installation
       - task: :kubeseal:install
       # Verify helm installation
