@@ -25,6 +25,7 @@ tasks:
     cmds:
       - cmd: echo "Running project-specific test tasks..."
         silent: true
+      - task: test:tdd
 
   test:tdd:
     desc: Run project-specific TDD test tasks
@@ -40,6 +41,8 @@ tasks:
 
   deploy:
     desc: Run project-specific deploy tasks
+    status:
+      - if [[ -v ENV && -n $ENV ]]
     cmds:
       - cmd: echo "Running project-specific deploy tasks..."
         silent: true
