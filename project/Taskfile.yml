@@ -74,6 +74,8 @@ tasks:
 
   deploy:
     desc: Run project-specific deploy tasks
+    status:
+      - if [[ -v ENV && -n $ENV ]]
     cmds:
       - cmd: echo "Running project-specific deploy tasks..."
         silent: true
@@ -82,10 +84,10 @@ tasks:
           helm repo add superset https://apache.github.io/superset
           helm repo update
           helm upgrade --install superset superset/superset \
-            --kubeconfig iac/environment/testing/kubeconfig.yaml \
+            --kubeconfig iac/environment/${ENV:-testing}/kubeconfig.yaml \
             --namespace superset \
             --create-namespace \
-            --values iac/environment/testing/superset-values.yaml \
+            --values iac/environment/${ENV:-testing}/superset-values.yaml \
             --wait \
             --timeout 5m
 
