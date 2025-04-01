@@ -105,6 +105,8 @@ build:
 test:
   stage: test
   needs: []  # Allows parallel execution
+  tags:
+    - kubernetes
   script:
     - task test
 
