@@ -8,7 +8,7 @@
     superset_namespace: superset # checkov:skip=CKV_SECRET_6:This testing environment requires clear-text secrets for developer debugging purposes
     release_name: superset
     login_text_to_check: "Enter your login and password below:"
-    url_to_test: http://localhost:8088/login/ # DevSkim: ignore DS162092 # Debug context restricted to development environments
+    url_to_check: http://localhost:8088/login/ # DevSkim: ignore DS162092 # Debug context restricted to development environments
 
   tasks:
     - name: Check Superset login page content with kubectl exec and grep
