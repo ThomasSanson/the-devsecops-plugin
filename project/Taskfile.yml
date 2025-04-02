@@ -89,7 +89,7 @@ tasks:
             --create-namespace \
             --values iac/environment/${ENV:-testing}/superset-values.yaml \
             --wait \
-            --timeout 5m
+            --timeout 15m
 
   operate:
     desc: Run project-specific operate tasks
