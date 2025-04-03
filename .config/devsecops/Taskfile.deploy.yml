@@ -27,7 +27,7 @@ tasks:
     internal: true
     desc: Check if any of the KUBECONFIG variables contain "testing" and run TDD tests if so
     status:
-      - test -n "$KUBECONFIG" && test -f "$KUBECONFIG"
+      - test -v ENV && test -n "$ENV"
     cmds:
       - task: :test:infra:kube:dependency
       - task: :test:infra:kube:create
