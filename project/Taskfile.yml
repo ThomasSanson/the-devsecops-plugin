@@ -75,7 +75,7 @@ tasks:
   deploy:
     desc: Run project-specific deploy tasks
     status:
-      - if [[ -v ENV && -n $ENV ]]
+      - test ! -v ENV || test -z "$ENV"
     cmds:
       - cmd: echo "Running project-specific deploy tasks..."
         silent: true
