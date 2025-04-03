@@ -7,6 +7,7 @@
   vars:
     k3d_version: "{{ k3d_version | default('v5.8.3') }}"
     go_bin_path: "{{ ansible_env.HOME }}/go/bin"
+    local_bin_path: "{{ ansible_env.HOME }}/.local/bin"
 
   tasks:
     - name: Check if Go is installed
@@ -27,6 +28,12 @@
         state: directory
         mode: '0755'
 
+    - name: Ensure ~/.local/bin directory exists
+      ansible.builtin.file:
+        path: "{{ local_bin_path }}"
+        state: directory
+        mode: '0755'
+
     - name: Install k3d using Go install
       environment:
         PATH: "{{ ansible_env.PATH }}:{{ go_bin_path }}"
@@ -37,23 +44,21 @@
         creates: "{{ go_bin_path }}/k3d"
         executable: /bin/bash
 
-    - name: Create symlink to k3d in /usr/local/bin for global access
+    - name: Create symlink to k3d in ~/.local/bin for user access
       ansible.builtin.file:
         src: "{{ go_bin_path }}/k3d"
-        dest: "/usr/local/bin/k3d"
+        dest: "{{ local_bin_path }}/k3d"
         state: link
         mode: '0755'
-      become: true
       register: symlink_result
       failed_when: symlink_result.failed and not ansible_check_mode
 
-    - name: Alternative - Copy k3d to /usr/local/bin if symlink fails (permissions issue)
+    - name: Alternative - Copy k3d to ~/.local/bin if symlink fails
       ansible.builtin.copy:
         src: "{{ go_bin_path }}/k3d"
-        dest: "/usr/local/bin/k3d"
+        dest: "{{ local_bin_path }}/k3d"
         mode: '0755'
         remote_src: true
-      become: true
       register: copy_result
       failed_when: copy_result.failed and not ansible_check_mode
       when: symlink_result.failed and not ansible_check_mode
@@ -77,5 +82,5 @@
 
     - name: Display installation result
       ansible.builtin.debug:
-        msg: "k3d {{ k3d_version }} has been successfully installed and made available globally through /usr/local/bin/k3d"
+        msg: "k3d {{ k3d_version }} has been successfully installed and made available through {{ local_bin_path }}/k3d"
       when: k3d_version_check.rc == 0
