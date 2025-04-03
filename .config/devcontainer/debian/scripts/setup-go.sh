@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Setup Go environment variables in the system-wide profile
-cat > /etc/profile.d/go.sh << 'EOF'
+cat >/etc/profile.d/go.sh <<'EOF'
 # Go environment variables
 export GOROOT=/usr/local/go
 export GOPATH=$HOME/go
@@ -10,9 +10,6 @@ EOF
 
 # Make the script executable
 chmod +x /etc/profile.d/go.sh
-
-# Source the script to set the environment variables for the current session
-source /etc/profile.d/go.sh
 
 # Create symbolic links to make Go available system-wide
 ln -sf /usr/local/go/bin/go /usr/local/bin/go
