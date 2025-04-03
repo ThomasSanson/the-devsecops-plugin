@@ -2,6 +2,45 @@
 
 # Changelog
 
+## 6.0.0 (2025-04-03)
+
+### Feat
+
+- **init.sh**: add setup-go.sh script to initialization process for Go environment setup
+- **setup-go.sh**: add script to configure Go environment variables and make Go available system-wide for development environments
+- **Taskfile**: add devcontainer test task to streamline development workflow and enhance testing capabilities
+- **devcontainer**: add Taskfile.yml to manage devcontainer testing tasks and streamline container command verification
+- **playbook.yml**: add local_bin_path variable and ensure ~/.local/bin directory exists for user-specific installations of k3d
+- **converge.taskfile.yaml**: add ENV variable for testing to support environment-specific configurations during deployment
+- **Taskfile.yml**: add deploy environment check task to ensure proper ENV variable validation before deployment
+- **Taskfile**: add TDD test task and conditional status check for deploy task to enhance testing and deployment processes
+- **Taskfile**: add support for dynamic environment variable in deploy task to enhance flexibility in deployment configurations
+- **iac**: add superset-values.yaml for configuring Superset environment and bootstrap script for dependencies installation
+- **tests**: add additional files to check for existence in generated project to enhance verification process
+- **Taskfile**: update test tasks to use TDD and add deployment commands for Apache Superset to streamline deployment process
+- **tests**: add Ansible playbook to verify Apache Superset login page content for improved testing coverage
+- **tests**: add Ansible playbook to verify Apache Superset deployment and pod status for improved testing and validation of the deployment process
+- **Taskfile**: add k3d taskfile inclusion to support k3d operations in the task management system
+- **k3d**: add requirements.txt to specify ansible-core dependency for k3d configuration
+- **playbook**: add Ansible playbook for installing k3d using Go to streamline Kubernetes development environment setup
+- **k3d**: add Taskfile.yml for managing k3d installation and dependencies with Ansible automation
+
+### Fix
+
+- **Taskfile**: reorder deployment tasks to ensure project deployment occurs before devsecops deployment for correct execution flow
+- **Taskfile.deploy.yml**: update status check to use ENV variable instead of KUBECONFIG for better clarity and accuracy in test execution
+- **Taskfile**: update deploy task status condition to improve logic for ENV variable check
+- **Taskfile**: increase timeout from 5 minutes to 15 minutes for better stability during deployment
+- **superset_login_page_check.yml**: rename url_to_test variable to url_to_check for clarity and consistency in naming
+- **superset_login_page_check.yml**: update URL variable for login page check to improve maintainability and clarity
+- **destroy.taskfile.yaml**: update task descriptions and commands to reflect the use of k3d instead of kind for cluster management
+- **Taskfile.yml**: change default value of TASK_K3D_ENABLED from false to true to enable K3D tasks by default
+
+### Refactor
+
+- **playbook.yml**: update k3d symlink and copy tasks to use ~/.local/bin instead of /usr/local/bin for better user access and permissions management
+- **kube**: migrate from Kind to k3d for cluster management to enhance compatibility and streamline infrastructure setup
+
 ## 5.1.1 (2025-03-18)
 
 ### Fix

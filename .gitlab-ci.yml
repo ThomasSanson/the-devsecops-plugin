@@ -1,5 +1,5 @@
 ---
-image: registry.gitlab.com/digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin:5.1.1
+image: registry.gitlab.com/digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin:6.0.0
 
 variables:
   TERM: xterm
