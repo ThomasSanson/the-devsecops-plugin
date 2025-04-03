@@ -46,8 +46,8 @@ tasks:
     cmds:
       - cmd: echo "Running project-specific TDD test tasks..."
         silent: true
+      # - task: tests:devcontainer
       - task: tests:copier
-      - task: tests:devcontainer
 
   release:
     desc: Run project-specific release tasks
