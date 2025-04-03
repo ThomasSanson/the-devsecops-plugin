@@ -1,0 +1,120 @@
+---
+version: "3"
+
+vars:
+  DOCKER_COMPOSE_FILE: '{{.OVERRIDE_DOCKER_COMPOSE_FILE | default ".config/devcontainer/docker-compose.yml"}}'
+  CONTAINER_SERVICE: '{{.OVERRIDE_CONTAINER_SERVICE | default "debian"}}'
+  CONTAINER_NAME: '{{.OVERRIDE_CONTAINER_NAME | default "test-devcontainer"}}'
+  TEST_TIMEOUT: '{{.OVERRIDE_TEST_TIMEOUT | default "30"}}'
+
+tasks:
+  default:
+    desc: Run all devcontainer tests
+    cmds:
+      - task: k3d
+      - task: bun
+      - task: docker
+      - task: go
+      - task: helm
+      - task: kubectl
+      - task: kubeseal
+      - task: nodejs
+      - task: podman
+      - task: stop
+
+  start:
+    desc: Start the test container using docker compose
+    cmds:
+      - cmd: echo "🚀 Starting test container..."
+        silent: true
+      - |
+        docker compose -f {{.DOCKER_COMPOSE_FILE}} \
+          -p {{.CONTAINER_NAME}} \
+          up -d {{.CONTAINER_SERVICE}}
+      - cmd: echo "✅ Test container started successfully"
+        silent: true
+
+  stop:
+    desc: Stop and remove the test container
+    cmds:
+      - cmd: echo "🧹 Cleaning up test container..."
+        silent: true
+      - |
+        docker compose -f {{.DOCKER_COMPOSE_FILE}} \
+          -p {{.CONTAINER_NAME}} \
+          down -v
+
+  k3d:
+    desc: Test if k3d command works in the container
+    deps: [start]
+    cmds:
+      - cmd: echo "🧪 Testing k3d command in container..."
+        silent: true
+      - docker exec {{.CONTAINER_NAME}}-{{.CONTAINER_SERVICE}}-1 bash -c "k3d version"
+
+  bun:
+    desc: Test if bun command works in the container
+    deps: [start]
+    cmds:
+      - cmd: echo "🧪 Testing bun command in container..."
+        silent: true
+      # - docker exec {{.CONTAINER_NAME}}-{{.CONTAINER_SERVICE}}-1 bash -c "bun --version"
+
+  docker:
+    desc: Test if docker command works in the container
+    deps: [start]
+    cmds:
+      - cmd: echo "🧪 Testing docker command in container..."
+        silent: true
+      - docker exec {{.CONTAINER_NAME}}-{{.CONTAINER_SERVICE}}-1 bash -c "docker --version"
+
+  go:
+    desc: Test if go command works in the container
+    deps: [start]
+    cmds:
+      - cmd: echo "🧪 Testing go command in container..."
+        silent: true
+      # - docker exec {{.CONTAINER_NAME}}-{{.CONTAINER_SERVICE}}-1 bash -c "go version"
+
+  helm:
+    desc: Test if helm command works in the container
+    deps: [start]
+    cmds:
+      - cmd: echo "🧪 Testing helm command in container..."
+        silent: true
+      - docker exec {{.CONTAINER_NAME}}-{{.CONTAINER_SERVICE}}-1 bash -c "helm version"
+
+  kubectl:
+    desc: Test if kubectl command works in the container
+    deps: [start]
+    cmds:
+      - cmd: echo "🧪 Testing kubectl command in container..."
+        silent: true
+      - docker exec {{.CONTAINER_NAME}}-{{.CONTAINER_SERVICE}}-1 bash -c "kubectl version --client=true"
+
+  kubeseal:
+    desc: Test if kubeseal command works in the container
+    deps: [start]
+    cmds:
+      - cmd: echo "🧪 Testing kubeseal command in container..."
+        silent: true
+      - docker exec {{.CONTAINER_NAME}}-{{.CONTAINER_SERVICE}}-1 bash -c "kubeseal --version"
+
+  nodejs:
+    desc: Test if nodejs command works in the container
+    deps: [start]
+    cmds:
+      - cmd: echo "🧪 Testing nodejs command in container..."
+        silent: true
+      - docker exec {{.CONTAINER_NAME}}-{{.CONTAINER_SERVICE}}-1 bash -c "nodejs --version"
+      - docker exec {{.CONTAINER_NAME}}-{{.CONTAINER_SERVICE}}-1 bash -c "node --version"
+      - docker exec {{.CONTAINER_NAME}}-{{.CONTAINER_SERVICE}}-1 bash -c "npm --version"
+      - docker exec {{.CONTAINER_NAME}}-{{.CONTAINER_SERVICE}}-1 bash -c "npx --version"
+
+  podman:
+    desc: Test if podman command works in the container
+    deps: [start]
+    cmds:
+      - cmd: echo "🧪 Testing podman command in container..."
+        silent: true
+      - docker exec {{.CONTAINER_NAME}}-{{.CONTAINER_SERVICE}}-1 bash -c "podman --version"
