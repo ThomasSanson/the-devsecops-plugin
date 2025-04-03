@@ -4,6 +4,9 @@ version: "3"
 includes:
   tests:copier:
     taskfile: ../tests/copier/Taskfile.yml
+  tests:devcontainer:
+    taskfile: ../tests/devcontainer/Taskfile.yml
+    dir: ..
 
 tasks:
   plan:
@@ -44,6 +47,7 @@ tasks:
       - cmd: echo "Running project-specific TDD test tasks..."
         silent: true
       - task: tests:copier
+      - task: tests:devcontainer
 
   release:
     desc: Run project-specific release tasks
