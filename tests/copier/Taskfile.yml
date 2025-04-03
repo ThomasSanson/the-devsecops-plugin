@@ -126,6 +126,7 @@ tasks:
         - megalinter-reports
         - node_modules
         - tests/copier
+        - tests/devcontainer
         - tmp
         - venv
     cmds:
