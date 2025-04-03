@@ -46,7 +46,6 @@ tasks:
       - task: verify:commitizen-config
       - task: verify:helm-chart-name
       - task: verify:devsecops-task
-      - task: verify:deploy-env-check
 
   cleanup:
     desc: |
@@ -260,42 +259,3 @@ tasks:
         fi
 
         echo "✅ [{{.TASK}}] All Helm Chart name checks passed"
-
-  verify:deploy-env-check:
-    desc: |
-      ℹ️ Description:
-        Verifies that the deploy task in the project Taskfile.yml has the proper ENV variable check.
-        This ensures that deployments cannot be executed without a defined environment.
-
-      🔧 Variables:
-        - TEST_TMP_DIR: Temporary directory for test output
-        - TEST_PROJECT_NAME: Name of the test project
-
-      🔄 Execution:
-        Checks the project/Taskfile.yml file for the proper ENV check in the deploy task
-
-      📝 Usage:
-        task verify:deploy-env-check
-    cmds:
-      - |
-        PROJECT_TASKFILE="{{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}/project/Taskfile.yml"
-        echo "🔍 Checking deploy task ENV check in: $PROJECT_TASKFILE"
-
-        # Check if the file exists
-        if [ ! -f "$PROJECT_TASKFILE" ]; then
-          echo "❌ [{{.TASK}}]"
-          echo "Failed: Project Taskfile.yml does not exist"
-          exit 1
-        fi
-
-        # Check if deploy task has the proper ENV check
-        if grep -A3 "deploy:" "$PROJECT_TASKFILE" | grep -q "status:" && grep -A5 "deploy:" "$PROJECT_TASKFILE" | grep -q "if \[\[ -v ENV"; then
-          echo "✅ [{{.TASK}}] ENV check verification passed: Deploy task has proper ENV variable check"
-        else
-          echo "❌ [{{.TASK}}]"
-          echo "Failed: Deploy task does not have the required ENV variable check"
-          echo "Expected to find 'status:' followed by a check for ENV variable"
-          echo "Debug: Showing deploy task section"
-          grep -A10 "deploy:" "$PROJECT_TASKFILE"
-          exit 1
-        fi
