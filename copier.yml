@@ -20,6 +20,7 @@ _exclude:
   - node_modules
   - README.md
   - tests/copier
+  - tests/devcontainer
   - tests/infra/kube/ansible/verify/superset_is_ready.yml
   - tests/infra/kube/ansible/verify/superset_login_page_check.yml
   - tmp
