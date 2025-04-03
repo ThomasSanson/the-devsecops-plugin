@@ -13,6 +13,7 @@ source "$TEMP_DIR/env_vars"
 "$TEMP_DIR/.config/devcontainer/debian/scripts/setup-proxy.sh"
 "$TEMP_DIR/.config/devcontainer/debian/scripts/install-packages.sh"
 "$TEMP_DIR/.config/devcontainer/debian/scripts/install-taskfile.sh"
+"$TEMP_DIR/.config/devcontainer/debian/scripts/setup-go.sh"
 "$TEMP_DIR/.config/devcontainer/debian/scripts/setup-user.sh" "$USER"
 
 echo "Init process completed successfully."
