@@ -74,13 +74,9 @@ tasks:
 
   deploy:
     desc: Run project-specific deploy tasks
-    status:
-      - test ! -v ENV || test -z "$ENV"
     cmds:
       - cmd: echo "Running project-specific deploy tasks..."
         silent: true
-      - cmd: |
-          echo "Current ENV value: ${ENV}"
       - cmd: |
           echo "🚀 Deploying Apache Superset..."
           helm repo add superset https://apache.github.io/superset
