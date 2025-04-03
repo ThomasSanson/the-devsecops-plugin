@@ -12,7 +12,6 @@ tasks:
     desc: Run all devcontainer tests
     cmds:
       - task: k3d
-      - task: bun
       - task: docker
       - task: go
       - task: helm
@@ -52,14 +51,6 @@ tasks:
         silent: true
       - docker exec {{.CONTAINER_NAME}}-{{.CONTAINER_SERVICE}}-1 bash -c "k3d version"
 
-  bun:
-    desc: Test if bun command works in the container
-    deps: [start]
-    cmds:
-      - cmd: echo "🧪 Testing bun command in container..."
-        silent: true
-      # - docker exec {{.CONTAINER_NAME}}-{{.CONTAINER_SERVICE}}-1 bash -c "bun --version"
-
   docker:
     desc: Test if docker command works in the container
     deps: [start]
@@ -74,7 +65,7 @@ tasks:
     cmds:
       - cmd: echo "🧪 Testing go command in container..."
         silent: true
-      # - docker exec {{.CONTAINER_NAME}}-{{.CONTAINER_SERVICE}}-1 bash -c "go version"
+      - docker exec {{.CONTAINER_NAME}}-{{.CONTAINER_SERVICE}}-1 bash -c "go version"
 
   helm:
     desc: Test if helm command works in the container
