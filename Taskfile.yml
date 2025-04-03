@@ -198,8 +198,8 @@ tasks:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Deploy"
         silent: true
-      - task: project:deploy
       - task: devsecops:deploy
+      - task: project:deploy
       - cmd: echo "{{.TASK_SEPARATOR}}"
         silent: true
 
