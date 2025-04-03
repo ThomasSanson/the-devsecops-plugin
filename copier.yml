@@ -13,12 +13,16 @@ _exclude:
   - CHANGELOG.md
   - CONTRIBUTING.md
   - copier.yml
+  - iac/environment/testing/superset-values.yaml
   - iac/helm/Chart.lock
   - LICENSE
   - megalinter-reports
   - node_modules
   - README.md
   - tests/copier
+  - tests/devcontainer
+  - tests/infra/kube/ansible/verify/superset_is_ready.yml
+  - tests/infra/kube/ansible/verify/superset_login_page_check.yml
   - tmp
   - venv
   - VERSION

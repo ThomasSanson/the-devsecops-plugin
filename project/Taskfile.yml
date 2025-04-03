@@ -4,6 +4,9 @@ version: "3"
 includes:
   tests:copier:
     taskfile: ../tests/copier/Taskfile.yml
+  tests:devcontainer:
+    taskfile: ../tests/devcontainer/Taskfile.yml
+    dir: ..
 
 tasks:
   plan:
@@ -36,13 +39,15 @@ tasks:
     cmds:
       - cmd: echo "Running project-specific test tasks..."
         silent: true
-      - task: tests:copier
+      - task: test:tdd
 
   test:tdd:
     desc: Run project-specific TDD test tasks
     cmds:
       - cmd: echo "Running project-specific TDD test tasks..."
         silent: true
+      # - task: tests:devcontainer
+      - task: tests:copier
 
   release:
     desc: Run project-specific release tasks
@@ -76,6 +81,17 @@ tasks:
     cmds:
       - cmd: echo "Running project-specific deploy tasks..."
         silent: true
+      - cmd: |
+          echo "🚀 Deploying Apache Superset..."
+          helm repo add superset https://apache.github.io/superset
+          helm repo update
+          helm upgrade --install superset superset/superset \
+            --kubeconfig iac/environment/${ENV:-testing}/kubeconfig.yaml \
+            --namespace superset \
+            --create-namespace \
+            --values iac/environment/${ENV:-testing}/superset-values.yaml \
+            --wait \
+            --timeout 15m
 
   operate:
     desc: Run project-specific operate tasks

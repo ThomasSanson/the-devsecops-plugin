@@ -13,7 +13,7 @@ tasks:
       - task: docker-ce
       - task: go
       - task: helm
-      - task: kind
+      - task: k3d
       - task: kubectl
       - task: kubeseal
       - task: nodejs
@@ -54,12 +54,12 @@ tasks:
     cmds:
       - task: :helm:install
 
-  kind:
+  k3d:
     internal: true
     status:
-      - test "{{.TASK_KIND_ENABLED}}" = "false"
+      - test "{{.TASK_K3D_ENABLED}}" = "false"
     cmds:
-      - task: :kind:install
+      - task: :k3d:install
 
   kubectl:
     internal: true

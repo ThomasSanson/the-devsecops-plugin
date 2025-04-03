@@ -1,0 +1,85 @@
+---
+version: "3"
+
+vars:
+  TASK_K3D_ENABLED: '{{.OVERRIDE_TASK_K3D_ENABLED | default "true"}}'
+  TASK_K3D_VENV_DIR: '{{.OVERRIDE_TASK_K3D_VENV_DIR | default "./venv/k3d"}}'
+  TASK_K3D_ANSIBLE_CMD: '{{.OVERRIDE_TASK_K3D_ANSIBLE_CMD | default "./venv/k3d/bin/ansible-playbook"}}'
+  TASK_K3D_ANSIBLE_GALAXY_CMD: '{{.OVERRIDE_TASK_K3D_ANSIBLE_GALAXY_CMD | default "./venv/k3d/bin/ansible-galaxy"}}'
+  TASK_K3D_ANSIBLE_REQUIREMENTS_FILE: '{{.OVERRIDE_TASK_K3D_ANSIBLE_REQUIREMENTS_FILE | default ".config/k3d/requirements.txt"}}'
+  TASK_K3D_ANSIBLE_PLAYBOOK_FILE: '{{.OVERRIDE_TASK_K3D_ANSIBLE_PLAYBOOK_FILE | default ".config/k3d/playbook.yml"}}'
+  TASK_K3D_PYTHON_VERSION_FILE: '{{.OVERRIDE_TASK_K3D_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
+  TASK_K3D_ANSIBLE_INVENTORY_TARGET: "localhost" # DevSkim: ignore DS162092
+  TASK_K3D_VERSION: '{{.OVERRIDE_TASK_K3D_VERSION | default "v5.8.3"}}'
+
+env:
+  LANG: "C.UTF-8"
+  LC_ALL: "C.UTF-8"
+  LANGUAGE: "C.UTF-8"
+
+tasks:
+  install:dependencies:
+    desc: |
+      ℹ️ Description:
+        Sets up Ansible and its dependencies in a dedicated virtual environment
+
+      🔧 Variables:
+        - TASK_K3D_VENV_DIR: Virtual environment location
+        - TASK_K3D_ANSIBLE_REQUIREMENTS_FILE: Dependencies file path
+
+      🔐 Preconditions:
+        - Python 3.x must be installed
+        - Internet connectivity required
+
+      🔄 Execution:
+        Creates virtualenv and installs required packages
+    deps: [cleanup]
+    preconditions:
+      - sh: "command -v python3 >/dev/null 2>&1"
+        msg: "❌ Python 3 is not installed"
+      - sh: "test -f {{.TASK_K3D_PYTHON_VERSION_FILE}}"
+        msg: "❌ Python version file not found at {{.TASK_K3D_PYTHON_VERSION_FILE}}"
+      - sh: "test -f {{.TASK_K3D_ANSIBLE_REQUIREMENTS_FILE}}"
+        msg: "❌ Requirements file not found at {{.TASK_K3D_ANSIBLE_REQUIREMENTS_FILE}}"
+    cmds:
+      - python$(cut -d '=' -f 2 {{.TASK_K3D_PYTHON_VERSION_FILE}}) -m venv {{.TASK_K3D_VENV_DIR}}
+      - "{{.TASK_K3D_VENV_DIR}}/bin/pip install -r {{.TASK_K3D_ANSIBLE_REQUIREMENTS_FILE}}"
+      - cmd: echo "✅ Dependencies installed successfully"
+        silent: true
+
+  install:
+    desc: |
+      ℹ️ Description:
+        Installs k3d using Ansible automation
+
+      🔧 Variables:
+        - TASK_K3D_ANSIBLE_CMD: Ansible command path
+        - TASK_K3D_ANSIBLE_PLAYBOOK_FILE: Ansible playbook location
+        - TASK_K3D_VERSION: Version of k3d to install (default: v5.0.0)
+
+      🔐 Preconditions:
+        - Dependencies must be installed
+
+      🔄 Execution:
+        Runs Ansible playbook for k3d installation
+    status:
+      - command -v k3d &> /dev/null
+    preconditions:
+      - sh: "test -f {{.TASK_K3D_ANSIBLE_PLAYBOOK_FILE}}"
+        msg: "❌ Playbook file not found at {{.TASK_K3D_ANSIBLE_PLAYBOOK_FILE}}"
+    cmds:
+      - task: install:dependencies
+      - |
+        {{.TASK_K3D_ANSIBLE_CMD}} \
+          -i {{.TASK_K3D_ANSIBLE_INVENTORY_TARGET}}, \
+          -e "k3d_version={{.TASK_K3D_VERSION}}" \
+          {{.TASK_K3D_ANSIBLE_PLAYBOOK_FILE}}
+      - task: cleanup
+      - cmd: echo "✅ k3d installed successfully"
+        silent: true
+
+  cleanup:
+    desc: Removes temporary files and directories
+    cmds:
+      - cmd: rm -rf {{.TASK_K3D_VENV_DIR}}
+        ignore_error: true

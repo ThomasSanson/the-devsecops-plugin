@@ -62,6 +62,9 @@ includes:
   helm:
     taskfile: .config/helm/Taskfile.yml
     optional: true
+  k3d:
+    taskfile: .config/k3d/Taskfile.yml
+    optional: true
   kaniko:
     taskfile: .config/kaniko/Taskfile.yml
     optional: true
@@ -195,8 +198,8 @@ tasks:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Deploy"
         silent: true
-      - task: project:deploy
       - task: devsecops:deploy
+      - task: project:deploy
       - cmd: echo "{{.TASK_SEPARATOR}}"
         silent: true
 
