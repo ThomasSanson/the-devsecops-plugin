@@ -77,11 +77,11 @@ tasks:
       🔄 Execution:
         Runs commitlint in edit mode on the specified file.
     vars:
-      # Prend le premier argument passé à la tâche (le chemin du fichier) - Ancienne méthode
+      # Takes the first argument passed to the task (the file path) - Old method
       # COMMIT_MSG_FILE: '{{index .CLI_ARGS 0}}'
-      # La variable COMMIT_MSG_FILE est maintenant passée directement lors de l'appel de la tâche
-      # et est accessible via {{.COMMIT_MSG_FILE}}
-      # Commande commitlint avec l'option --edit
+      # The COMMIT_MSG_FILE variable is now passed directly when calling the task
+      # and is accessible via {{.COMMIT_MSG_FILE}}
+      # commitlint command with the --edit option
       COMMITLINT_EDIT_COMMAND: "{{.TASK_COMMITLINT_COMMAND}} --config {{.TASK_COMMITLINT_CONFIG}} --edit {{.COMMIT_MSG_FILE}}"
       RED: '\033[0;31m'
       NC: '\033[0m' # No Color
