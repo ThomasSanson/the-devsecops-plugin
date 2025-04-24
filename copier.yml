@@ -24,6 +24,7 @@ _exclude:
   - tests/devcontainer
   - tests/e2e/codeceptjs/output
   - tests/e2e/codeceptjs/screenshots/base/dashboard_after_login.png
+  - tests/e2e/codeceptjs/step_definitions/authentication.js
   - tests/infra/kube/ansible/verify/superset_is_ready.yml
   - tests/infra/kube/ansible/verify/superset_login_page_check.yml
   - tmp
