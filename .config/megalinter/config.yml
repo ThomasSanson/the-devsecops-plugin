@@ -15,15 +15,17 @@ EXCLUDED_DIRECTORIES:
   - .git
   - .config/podman/roles
 
-COPYPASTE_JSCPD_CONFIG_FILE: .config/jscpd/config.json
-REPOSITORY_DEVSKIM_CONFIG_FILE: .config/devskim/config.json
-REPOSITORY_GRYPE_CONFIG_FILE: .config/grype/config.yml
-SPELL_CSPELL_CONFIG_FILE: .config/cspell/config.json
-YAML_YAMLLINT_CONFIG_FILE: .config/yamllint/config.yml
-REPOSITORY_TRIVY_CONFIG_FILE: .config/trivy/config.yml
-REPOSITORY_KICS_CONFIG_FILE: .config/kics/config.yml
-SPELL_LYCHEE_CONFIG_FILE: .config/lychee/config.toml
 ANSIBLE_ANSIBLE_LINT_CONFIG_FILE: .config/ansible-lint/config.yaml
+COPYPASTE_JSCPD_CONFIG_FILE: .config/jscpd/config.json
+GHERKIN_GHERKIN_LINT_CONFIG_FILE: .config/gherkin-lint/config.json
+REPOSITORY_DEVSKIM_CONFIG_FILE: .config/devskim/config.json
+REPOSITORY_GITLEAKS_CONFIG_FILE: .config/gitleaks/config.toml
+REPOSITORY_GRYPE_CONFIG_FILE: .config/grype/config.yml
+REPOSITORY_KICS_CONFIG_FILE: .config/kics/config.yml
+REPOSITORY_TRIVY_CONFIG_FILE: .config/trivy/config.yml
+SPELL_CSPELL_CONFIG_FILE: .config/cspell/config.json
+SPELL_LYCHEE_CONFIG_FILE: .config/lychee/config.toml
+YAML_YAMLLINT_CONFIG_FILE: .config/yamllint/config.yml
 
 SHOW_ELAPSED_TIME: true
 SARIF_REPORTER: true
@@ -35,7 +37,9 @@ PRE_COMMANDS:
   - command: rm -rf /tmp/lint/megalinter-reports
   - command: rm -rf /tmp/lint/tmp
   - command: find /tmp/lint/.config -type d -name "roles" -exec rm -rf {} +
+  - command: find /tmp/lint/.config -type d -name "node_modules" -exec rm -rf {} +
   - command: find /tmp/lint/ -type f \( -name "kubeconfig.yml" -o -name "kubeconfig.yaml" \) -exec rm -f {} \;
+  - command: find /tmp/lint/.config/ -type f -name "package-lock.json" -exec rm -f {} \;
   - command: rm -f /tmp/lint/iac/environment/testing/sealed-secrets.yaml
   - command: find /tmp/lint/ -name requirements.yml -exec ansible-galaxy install -r {} \;
   - command: |
