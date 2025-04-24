@@ -13,6 +13,7 @@ _exclude:
   - CHANGELOG.md
   - CONTRIBUTING.md
   - copier.yml
+  - features/*
   - iac/environment/testing/superset-values.yaml
   - iac/helm/Chart.lock
   - LICENSE
@@ -21,6 +22,8 @@ _exclude:
   - README.md
   - tests/copier
   - tests/devcontainer
+  - tests/e2e/codeceptjs/output
+  - tests/e2e/codeceptjs/screenshots/base/dashboard_after_login.png
   - tests/infra/kube/ansible/verify/superset_is_ready.yml
   - tests/infra/kube/ansible/verify/superset_login_page_check.yml
   - tmp
