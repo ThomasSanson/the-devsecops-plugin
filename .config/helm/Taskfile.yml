@@ -2,20 +2,20 @@
 version: "3"
 
 vars:
-  TASK_HELM_ENABLED: '{{.OVERRIDE_TASK_HELM_ENABLED | default "true"}}'
-  TASK_HELM_VENV_DIR: '{{.OVERRIDE_TASK_HELM_VENV_DIR | default "./venv/helm"}}'
-  TASK_HELM_ANSIBLE_CMD: '{{.OVERRIDE_TASK_HELM_ANSIBLE_CMD | default "./venv/helm/bin/ansible-playbook"}}'
-  TASK_HELM_ANSIBLE_GALAXY_CMD: '{{.OVERRIDE_TASK_HELM_ANSIBLE_GALAXY_CMD | default "./venv/helm/bin/ansible-galaxy"}}'
-  TASK_HELM_ANSIBLE_REQUIREMENTS_FILE: '{{.OVERRIDE_TASK_HELM_ANSIBLE_REQUIREMENTS_FILE | default ".config/helm/requirements.txt"}}'
-  TASK_HELM_ANSIBLE_ROLES_REQUIREMENTS: '{{.OVERRIDE_TASK_HELM_ANSIBLE_ROLES_REQUIREMENTS | default ".config/helm/requirements.yml"}}'
-  TASK_HELM_ANSIBLE_PLAYBOOK_FILE: '{{.OVERRIDE_TASK_HELM_ANSIBLE_PLAYBOOK_FILE | default ".config/helm/playbook.yml"}}'
-  TASK_HELM_PYTHON_VERSION_FILE: '{{.OVERRIDE_TASK_HELM_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
+  TASK_HELM_ENABLED: '{{.TASK_HELM_ENABLED | default "true"}}'
+  TASK_HELM_VENV_DIR: '{{.TASK_HELM_VENV_DIR | default "./venv/helm"}}'
+  TASK_HELM_ANSIBLE_CMD: '{{.TASK_HELM_ANSIBLE_CMD | default "./venv/helm/bin/ansible-playbook"}}'
+  TASK_HELM_ANSIBLE_GALAXY_CMD: '{{.TASK_HELM_ANSIBLE_GALAXY_CMD | default "./venv/helm/bin/ansible-galaxy"}}'
+  TASK_HELM_ANSIBLE_REQUIREMENTS_FILE: '{{.TASK_HELM_ANSIBLE_REQUIREMENTS_FILE | default ".config/helm/requirements.txt"}}'
+  TASK_HELM_ANSIBLE_ROLES_REQUIREMENTS: '{{.TASK_HELM_ANSIBLE_ROLES_REQUIREMENTS | default ".config/helm/requirements.yml"}}'
+  TASK_HELM_ANSIBLE_PLAYBOOK_FILE: '{{.TASK_HELM_ANSIBLE_PLAYBOOK_FILE | default ".config/helm/playbook.yml"}}'
+  TASK_HELM_PYTHON_VERSION_FILE: '{{.TASK_HELM_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
   TASK_HELM_ANSIBLE_INVENTORY_TARGET: "localhost" # DevSkim: ignore DS162092
-  TASK_HELM_MAJOR_VERSION: '{{.OVERRIDE_TASK_HELM_MAJOR_VERSION | default "v3.17.1"}}'
-  TASK_HELM_DIR: '{{.OVERRIDE_TASK_HELM_DIR | default "iac/helm"}}'
-  TASK_HELM_CLI_OPTS: '{{.OVERRIDE_TASK_HELM_CLI_OPTS | default ""}}'
-  TASK_HELM_BUILD_DESTINATION: '{{.OVERRIDE_TASK_HELM_BUILD_DESTINATION | default "tmp/build/helm"}}'
-  TASK_HELM_DEPENDENCY_UPDATE: '{{.OVERRIDE_TASK_HELM_DEPENDENCY_UPDATE | default "--dependency-update"}}'
+  TASK_HELM_MAJOR_VERSION: '{{.TASK_HELM_MAJOR_VERSION | default "v3.17.1"}}'
+  TASK_HELM_DIR: '{{.TASK_HELM_DIR | default "iac/helm"}}'
+  TASK_HELM_CLI_OPTS: '{{.TASK_HELM_CLI_OPTS | default ""}}'
+  TASK_HELM_BUILD_DESTINATION: '{{.TASK_HELM_BUILD_DESTINATION | default "tmp/build/helm"}}'
+  TASK_HELM_DEPENDENCY_UPDATE: '{{.TASK_HELM_DEPENDENCY_UPDATE | default "--dependency-update"}}'
 
 env:
   LANG: "C.UTF-8"
@@ -123,6 +123,10 @@ tasks:
       🔧 Variables:
         - TASK_HELM_DIR: Path to Helm charts directory
     deps: [install]
+    sources:
+      - "{{.TASK_HELM_DIR}}/Chart.yaml"
+    generates:
+      - "{{.TASK_HELM_DIR}}/Chart.lock"
     preconditions:
       - sh: test -f {{.TASK_HELM_DIR}}/Chart.yaml
         msg: ❌ Helm Chart.yaml not found at {{.TASK_HELM_DIR}}/Chart.yaml
@@ -139,7 +143,7 @@ tasks:
 
       🔧 Variables:
         - TASK_HELM_DIR: Path to Helm charts directory
-        - TASK_HELM_CLI_OPTS: Additional Helm CLI options (can be overridden with OVERRIDE_TASK_HELM_CLI_OPTS)
+        - TASK_HELM_CLI_OPTS: Additional Helm CLI options (can be overridden with TASK_HELM_CLI_OPTS)
         - TASK_HELM_BUILD_DESTINATION: Destination directory for the built chart (default: tmp/build/helm)
         - TASK_HELM_DEPENDENCY_UPDATE: Option to update dependencies (default: --dependency-update)
 
@@ -163,3 +167,28 @@ tasks:
       - helm package {{.TASK_HELM_DIR}} --destination {{.TASK_HELM_BUILD_DESTINATION}} {{.TASK_HELM_DEPENDENCY_UPDATE}} {{.TASK_HELM_CLI_OPTS}}
       - cmd: echo "✅ Helm chart built successfully in {{.TASK_HELM_BUILD_DESTINATION}}"
         silent: true
+
+  lint:
+    desc: |
+      ℹ️ Description:
+        Verifies the syntax of the Helm chart.
+
+      🔧 Variables:
+        - TASK_HELM_DIR: Path to Helm charts directory
+
+      🔐 Preconditions:
+        - Helm must be installed.
+        - Chart.yaml must exist in the specified directory.
+
+      🔄 Execution:
+        - Runs 'helm lint' on the specified chart directory.
+    deps: [install]
+    preconditions:
+      - sh: command -v helm >/dev/null 2>&1
+        msg: "❌ Helm is not installed. Please run 'task helm:install' first."
+      - sh: test -f {{.TASK_HELM_DIR}}/Chart.yaml
+        msg: "❌ Helm Chart.yaml not found at {{.TASK_HELM_DIR}}/Chart.yaml"
+    cmds:
+      - |
+        echo "Linting Helm chart in {{.TASK_HELM_DIR}}"
+        helm lint "{{.TASK_HELM_DIR}}"
