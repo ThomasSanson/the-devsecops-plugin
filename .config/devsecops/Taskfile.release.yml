@@ -2,9 +2,13 @@
 version: "3"
 
 vars:
-  TASK_DEVSECOPS_RELEASE_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_RELEASE_ENABLED | default "true"}}'
-  TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH: '{{.OVERRIDE_TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH | default "main"}}'
-  TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH: '{{.OVERRIDE_TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH | default ""}}'
+  TASK_DEVSECOPS_RELEASE_ENABLED: '{{.TASK_DEVSECOPS_RELEASE_ENABLED | default "true"}}'
+  TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH: '{{.TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH | default "main"}}'
+  TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH: '{{.TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH | default ""}}'
+  TASK_DEVSECOPS_RELEASE_ALLOW_PUSH: '{{.TASK_DEVSECOPS_RELEASE_ALLOW_PUSH | default "true"}}'
+  TASK_DEVSECOPS_RELEASE_DEPLOY_KEY: '{{.TASK_DEVSECOPS_RELEASE_DEPLOY_KEY | default ""}}'
+  TASK_DEVSECOPS_RELEASE_GIT_SERVER_HOST: '{{.TASK_DEVSECOPS_RELEASE_GIT_SERVER_HOST | default ""}}'
+  TASK_DEVSECOPS_RELEASE_PROJECT_PATH: '{{.TASK_DEVSECOPS_RELEASE_PROJECT_PATH | default ""}}'
 
 tasks:
   default:
@@ -13,6 +17,7 @@ tasks:
       - test "{{.TASK_DEVSECOPS_RELEASE_ENABLED}}" = "false"
     cmds:
       - task: commitizen
+      - task: push-release
 
   commitizen:
     status:
@@ -35,3 +40,38 @@ tasks:
                   exit 0
                 fi
                 echo "true"
+
+  push-release:
+    desc: Pushes release commit and tags to the remote repository, mirroring GitLab CI logic.
+    preconditions:
+      - sh: test -n "{{.TASK_DEVSECOPS_RELEASE_PROJECT_PATH}}"
+        msg: "PROJECT_PATH (TASK_DEVSECOPS_RELEASE_PROJECT_PATH) is not set. Set TASK_DEVSECOPS_RELEASE_PROJECT_PATH or CI_PROJECT_PATH env var."
+      - sh: test -n "{{.TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH}}"
+        msg: "CURRENT_BRANCH (TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH) is not set. Set TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH or ensure git setup is correct."
+    cmds:
+      - | 
+        CURRENT_BRANCH="{{.TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH}}"
+        DEFAULT_BRANCH="{{.TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH}}"
+        echo "Current branch: $CURRENT_BRANCH"
+        echo "Default branch: $DEFAULT_BRANCH"
+        if [ "{{.TASK_DEVSECOPS_RELEASE_ALLOW_PUSH}}" = "true" ] && [ "$CURRENT_BRANCH" = "$DEFAULT_BRANCH" ]; then
+          if [ -n "{{.TASK_DEVSECOPS_RELEASE_DEPLOY_KEY}}" ]; then
+            echo "Using DEPLOY_KEY (TASK_DEVSECOPS_RELEASE_DEPLOY_KEY) to push..."
+            git remote set-url origin git@{{.TASK_DEVSECOPS_RELEASE_GIT_SERVER_HOST}}:{{.TASK_DEVSECOPS_RELEASE_PROJECT_PATH}}.git
+          else
+            echo "Pushing with default credentials (no DEPLOY_KEY/TASK_DEVSECOPS_RELEASE_DEPLOY_KEY found)..."
+            # Assuming 'origin' is already configured for push
+          fi
+          echo "Pushing tags..."
+          git push origin --tags
+          # Check current branch against default again, mirroring the CI script's inner check
+          if [ "$CURRENT_BRANCH" = "$DEFAULT_BRANCH" ]; then
+            echo "Pushing commit to default branch ($DEFAULT_BRANCH)..."
+            git push origin HEAD:$DEFAULT_BRANCH
+          else
+            # This part might not be strictly reachable if the outer condition holds
+            echo "Not on default branch ($DEFAULT_BRANCH), skipping commit push."
+          fi
+        else
+          echo "Skip: Pushing is disabled (ALLOW_PUSH is not 'true' or not on default branch). Check TASK_DEVSECOPS_RELEASE_ALLOW_PUSH / OVERRIDE_ or CZ_ALLOW_PUSH env var."
+        fi
