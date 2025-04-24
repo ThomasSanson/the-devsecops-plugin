@@ -2,7 +2,7 @@
 version: "3"
 
 vars:
-  TASK_DEVSECOPS_MONITOR_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_MONITOR_ENABLED | default "true"}}'
+  TASK_DEVSECOPS_MONITOR_ENABLED: '{{.TASK_DEVSECOPS_MONITOR_ENABLED | default "true"}}'
 
 tasks:
   default:
