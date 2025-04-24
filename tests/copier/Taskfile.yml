@@ -407,7 +407,7 @@ tasks:
     vars:
       ENTRYPOINT_FILE: "{{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}/tests/e2e/codeceptjs/step_definitions/entrypoint.js"
       EXPECTED_CONTENT: |
-        // Charger les définitions de steps depuis les fichiers spécifiques
+        // Load step definitions from specific files
         // require('./domain_name.js')
     cmds:
       - |
