@@ -27,7 +27,6 @@ tasks:
     cmds:
       - task: ansible
       - task: bun
-      - task: codeceptjs
       - task: docker-ce
       - task: go
       - task: helm
@@ -37,6 +36,7 @@ tasks:
       - task: lefthook
       - task: nodejs
       - task: podman
+      - task: codeceptjs
 
   up:
     cmds:
