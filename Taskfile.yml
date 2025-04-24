@@ -2,11 +2,13 @@
 # Taskfile.yml: Central hub for development operations.
 version: "3"
 
+dotenv: ['.env', '.env.dist']
+
 vars:
   # Environment variables for task control
-  TASK_FLAGS: '{{.OVERRIDE_TASK_FLAGS | default ""}}'
-  TASK_SEPARATOR: '{{.OVERRIDE_TASK_SEPARATOR | default (print (repeat 120 "-") "\n" (repeat 120 "-") "\n" (repeat 120 "-"))}}'
-  TASK_DEVSECOPS_ICON: '{{.OVERRIDE_TASK_DEVSECOPS_ICON | default "♾️"}}'
+  TASK_FLAGS: '{{.TASK_FLAGS | default ""}}'
+  TASK_SEPARATOR: '{{.TASK_SEPARATOR | default (print (repeat 120 "-") "\n" (repeat 120 "-") "\n" (repeat 120 "-"))}}'
+  TASK_DEVSECOPS_ICON: '{{.TASK_DEVSECOPS_ICON | default "♾️"}}'
 
 # Includes: Specify necessary and additional components for development.
 # - Essential includes are required for a successful Docker build.
@@ -40,6 +42,9 @@ includes:
     optional: true
   bun:
     taskfile: .config/bun/Taskfile.yml
+    optional: true
+  codeceptjs:
+    taskfile: .config/codeceptjs/Taskfile.yml
     optional: true
   commitizen:
     taskfile: .config/commitizen/Taskfile.yml
@@ -76,6 +81,9 @@ includes:
     optional: true
   kubeseal:
     taskfile: .config/kubeseal/Taskfile.yaml
+    optional: true
+  lefthook:
+    taskfile: .config/lefthook/Taskfile.yml
     optional: true
   lizard:
     taskfile: .config/lizard/Taskfile.yml
@@ -171,7 +179,6 @@ tasks:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Test"
         silent: true
-      - task: project:test
       - task: devsecops:test
       - cmd: echo "{{.TASK_SEPARATOR}}"
         silent: true
@@ -180,7 +187,6 @@ tasks:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Test Tdd"
         silent: true
-      - task: project:test:tdd
       - task: devsecops:test:tdd
       - cmd: echo "{{.TASK_SEPARATOR}}"
         silent: true
