@@ -2,22 +2,54 @@
 version: "3"
 
 vars:
-  TASK_DEV_ENABLED: '{{.OVERRIDE_TASK_DEV_ENABLED | default "true"}}'
+  TASK_DEV_ENABLED: '{{.TASK_DEV_ENABLED | default "true"}}'
+  # Initialization Variables
+  TASK_DEV_INIT_PROJECT_DIR: '{{.TASK_DEV_INIT_PROJECT_DIR | default "."}}'
+  TASK_DEV_INIT_OWNER: '{{.TASK_DEV_INIT_OWNER | default "$USER:$USER" }}' # Format UID:GID, using shell command as default
+  TASK_DEV_INIT_DEPLOY_KEY_PATH: '{{.TASK_DEV_INIT_DEPLOY_KEY_PATH | default ""}}'
+  TASK_DEV_INIT_GIT_SERVER_HOST: '{{.TASK_DEV_INIT_GIT_SERVER_HOST | default ""}}'
+  TASK_DEV_INIT_GIT_USER_NAME: '{{.TASK_DEV_INIT_GIT_USER_NAME | default ""}}'
+  TASK_DEV_INIT_GIT_USER_EMAIL: '{{.TASK_DEV_INIT_GIT_USER_EMAIL | default ""}}'
 
 tasks:
+  init:
+    desc: "Run all CI/CD initialization steps (git config, permissions, ssh)"
+    cmds:
+      - task: setup-git-security
+      - task: setup-permissions
+      - task: setup-ssh
+      - task: setup-git-config
+      - task: fetch-git-data
+
   setup-environment:
+    alias: "default"
     desc: Configure the development environment.
     cmds:
       - task: ansible
       - task: bun
+      - task: codeceptjs
       - task: docker-ce
       - task: go
       - task: helm
       - task: k3d
       - task: kubectl
       - task: kubeseal
+      - task: lefthook
       - task: nodejs
       - task: podman
+
+  up:
+    cmds:
+      - task: setup-environment
+      - task: :deploy
+      - cmd: echo " Open http://localhost:8080 in your browser" # DevSkim: ignore DS162092
+        silent: true
+      - cmd: echo "=> Run 'task dev:reset to destroy and cleanup"
+        silent: true
+
+  reset:
+    cmds:
+      - task: :devsecops:test:reset
 
   ansible:
     internal: true
@@ -32,6 +64,13 @@ tasks:
       - test "{{.TASK_BUN_ENABLED}}" = "false"
     cmds:
       - task: :bun:install
+
+  codeceptjs:
+    internal: true
+    status:
+      - test "{{.TASK_CODECEPTJS_ENABLED}}" = "false"
+    cmds:
+      - task: :codeceptjs:install:playwright
 
   docker-ce:
     internal: true
@@ -75,6 +114,13 @@ tasks:
     cmds:
       - task: :kubeseal:install
 
+  lefthook:
+    internal: true
+    status:
+      - test "{{.TASK_LEFTHOOK_ENABLED}}" = "false"
+    cmds:
+      - task: :lefthook:lefthook:install
+
   nodejs:
     internal: true
     status:
@@ -88,3 +134,83 @@ tasks:
       - test "{{.TASK_PODMAN_ENABLED}}" = "false"
     cmds:
       - task: :podman:install
+
+  # --- Initialization Sub-Tasks ---
+
+  setup-git-security:
+    internal: true
+    desc: "Configure git safe directory"
+    cmds:
+      - git config --global --add safe.directory "{{.TASK_DEV_INIT_PROJECT_DIR}}"
+
+  setup-permissions:
+    internal: true
+    desc: "Set ownership and permissions for the project directory"
+    cmds:
+      - |
+        if command -v sudo >/dev/null 2>&1; then
+          echo "INFO: Setting ownership to {{.TASK_DEV_INIT_OWNER}} for {{.TASK_DEV_INIT_PROJECT_DIR}}"
+          sudo chown -R {{.TASK_DEV_INIT_OWNER}} {{.TASK_DEV_INIT_PROJECT_DIR}}
+          echo "INFO: Setting permissions for {{.TASK_DEV_INIT_PROJECT_DIR}}"
+          sudo chmod -R u+rw {{.TASK_DEV_INIT_PROJECT_DIR}}
+        else
+          echo "WARN: sudo not found. Skipping permission setup."
+        fi
+
+  setup-ssh:
+    internal: true
+    desc: "Configure SSH agent, keys, and known hosts"
+    cmds:
+      - | # Combine agent start, key adding, and host key scan into one script
+        eval $(ssh-agent -s)
+        mkdir -p ~/.ssh
+        chmod 700 ~/.ssh
+        # Check if the variable is defined and points to an existing file
+        if [ -n "{{.TASK_DEV_INIT_DEPLOY_KEY_PATH}}" ] && [ -f "{{.TASK_DEV_INIT_DEPLOY_KEY_PATH}}" ]; then
+          echo "INFO: Using SSH key from variable located at: {{.TASK_DEV_INIT_DEPLOY_KEY_PATH}}"
+          # Copy the key file provided by GitLab CI to the standard location
+          cp "{{.TASK_DEV_INIT_DEPLOY_KEY_PATH}}" ~/.ssh/id_rsa
+          # Set correct permissions
+          chmod 600 ~/.ssh/id_rsa
+
+          # Add the key to the ssh-agent (now in the same shell context)
+          ssh-add ~/.ssh/id_rsa
+          echo "INFO: SSH Key added to agent. Listing keys:"
+          ssh-add -l # Verify key was added
+        else
+          # Add a check to differentiate between undefined variable and non-existent file path
+          if [ -z "{{.TASK_DEV_INIT_DEPLOY_KEY_PATH}}" ]; then
+            echo "WARN: TASK_DEV_INIT_DEPLOY_KEY_PATH variable is not defined. Skipping SSH key setup."
+          else
+            echo "ERROR: TASK_DEV_INIT_DEPLOY_KEY_PATH is defined but does not point to a valid file: {{.TASK_DEV_INIT_DEPLOY_KEY_PATH}}" >&2
+            # Consider failing the job if the key is mandatory
+            # exit 1
+          fi
+          echo "WARN: Skipping SSH key setup."
+        fi
+        # Disable strict host key checking if inside Docker, otherwise rely on known_hosts
+        [[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+        # Add Git server host key to known_hosts
+        if [ -n "{{.TASK_DEV_INIT_GIT_SERVER_HOST}}" ]; then
+          echo "INFO: Adding {{.TASK_DEV_INIT_GIT_SERVER_HOST}} to known_hosts"
+          ssh-keyscan {{.TASK_DEV_INIT_GIT_SERVER_HOST}} >> ~/.ssh/known_hosts
+        else
+          echo "WARN: TASK_DEV_INIT_GIT_SERVER_HOST is not defined. Skipping ssh-keyscan."
+        fi
+
+  setup-git-config:
+    internal: true
+    desc: "Configure local git user name and email"
+    cmds:
+      - |
+        git config --local user.name "{{.TASK_DEV_INIT_GIT_USER_NAME}}"
+        git config --local user.email "{{.TASK_DEV_INIT_GIT_USER_EMAIL}}"
+        git config --local pull.rebase true
+        echo "Git name: $(git config --get user.name)"
+        echo "Git email: $(git config --get user.email)"
+
+  fetch-git-data:
+    internal: true
+    desc: "Fetch all git data including tags"
+    cmds:
+      - git fetch --all && git fetch --tags && git fetch origin --tags
