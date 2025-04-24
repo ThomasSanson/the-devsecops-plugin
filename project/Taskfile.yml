@@ -46,8 +46,10 @@ tasks:
     cmds:
       - cmd: echo "Running project-specific TDD test tasks..."
         silent: true
-      # - task: tests:devcontainer
       - task: tests:copier
+      - task: :deploy
+      - task: :codeceptjs
+      - task: tests:devcontainer
 
   release:
     desc: Run project-specific release tasks
@@ -92,12 +94,25 @@ tasks:
             --values iac/environment/${ENV:-testing}/superset-values.yaml \
             --wait \
             --timeout 15m
+      - task: operate:kube:port-forward
 
   operate:
     desc: Run project-specific operate tasks
     cmds:
       - cmd: echo "Running project-specific operate tasks..."
         silent: true
+
+  operate:kube:port-forward:
+    desc: Port-forward the Superset service to localhost # DevSkim: ignore DS162092
+    status:
+      - 'curl --fail --max-time 2 http://localhost:8080 > /dev/null 2>&1' # DevSkim: ignore DS162092
+    cmds:
+      - task: :kubectl:port-forward
+        vars:
+          SERVICE_NAME: superset
+          LOCAL_PORT: 8080
+          REMOTE_PORT: 8088
+          NAMESPACE: superset
 
   monitor:
     desc: Run project-specific monitor tasks
