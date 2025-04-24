@@ -1,2 +1,2 @@
-// Charger les définitions de steps depuis les fichiers spécifiques
+// Load step definitions from specific files
 require('./authentication.js')
