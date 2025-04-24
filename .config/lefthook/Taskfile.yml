@@ -1,0 +1,38 @@
+---
+version: "3"
+
+vars:
+  TASK_LEFTHOOK_ENABLED: '{{.TASK_LEFTHOOK_ENABLED | default "true"}}'
+  TASK_LEFTHOOK_VERSION: '{{.TASK_LEFTHOOK_VERSION | default "v1.11.11"}}' # Specify Lefthook version
+  TASK_LEFTHOOK_BIN_PATH: '{{.TASK_LEFTHOOK_BIN_PATH | default "~/go/bin/lefthook"}}' # Path where go install places binaries
+
+tasks:
+  lefthook:install:
+    deps: ["install"]
+    cmds:
+      - "{{.TASK_LEFTHOOK_BIN_PATH}} install"
+  
+  install:
+    desc: Install Lefthook using Go
+    summary: |
+      ℹ️ Description:
+        Installs Lefthook globally using Go.
+
+      🔧 Variables:
+        - TASK_LEFTHOOK_VERSION: Version of Lefthook to install.
+        - TASK_LEFTHOOK_BIN_PATH: Expected path to the Lefthook binary.
+
+      🔐 Preconditions:
+        - Go must be installed and configured (GOPATH/bin in PATH).
+
+      🔄 Execution:
+        Runs 'go install' to fetch and build Lefthook.
+    status:
+      - command -v lefthook &> /dev/null
+    preconditions:
+      - sh: "command -v go >/dev/null 2>&1"
+        msg: "❌ Go is not installed or not in PATH"
+    cmds:
+      - go install github.com/evilmartians/lefthook@{{.TASK_LEFTHOOK_VERSION}}
+      - cmd: echo "✅ Lefthook {{.TASK_LEFTHOOK_VERSION}} installed successfully at {{.TASK_LEFTHOOK_BIN_PATH}}"
+        silent: true
