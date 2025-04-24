@@ -2,33 +2,33 @@
 version: "3"
 
 vars:
-  TASK_KANIKO_ENABLED: '{{.OVERRIDE_TASK_KANIKO_ENABLED | default "false"}}'
+  TASK_KANIKO_ENABLED: '{{.TASK_KANIKO_ENABLED | default "false"}}'
   # Core settings
-  TASK_KANIKO_EXECUTOR: '{{.OVERRIDE_TASK_KANIKO_EXECUTOR | default "gcr.io/kaniko-project/executor:latest"}}'
-  TASK_KANIKO_WARMER: '{{.OVERRIDE_TASK_KANIKO_WARMER | default "gcr.io/kaniko-project/warmer:latest"}}'
-  TASK_KANIKO_RUNTIME_CMD: '{{.OVERRIDE_TASK_KANIKO_RUNTIME_CMD | default "docker container run"}}'
-  TASK_KANIKO_VOLUME_FLAG: '{{.OVERRIDE_TASK_KANIKO_VOLUME_FLAG | default "-v"}}'  # -v, --volume, --mount, etc.
+  TASK_KANIKO_EXECUTOR: '{{.TASK_KANIKO_EXECUTOR | default "gcr.io/kaniko-project/executor:latest"}}'
+  TASK_KANIKO_WARMER: '{{.TASK_KANIKO_WARMER | default "gcr.io/kaniko-project/warmer:latest"}}'
+  TASK_KANIKO_RUNTIME_CMD: '{{.TASK_KANIKO_RUNTIME_CMD | default "docker container run"}}'
+  TASK_KANIKO_VOLUME_FLAG: '{{.TASK_KANIKO_VOLUME_FLAG | default "-v"}}'  # -v, --volume, --mount, etc.
 
   # Authentication settings
-  TASK_KANIKO_AUTH_ENABLED: '{{.OVERRIDE_TASK_KANIKO_AUTH_ENABLED | default "false"}}'
-  TASK_KANIKO_REGISTRY_USERNAME: '{{.OVERRIDE_TASK_KANIKO_REGISTRY_USERNAME | default ""}}'
-  TASK_KANIKO_REGISTRY_PASSWORD: '{{.OVERRIDE_TASK_KANIKO_REGISTRY_PASSWORD | default ""}}'
-  TASK_KANIKO_REGISTRY_URL: '{{.OVERRIDE_TASK_KANIKO_REGISTRY_URL | default ""}}'
+  TASK_KANIKO_AUTH_ENABLED: '{{.TASK_KANIKO_AUTH_ENABLED | default "false"}}'
+  TASK_KANIKO_REGISTRY_USERNAME: '{{.TASK_KANIKO_REGISTRY_USERNAME | default ""}}'
+  TASK_KANIKO_REGISTRY_PASSWORD: '{{.TASK_KANIKO_REGISTRY_PASSWORD | default ""}}'
+  TASK_KANIKO_REGISTRY_URL: '{{.TASK_KANIKO_REGISTRY_URL | default ""}}'
 
   # Build settings
-  TASK_KANIKO_IMAGE_NAME: '{{.OVERRIDE_TASK_KANIKO_IMAGE_NAME | default "test"}}'
-  TASK_KANIKO_IMAGE_TAG: '{{.OVERRIDE_TASK_KANIKO_IMAGE_TAG | default "latest"}}'
-  TASK_KANIKO_DOCKERFILE: '{{.OVERRIDE_TASK_KANIKO_DOCKERFILE | default ".config/devcontainer/debian/Dockerfile"}}'
-  TASK_KANIKO_CONTEXT: '{{.OVERRIDE_TASK_KANIKO_CONTEXT | default "."}}'
-  TASK_KANIKO_PUSH: '{{.OVERRIDE_TASK_KANIKO_PUSH | default "false"}}'
+  TASK_KANIKO_IMAGE_NAME: '{{.TASK_KANIKO_IMAGE_NAME | default "test"}}'
+  TASK_KANIKO_IMAGE_TAG: '{{.TASK_KANIKO_IMAGE_TAG | default "latest"}}'
+  TASK_KANIKO_DOCKERFILE: '{{.TASK_KANIKO_DOCKERFILE | default ".config/devcontainer/debian/Dockerfile"}}'
+  TASK_KANIKO_CONTEXT: '{{.TASK_KANIKO_CONTEXT | default "."}}'
+  TASK_KANIKO_PUSH: '{{.TASK_KANIKO_PUSH | default "false"}}'
 
   # Cache settings
-  TASK_KANIKO_CACHE_ENABLED: '{{.OVERRIDE_TASK_KANIKO_CACHE_ENABLED | default "true"}}'
-  TASK_KANIKO_CACHE_REPO: '{{.OVERRIDE_TASK_KANIKO_CACHE_REPO | default "oci:$HOME/tmp/cache"}}'
-  TASK_KANIKO_CACHE_TTL: '{{.OVERRIDE_TASK_KANIKO_CACHE_TTL | default "24h"}}'
+  TASK_KANIKO_CACHE_ENABLED: '{{.TASK_KANIKO_CACHE_ENABLED | default "true"}}'
+  TASK_KANIKO_CACHE_REPO: '{{.TASK_KANIKO_CACHE_REPO | default "oci:$HOME/tmp/cache"}}'
+  TASK_KANIKO_CACHE_TTL: '{{.TASK_KANIKO_CACHE_TTL | default "24h"}}'
 
   # Labels (optional)
-  TASK_KANIKO_CUSTOM_LABELS: '{{.OVERRIDE_TASK_KANIKO_CUSTOM_LABELS | default ""}}'
+  TASK_KANIKO_CUSTOM_LABELS: '{{.TASK_KANIKO_CUSTOM_LABELS | default ""}}'
   TASK_KANIKO_BASE_LABELS: >
     --label org.opencontainers.image.created={{now | date "2006-01-02T15:04:05Z07:00"}}
     --label org.opencontainers.image.source={{.REPO_URL | default "local"}}
