@@ -2,12 +2,12 @@
 version: "3"
 
 vars:
-  TASK_YAMLLINT_ENABLED: '{{.OVERRIDE_TASK_YAMLLINT_ENABLED | default "true"}}'
-  TASK_YAMLLINT_VIRTUALENV: '{{.OVERRIDE_TASK_YAMLLINT_VIRTUALENV | default "./venv/yamllint"}}'
-  TASK_YAMLLINT_COMMAND: '{{.OVERRIDE_TASK_YAMLLINT_COMMAND | default "./venv/yamllint/bin/yamllint"}}'
-  TASK_YAMLLINT_CONFIG_FULL_PATH: '{{.OVERRIDE_TASK_YAMLLINT_CONFIG_FULL_PATH | default ".config/yamllint/config.yml"}}'
-  TASK_YAMLLINT_CLI_OPTS: '{{.OVERRIDE_TASK_YAMLLINT_CLI_OPTS | default "--strict"}}'
-  TASK_YAMLLINT_PATH_TO_LINT: '{{.OVERRIDE_TASK_YAMLLINT_PATH_TO_LINT | default "."}}'
+  TASK_YAMLLINT_ENABLED: '{{.TASK_YAMLLINT_ENABLED | default "true"}}'
+  TASK_YAMLLINT_VIRTUALENV: '{{.TASK_YAMLLINT_VIRTUALENV | default "./venv/yamllint"}}'
+  TASK_YAMLLINT_COMMAND: '{{.TASK_YAMLLINT_COMMAND | default "./venv/yamllint/bin/yamllint"}}'
+  TASK_YAMLLINT_CONFIG_FULL_PATH: '{{.TASK_YAMLLINT_CONFIG_FULL_PATH | default ".config/yamllint/config.yml"}}'
+  TASK_YAMLLINT_CLI_OPTS: '{{.TASK_YAMLLINT_CLI_OPTS | default "--strict"}}'
+  TASK_YAMLLINT_PATH_TO_LINT: '{{.TASK_YAMLLINT_PATH_TO_LINT | default "."}}'
 
 tasks:
   default:
@@ -76,8 +76,8 @@ tasks:
           echo "3.11" > {{.TASK_YAMLLINT_PYTHON_VERSION_FILE}}
           ```
     vars:
-      TASK_YAMLLINT_PYTHON_VERSION_FILE: '{{.OVERRIDE_TASK_YAMLLINT_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
-      TASK_YAMLLINT_REQUIREMENTS_FILE: '{{.OVERRIDE_TASK_YAMLLINT_REQUIREMENTS_FILE | default ".config/yamllint/requirements.txt"}}'
+      TASK_YAMLLINT_PYTHON_VERSION_FILE: '{{.TASK_YAMLLINT_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
+      TASK_YAMLLINT_REQUIREMENTS_FILE: '{{.TASK_YAMLLINT_REQUIREMENTS_FILE | default ".config/yamllint/requirements.txt"}}'
     status:
       - |
         {{.TASK_YAMLLINT_COMMAND}} --version | grep -q $(awk -F '==' '{print $2}' {{.TASK_YAMLLINT_REQUIREMENTS_FILE}})
