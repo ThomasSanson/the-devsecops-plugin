@@ -2,7 +2,7 @@
 version: "3"
 
 vars:
-  TASK_BUN_ENABLED: '{{.OVERRIDE_TASK_BUN_ENABLED | default "true"}}'
+  TASK_BUN_ENABLED: '{{.TASK_BUN_ENABLED | default "true"}}'
 
 tasks:
   install:
@@ -26,7 +26,7 @@ tasks:
         development without the need for Node.js. It is designed to be flexible,
         accommodating various project configurations and Linux distributions.
     vars:
-      TASK_BUN_VERSION: '{{.OVERRIDE_TASK_BUN_VERSION | default "latest"}}'
+      TASK_BUN_VERSION: '{{.TASK_BUN_VERSION | default "latest"}}'
     status:
       - command -v $HOME/.bun/bin/bun &> /dev/null
       - command -v $HOME/.bun/bin/bunx &> /dev/null
