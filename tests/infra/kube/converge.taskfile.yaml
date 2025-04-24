@@ -9,6 +9,6 @@ tasks:
     cmds:
       - cmd: echo "🚀 Starting converge phase..."
         silent: true
-      - task: :project:deploy
+      - task: :deploy
         vars:
           ENV: testing
