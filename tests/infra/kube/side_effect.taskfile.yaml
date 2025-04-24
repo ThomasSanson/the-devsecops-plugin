@@ -2,7 +2,7 @@
 version: "3"
 
 vars:
-  TASK_ANSIBLE_VIRTUALENV: '{{.OVERRIDE_TASK_ANSIBLE_VIRTUALENV | default "./venv/ansible"}}'
+  TASK_ANSIBLE_VIRTUALENV: '{{.TASK_ANSIBLE_VIRTUALENV | default "./venv/ansible"}}'
 
 tasks:
   default:
