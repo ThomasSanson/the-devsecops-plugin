@@ -7,6 +7,7 @@
   vars:
     kubeseal_version: "{{ kubeseal_version | default('v0.28.0') }}"
     go_bin_path: "{{ ansible_env.HOME }}/go/bin"
+    local_bin_path: "{{ ansible_env.HOME }}/.local/bin"
 
   tasks:
     - name: Check if Go is installed
@@ -27,6 +28,12 @@
         state: directory
         mode: '0755'
 
+    - name: Ensure ~/.local/bin directory exists
+      ansible.builtin.file:
+        path: "{{ local_bin_path }}"
+        state: directory
+        mode: '0755'
+
     - name: Install Kubeseal using Go install
       environment:
         PATH: "{{ ansible_env.PATH }}:{{ go_bin_path }}"
@@ -37,23 +44,21 @@
         creates: "{{ go_bin_path }}/kubeseal"
         executable: /bin/bash
 
-    - name: Create symlink to kubeseal in /usr/local/bin for global access
+    - name: Create symlink to kubeseal in ~/.local/bin for user access
       ansible.builtin.file:
         src: "{{ go_bin_path }}/kubeseal"
-        dest: "/usr/local/bin/kubeseal"
+        dest: "{{ local_bin_path }}/kubeseal"
         state: link
         mode: '0755'
-      become: true
       register: symlink_result
       failed_when: symlink_result.failed and not ansible_check_mode
 
-    - name: Alternative - Copy kubeseal to /usr/local/bin if symlink fails (permissions issue)
+    - name: Alternative - Copy kubeseal to ~/.local/bin if symlink fails
       ansible.builtin.copy:
         src: "{{ go_bin_path }}/kubeseal"
-        dest: "/usr/local/bin/kubeseal"
+        dest: "{{ local_bin_path }}/kubeseal"
         mode: '0755'
         remote_src: true
-      become: true
       register: copy_result
       failed_when: copy_result.failed and not ansible_check_mode
       when: symlink_result.failed and not ansible_check_mode

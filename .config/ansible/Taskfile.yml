@@ -2,15 +2,16 @@
 version: "3"
 
 vars:
-  TASK_ANSIBLE_ENABLED: '{{.OVERRIDE_TASK_ANSIBLE_ENABLED | default "true"}}'
-  TASK_ANSIBLE_VIRTUALENV: '{{.OVERRIDE_TASK_ANSIBLE_VIRTUALENV | default "./venv/ansible"}}'
-  TASK_ANSIBLE_COMMAND: '{{.OVERRIDE_TASK_ANSIBLE_COMMAND | default "./venv/ansible/bin/ansible"}}'
-  TASK_ANSIBLE_CONFIG_FULL_PATH: '{{.OVERRIDE_TASK_ANSIBLE_CONFIG_FULL_PATH | default ".config/ansible/ansible.cfg"}}'
-  TASK_ANSIBLE_CLI_OPTS: '{{.OVERRIDE_TASK_ANSIBLE_CLI_OPTS | default ""}}'
-  TASK_ANSIBLE_CLI_CHECK_OPTS: '{{.OVERRIDE_TASK_ANSIBLE_CLI_CHECK_OPTS | default "--check"}}'
-  TASK_ANSIBLE_PYTHON_VERSION_FILE: '{{.OVERRIDE_TASK_ANSIBLE_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
-  TASK_ANSIBLE_REQUIREMENTS_FILE: '{{.OVERRIDE_TASK_ANSIBLE_REQUIREMENTS_FILE | default ".config/ansible/requirements.txt"}}'
-  TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE: '{{.OVERRIDE_TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE | default "tests/infra/kube/requirements.yml"}}'
+  TASK_ANSIBLE_ENABLED: '{{.TASK_ANSIBLE_ENABLED | default "true"}}'
+  TASK_ANSIBLE_VIRTUALENV: '{{.TASK_ANSIBLE_VIRTUALENV | default "./venv/ansible"}}'
+  TASK_ANSIBLE_COMMAND: '{{.TASK_ANSIBLE_COMMAND | default "./venv/ansible/bin/ansible"}}'
+  TASK_ANSIBLE_CONFIG_FULL_PATH: '{{.TASK_ANSIBLE_CONFIG_FULL_PATH | default ".config/ansible/ansible.cfg"}}'
+  TASK_ANSIBLE_CLI_OPTS: '{{.TASK_ANSIBLE_CLI_OPTS | default ""}}'
+  TASK_ANSIBLE_CLI_CHECK_OPTS: '{{.TASK_ANSIBLE_CLI_CHECK_OPTS | default "--check"}}'
+  TASK_ANSIBLE_PYTHON_VERSION_FILE: '{{.TASK_ANSIBLE_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
+  TASK_ANSIBLE_REQUIREMENTS_FILE: '{{.TASK_ANSIBLE_REQUIREMENTS_FILE | default ".config/ansible/requirements.txt"}}'
+  TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE: '{{.TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE | default "tests/infra/kube/requirements.yml"}}'
+  TASK_ANSIBLE_PLAYBOOK_DIR: '{{.TASK_ANSIBLE_PLAYBOOK_DIR | default ""}}'
 
 tasks:
   default:
@@ -143,4 +144,40 @@ tasks:
       - |
         {{.TASK_ANSIBLE_VIRTUALENV}}/bin/ansible-galaxy collection install -r {{.TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE}}
       - cmd: echo "✅ Ansible collections successfully installed."
+        silent: true
+
+  syntax-check:
+    desc: |
+      ℹ️ Description:
+        Verifies the syntax of Ansible playbooks in a specified directory.
+
+      🔧 Variables:
+        - TASK_ANSIBLE_COMMAND: Command to run ansible-playbook.
+        - TASK_ANSIBLE_PLAYBOOK_DIR: Directory containing the playbooks to check.
+
+      🔐 Preconditions:
+        - Ansible must be installed (via task 'install').
+        - The playbook directory must exist.
+
+      🔄 Execution:
+        - Iterates through all files in TASK_ANSIBLE_PLAYBOOK_DIR.
+        - Runs ansible-playbook --syntax-check for each playbook.
+    deps: [install]
+    preconditions:
+      - sh: "command -v {{.TASK_ANSIBLE_COMMAND}} >/dev/null 2>&1"
+        msg: "❌ Ansible command '{{.TASK_ANSIBLE_COMMAND}}' not found. Run task 'install'."
+      - sh: test -d {{.TASK_ANSIBLE_PLAYBOOK_DIR}}
+        msg: "❌ Playbook directory '{{.TASK_ANSIBLE_PLAYBOOK_DIR}}' not found or not specified via TASK_ANSIBLE_PLAYBOOK_DIR."
+    cmds:
+      - |
+        playbook_dir="{{.TASK_ANSIBLE_PLAYBOOK_DIR}}"
+        echo "Checking syntax in directory: $playbook_dir"
+        for playbook in "$playbook_dir"/**/*; do
+          if [ -f "$playbook" ]; then
+            echo "Checking syntax of $playbook"
+            # DevSkim: ignore DS162092 # Required for Ansible syntax checking
+            {{.TASK_ANSIBLE_COMMAND}}-playbook --inventory localhost, --connection local --syntax-check "$playbook" # DevSkim: ignore DS162092
+          fi
+        done
+      - cmd: echo "✅ Syntax check complete."
         silent: true

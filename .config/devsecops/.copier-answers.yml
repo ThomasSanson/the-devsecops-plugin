@@ -1,0 +1,5 @@
+---
+# Path: .config/devsecops/.copier-answers.yml.jinja
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: 6.0.0
+_src_path: https://gitlab.com/digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin.git

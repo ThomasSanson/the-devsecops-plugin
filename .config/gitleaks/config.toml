@@ -1,0 +1,13 @@
+title = "Gitleaks Configuration"
+
+# Extend the default configuration
+[extend]
+useDefault = true
+
+# Global configuration to ignore specific files
+[allowlist]
+description = "Files to ignore for secrets detection"
+paths = [
+  '''iac/environment/.*/sealed-secrets\.yaml''',
+  '''iac/environment/testing/secrets\.yaml'''
+]

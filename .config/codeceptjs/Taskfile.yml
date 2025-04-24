@@ -1,0 +1,90 @@
+---
+version: "3"
+
+vars:
+  TASK_CODECEPTJS_ENABLED: '{{.TASK_CODECEPTJS_ENABLED | default "true"}}'
+  TASK_CODECEPTJS_DIR: '{{.TASK_CODECEPTJS_DIR | default ".config/codeceptjs"}}'
+  TASK_CODECEPTJS_COMMAND: '{{.TASK_CODECEPTJS_COMMAND | default "npx --prefix .config/codeceptjs codeceptjs"}}'
+  TASK_CODECEPTJS_CONFIG: '{{.TASK_CODECEPTJS_CONFIG | default ".config/codeceptjs/codecept.conf.js"}}'
+  TASK_CODECEPTJS_GREP: '{{.TASK_CODECEPTJS_GREP | default ""}}'
+  TASK_CODECEPTJS_DEBUG: '{{.TASK_CODECEPTJS_DEBUG | default ""}}'
+  TASK_CODECEPTJS_STEPS: '{{.TASK_CODECEPTJS_STEPS | default ""}}'
+  TASK_CODECEPTJS_REPORTER: '{{.TASK_CODECEPTJS_REPORTER | default ""}}'
+  TASK_CODECEPTJS_VERBOSE: '{{.TASK_CODECEPTJS_VERBOSE | default ""}}'
+  TASK_CODECEPTJS_OVERRIDE: '{{.TASK_CODECEPTJS_OVERRIDE | default ""}}'
+
+tasks:
+  install:
+    desc: Install CodeceptJS and Playwright locally
+    summary: |
+      ℹ️ Description:
+        Installs CodeceptJS locally in the .config/codeceptjs directory.
+
+      🔧 Variables:
+        - TASK_CODECEPTJS_DIR: Directory where CodeceptJS will be installed. Default: ".config/codeceptjs"
+
+      🔄 Execution:
+        Installs the dependencies defined in the package.json file.
+    sources:
+      - "{{.TASK_CODECEPTJS_DIR}}/package.json"
+    generates:
+      - "{{.TASK_CODECEPTJS_DIR}}/node_modules/.bin/codeceptjs"
+    cmds:
+      - cmd: echo "🔄 Installing CodeceptJS locally..."
+        silent: true
+      - npm install --prefix {{.TASK_CODECEPTJS_DIR}}
+      - task: install:playwright
+      - cmd: echo "✅ CodeceptJS installed successfully"
+        silent: true
+
+  install:playwright:
+    desc: Install Playwright locally
+    summary: |
+      ℹ️ Description:
+        Installs Playwright locally in the .config/codeceptjs directory.
+
+      🔧 Variables:
+        - TASK_CODECEPTJS_DIR: Directory where CodeceptJS will be installed. Default: ".config/codeceptjs"
+
+      🔄 Execution:
+        Installs the dependencies defined in the package.json file.
+    status:
+      - "{{.TASK_CODECEPTJS_DIR}}/node_modules/.bin/playwright --version"
+      - bash -c "ls $HOME/.cache/ms-playwright/chromium-*/chrome-linux/chrome >/dev/null 2>&1"
+    cmds:
+      - cmd: echo "🔄 Installing Playwright locally..."
+        silent: true
+      - npm exec --prefix {{.TASK_CODECEPTJS_DIR}} playwright install -- --with-deps chromium
+      - cmd: echo "✅ Playwright installed successfully"
+        silent: true
+
+  default:
+    desc: Run tests with CodeceptJS.
+    summary: |
+      ℹ️ Description:
+        Runs CodeceptJS to execute end-to-end tests.
+
+      🔧 Variables:
+        - TASK_CODECEPTJS_COMMAND: Command to run CodeceptJS. Default: "npx --prefix .config/codeceptjs codeceptjs"
+        - TASK_CODECEPTJS_CONFIG: Path to CodeceptJS configuration file. Default: ".config/codeceptjs/codecept.conf.js"
+        - TASK_CODECEPTJS_GREP: Filter tests by name. Default: ""
+        - TASK_CODECEPTJS_DEBUG: Run tests in debug mode. Default: ""
+        - TASK_CODECEPTJS_STEPS: Show steps in output. Default: ""
+        - TASK_CODECEPTJS_REPORTER: Specify reporter (e.g. "xunit"). Default: ""
+        - TASK_CODECEPTJS_VERBOSE: Run with verbose output. Default: ""
+        - TASK_CODECEPTJS_OVERRIDE: Override config options. Default: ""
+
+      🔄 Execution:
+        Runs CodeceptJS tests with the specified configuration and options.
+    status:
+      - test "{{.TASK_CODECEPTJS_ENABLED}}" = "false"
+    deps: [install]
+    vars:
+      CODECEPTJS_RUN_COMMAND: "{{.TASK_CODECEPTJS_COMMAND}} run --config {{.TASK_CODECEPTJS_CONFIG}}{{if .TASK_CODECEPTJS_GREP}} --grep {{.TASK_CODECEPTJS_GREP}}{{end}}{{if .TASK_CODECEPTJS_DEBUG}} --debug{{end}}{{if .TASK_CODECEPTJS_STEPS}} --steps{{end}}{{if .TASK_CODECEPTJS_REPORTER}} --reporter {{.TASK_CODECEPTJS_REPORTER}}{{end}}{{if .TASK_CODECEPTJS_VERBOSE}} --verbose{{end}}{{if .TASK_CODECEPTJS_OVERRIDE}} --override {{.TASK_CODECEPTJS_OVERRIDE}}{{end}}"
+    cmds:
+      - cmd: echo "🔄 Running CodeceptJS tests..."
+        silent: true
+      - cmd: echo "{{.CODECEPTJS_RUN_COMMAND}}"
+        silent: true
+      - cmd: "{{.CODECEPTJS_RUN_COMMAND}}"
+        silent: true

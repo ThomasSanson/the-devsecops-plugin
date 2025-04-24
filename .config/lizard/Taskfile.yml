@@ -2,13 +2,13 @@
 version: "3"
 
 vars:
-  TASK_LIZARD_ENABLED: '{{.OVERRIDE_TASK_LIZARD_ENABLED | default "true"}}'
-  TASK_LIZARD_CLI_OPTS: '{{.OVERRIDE_TASK_LIZARD_CLI_OPTS | default ""}}'
-  TASK_LIZARD_COMMAND: '{{.OVERRIDE_TASK_LIZARD_COMMAND | default "./venv/lizard/bin/lizard"}}'
-  TASK_LIZARD_PATH_TO_ANALYSE: '{{.OVERRIDE_TASK_LIZARD_PATH_TO_ANALYSE | default "."}}'
-  TASK_LIZARD_PYTHON_VERSION_FILE: '{{.OVERRIDE_TASK_LIZARD_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
-  TASK_LIZARD_REQUIREMENTS_FILE: '{{.OVERRIDE_TASK_LIZARD_REQUIREMENTS_FILE | default ".config/lizard/requirements.txt"}}'
-  TASK_LIZARD_VIRTUALENV: '{{.OVERRIDE_TASK_LIZARD_VIRTUALENV | default "./venv/lizard"}}'
+  TASK_LIZARD_ENABLED: '{{.TASK_LIZARD_ENABLED | default "true"}}'
+  TASK_LIZARD_CLI_OPTS: '{{.TASK_LIZARD_CLI_OPTS | default ""}}'
+  TASK_LIZARD_COMMAND: '{{.TASK_LIZARD_COMMAND | default "./venv/lizard/bin/lizard"}}'
+  TASK_LIZARD_PATH_TO_ANALYSE: '{{.TASK_LIZARD_PATH_TO_ANALYSE | default "."}}'
+  TASK_LIZARD_PYTHON_VERSION_FILE: '{{.TASK_LIZARD_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
+  TASK_LIZARD_REQUIREMENTS_FILE: '{{.TASK_LIZARD_REQUIREMENTS_FILE | default ".config/lizard/requirements.txt"}}'
+  TASK_LIZARD_VIRTUALENV: '{{.TASK_LIZARD_VIRTUALENV | default "./venv/lizard"}}'
 
 tasks:
   default:

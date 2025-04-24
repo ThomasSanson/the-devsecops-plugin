@@ -2,31 +2,31 @@
 version: "3"
 
 vars:
-  TASK_DOCKER_CE_ENABLED: '{{.OVERRIDE_TASK_DOCKER_CE_ENABLED | default "true"}}'
-  TASK_DOCKER_CE_VENV_DIR: '{{.OVERRIDE_TASK_DOCKER_CE_VENV_DIR | default "./venv/docker-ce"}}'
-  TASK_DOCKER_CE_ANSIBLE_CMD: '{{.OVERRIDE_TASK_DOCKER_CE_ANSIBLE_CMD | default "./venv/docker-ce/bin/ansible-playbook"}}'
-  TASK_DOCKER_CE_ANSIBLE_GALAXY_CMD: '{{.OVERRIDE_TASK_DOCKER_CE_ANSIBLE_GALAXY_CMD | default "./venv/docker-ce/bin/ansible-galaxy"}}'
-  TASK_DOCKER_CE_ANSIBLE_REQUIREMENTS_FILE: '{{.OVERRIDE_TASK_DOCKER_CE_ANSIBLE_REQUIREMENTS_FILE | default ".config/docker-ce/requirements.txt"}}'
-  TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS: '{{.OVERRIDE_TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS | default ".config/docker-ce/requirements.yml"}}'
-  TASK_DOCKER_CE_ANSIBLE_PLAYBOOK_FILE: '{{.OVERRIDE_TASK_DOCKER_CE_ANSIBLE_PLAYBOOK_FILE | default ".config/docker-ce/playbook.yml"}}'
-  TASK_DOCKER_CE_PYTHON_VERSION_FILE: '{{.OVERRIDE_TASK_DOCKER_CE_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
+  TASK_DOCKER_CE_ENABLED: '{{.TASK_DOCKER_CE_ENABLED | default "true"}}'
+  TASK_DOCKER_CE_VENV_DIR: '{{.TASK_DOCKER_CE_VENV_DIR | default "./venv/docker-ce"}}'
+  TASK_DOCKER_CE_ANSIBLE_CMD: '{{.TASK_DOCKER_CE_ANSIBLE_CMD | default "./venv/docker-ce/bin/ansible-playbook"}}'
+  TASK_DOCKER_CE_ANSIBLE_GALAXY_CMD: '{{.TASK_DOCKER_CE_ANSIBLE_GALAXY_CMD | default "./venv/docker-ce/bin/ansible-galaxy"}}'
+  TASK_DOCKER_CE_ANSIBLE_REQUIREMENTS_FILE: '{{.TASK_DOCKER_CE_ANSIBLE_REQUIREMENTS_FILE | default ".config/docker-ce/requirements.txt"}}'
+  TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS: '{{.TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS | default ".config/docker-ce/requirements.yml"}}'
+  TASK_DOCKER_CE_ANSIBLE_PLAYBOOK_FILE: '{{.TASK_DOCKER_CE_ANSIBLE_PLAYBOOK_FILE | default ".config/docker-ce/playbook.yml"}}'
+  TASK_DOCKER_CE_PYTHON_VERSION_FILE: '{{.TASK_DOCKER_CE_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
   TASK_DOCKER_CE_ANSIBLE_INVENTORY_TARGET: "localhost" # DevSkim: ignore DS162092
 
   # Authentication settings
-  TASK_DOCKER_CE_AUTH_ENABLED: '{{.OVERRIDE_TASK_DOCKER_CE_AUTH_ENABLED | default "false"}}'
-  TASK_DOCKER_CE_REGISTRY_USERNAME: '{{.OVERRIDE_TASK_DOCKER_CE_REGISTRY_USERNAME | default ""}}'
-  TASK_DOCKER_CE_REGISTRY_PASSWORD: '{{.OVERRIDE_TASK_DOCKER_CE_REGISTRY_PASSWORD | default ""}}'
-  TASK_DOCKER_CE_REGISTRY_URL: '{{.OVERRIDE_TASK_DOCKER_CE_REGISTRY_URL | default ""}}'
+  TASK_DOCKER_CE_AUTH_ENABLED: '{{.TASK_DOCKER_CE_AUTH_ENABLED | default "false"}}'
+  TASK_DOCKER_CE_REGISTRY_USERNAME: '{{.TASK_DOCKER_CE_REGISTRY_USERNAME | default ""}}'
+  TASK_DOCKER_CE_REGISTRY_PASSWORD: '{{.TASK_DOCKER_CE_REGISTRY_PASSWORD | default ""}}'
+  TASK_DOCKER_CE_REGISTRY_URL: '{{.TASK_DOCKER_CE_REGISTRY_URL | default ""}}'
 
   # Build settings
-  TASK_DOCKER_CE_IMAGE_NAME: '{{.OVERRIDE_TASK_DOCKER_CE_IMAGE_NAME | default "test"}}'
-  TASK_DOCKER_CE_IMAGE_TAG: '{{.OVERRIDE_TASK_DOCKER_CE_IMAGE_TAG | default "latest"}}'
-  TASK_DOCKER_CE_DOCKERFILE: '{{.OVERRIDE_TASK_DOCKER_CE_DOCKERFILE | default ".config/devcontainer/debian/Dockerfile"}}'
-  TASK_DOCKER_CE_CONTEXT: '{{.OVERRIDE_TASK_DOCKER_CE_CONTEXT | default "."}}'
-  TASK_DOCKER_CE_PUSH: '{{.OVERRIDE_TASK_DOCKER_CE_PUSH | default "false"}}'
+  TASK_DOCKER_CE_IMAGE_NAME: '{{.TASK_DOCKER_CE_IMAGE_NAME | default "test"}}'
+  TASK_DOCKER_CE_IMAGE_TAG: '{{.TASK_DOCKER_CE_IMAGE_TAG | default "latest"}}'
+  TASK_DOCKER_CE_DOCKERFILE: '{{.TASK_DOCKER_CE_DOCKERFILE | default ".config/devcontainer/debian/Dockerfile"}}'
+  TASK_DOCKER_CE_CONTEXT: '{{.TASK_DOCKER_CE_CONTEXT | default "."}}'
+  TASK_DOCKER_CE_PUSH: '{{.TASK_DOCKER_CE_PUSH | default "false"}}'
 
   # Labels (optional)
-  TASK_DOCKER_CE_CUSTOM_LABELS: '{{.OVERRIDE_TASK_DOCKER_CE_CUSTOM_LABELS | default ""}}'
+  TASK_DOCKER_CE_CUSTOM_LABELS: '{{.TASK_DOCKER_CE_CUSTOM_LABELS | default ""}}'
   TASK_DOCKER_CE_BASE_LABELS: >
     --label org.opencontainers.image.source={{.REPO_URL | default "local"}}
     --label org.opencontainers.image.version={{.TASK_DOCKER_CE_IMAGE_TAG}}

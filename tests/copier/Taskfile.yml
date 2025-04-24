@@ -45,6 +45,10 @@ tasks:
       - task: verify:no-directory
       - task: verify:commitizen-config
       - task: verify:helm-chart-name
+      - task: verify:features-structure
+      - task: verify:screenshots-structure
+      - task: verify:step-definitions-structure
+      - task: verify:entrypoint-content
       - task: verify:devsecops-task
 
   cleanup:
@@ -127,6 +131,7 @@ tasks:
         - node_modules
         - tests/copier
         - tests/devcontainer
+        - tests/e2e/codeceptjs/screenshots/diff
         - tmp
         - venv
     cmds:
@@ -260,3 +265,163 @@ tasks:
         fi
 
         echo "✅ [{{.TASK}}] All Helm Chart name checks passed"
+
+  verify:features-structure:
+    desc: |
+      ℹ️ Description:
+        Verifies the basic structure of the 'features' directory.
+        Ensures 'features/' exists, but specific subdirectories/files like
+        'features/authentication' are absent.
+
+      🔧 Variables:
+        - TEST_TMP_DIR: Temporary directory for test output
+        - TEST_PROJECT_NAME: Name of the test project
+
+      🔄 Execution:
+        1. Checks if 'features' directory exists.
+        2. Checks if 'features/authentication' directory does NOT exist.
+        3. Checks if 'features/authentication/admin_authentication.feature' file does NOT exist.
+
+      📝 Usage:
+        task verify:features-structure
+    cmds:
+      - |
+        FEATURES_DIR="{{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}/features"
+        AUTH_DIR="$FEATURES_DIR/authentication"
+        AUTH_FILE="$AUTH_DIR/admin_authentication.feature"
+
+        echo "🔍 Verifying features directory structure..."
+
+        # 1. Check if features directory exists
+        if [ ! -d "$FEATURES_DIR" ]; then
+          echo "❌ [{{.TASK}}] Failed: 'features' directory does not exist at $FEATURES_DIR"
+          exit 1
+        else
+          echo "✅ [{{.TASK}}] Check passed: 'features' directory exists."
+        fi
+
+        # 2. Check if features/authentication directory does NOT exist
+        if [ -d "$AUTH_DIR" ]; then
+          echo "❌ [{{.TASK}}] Failed: 'features/authentication' directory exists at $AUTH_DIR"
+          exit 1
+        else
+          echo "✅ [{{.TASK}}] Check passed: 'features/authentication' directory does not exist."
+        fi
+
+        # 3. Check if features/authentication/admin_authentication.feature file does NOT exist
+        if [ -f "$AUTH_FILE" ]; then
+          echo "❌ [{{.TASK}}] Failed: 'features/authentication/admin_authentication.feature' file exists at $AUTH_FILE"
+          exit 1
+        else
+          echo "✅ [{{.TASK}}] Check passed: 'features/authentication/admin_authentication.feature' file does not exist."
+        fi
+
+        echo "✅ [{{.TASK}}] All features structure checks passed."
+
+  verify:screenshots-structure:
+    desc: |
+      ℹ️ Description:
+        Verifies the structure of the base screenshots directory.
+        Ensures 'tests/e2e/codeceptjs/screenshots/base' exists, but specific
+        test-generated screenshots like 'dashboard_after_login.png' are absent.
+
+      🔧 Variables:
+        - TEST_TMP_DIR: Temporary directory for test output
+        - TEST_PROJECT_NAME: Name of the test project
+
+      🔄 Execution:
+        1. Checks if 'tests/e2e/codeceptjs/screenshots/base' directory exists.
+        2. Checks if 'tests/e2e/codeceptjs/screenshots/base/dashboard_after_login.png' file does NOT exist.
+
+      📝 Usage:
+        task verify:screenshots-structure
+    cmds:
+      - |
+        BASE_SCREENSHOTS_DIR="{{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}/tests/e2e/codeceptjs/screenshots/base"
+        LOGIN_SCREENSHOT_FILE="$BASE_SCREENSHOTS_DIR/dashboard_after_login.png"
+
+        echo "🔍 Verifying base screenshots directory structure..."
+
+        # 1. Check if base screenshots directory exists
+        if [ ! -d "$BASE_SCREENSHOTS_DIR" ]; then
+          echo "❌ [{{.TASK}}] Failed: 'tests/e2e/codeceptjs/screenshots/base' directory does not exist at $BASE_SCREENSHOTS_DIR"
+          exit 1
+        else
+          echo "✅ [{{.TASK}}] Check passed: 'tests/e2e/codeceptjs/screenshots/base' directory exists."
+        fi
+
+        # 2. Check if specific screenshot file does NOT exist
+        if [ -f "$LOGIN_SCREENSHOT_FILE" ]; then
+          echo "❌ [{{.TASK}}] Failed: 'dashboard_after_login.png' file exists in the base screenshots directory at $LOGIN_SCREENSHOT_FILE"
+          exit 1
+        else
+          echo "✅ [{{.TASK}}] Check passed: 'dashboard_after_login.png' file does not exist in the base screenshots directory."
+        fi
+
+        echo "✅ [{{.TASK}}] All base screenshots structure checks passed."
+
+  verify:step-definitions-structure:
+    desc: |
+      ℹ️ Description:
+        Verifies the structure of the step definitions directory.
+        Ensures 'entrypoint.js' exists and 'authentication.js' does not.
+
+      🔧 Variables:
+        - TEST_TMP_DIR: Temporary directory for test output
+        - TEST_PROJECT_NAME: Name of the test project
+
+      🔄 Execution:
+        1. Checks if 'tests/e2e/codeceptjs/step_definitions/entrypoint.js' file exists.
+        2. Checks if 'tests/e2e/codeceptjs/step_definitions/authentication.js' file does NOT exist.
+
+      📝 Usage:
+        task verify:step-definitions-structure
+    cmds:
+      - |
+        STEP_DEFS_DIR="{{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}/tests/e2e/codeceptjs/step_definitions"
+        ENTRYPOINT_FILE="$STEP_DEFS_DIR/entrypoint.js"
+        AUTH_FILE="$STEP_DEFS_DIR/authentication.js"
+
+        echo "🔍 Verifying step definitions structure..."
+
+        # 1. Check if entrypoint.js file exists
+        if [ ! -f "$ENTRYPOINT_FILE" ]; then
+          echo "❌ [{{.TASK}}] Failed: 'entrypoint.js' file does not exist at $ENTRYPOINT_FILE"
+          exit 1
+        else
+          echo "✅ [{{.TASK}}] Check passed: 'entrypoint.js' file exists."
+        fi
+
+        # 2. Check if authentication.js file does NOT exist
+        if [ -f "$AUTH_FILE" ]; then
+          echo "❌ [{{.TASK}}] Failed: 'authentication.js' file exists at $AUTH_FILE"
+          exit 1
+        else
+          echo "✅ [{{.TASK}}] Check passed: 'authentication.js' file does not exist."
+        fi
+
+        echo "✅ [{{.TASK}}] All step definitions structure checks passed."
+
+  verify:entrypoint-content:
+    desc: Verifies that tests/e2e/codeceptjs/step_definitions/entrypoint.js only contains expected comments.
+    vars:
+      ENTRYPOINT_FILE: "{{.TEST_TMP_DIR}}/{{.TEST_PROJECT_NAME}}/tests/e2e/codeceptjs/step_definitions/entrypoint.js"
+      EXPECTED_CONTENT: |
+        // Load step definitions from specific files
+        // require('./domain_name.js')
+    cmds:
+      - |
+        echo "🔍 Verifying content of {{.ENTRYPOINT_FILE}}..."
+        # Use process substitution and diff to compare file content with the expected string
+        # Use tr -d '\r' to handle potential CRLF issues
+        if diff -u <(echo -n "{{.EXPECTED_CONTENT}}") <(cat "{{.ENTRYPOINT_FILE}}" | tr -d '\r'); then
+          echo "✅ [{{.TASK}}] Test passed: {{.ENTRYPOINT_FILE}} content is correct."
+        else
+          echo "❌ [{{.TASK}}]"
+          echo "Failed: {{.ENTRYPOINT_FILE}} content does not match expected comments."
+          echo "Expected:"
+          echo "{{.EXPECTED_CONTENT}}"
+          echo "Actual:"
+          cat "{{.ENTRYPOINT_FILE}}"
+          exit 1
+        fi

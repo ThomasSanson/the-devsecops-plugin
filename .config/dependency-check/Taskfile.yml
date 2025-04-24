@@ -4,7 +4,7 @@ version: "3"
 # Note: This is a test to ensure that the tool functions correctly and is mastered before being fully integrated into the project.
 
 vars:
-  TASK_DEPENDENCY_CHECK_USER: '{{.OVERRIDE_TASK_DEPENDENCY_CHECK_USER | default ""}}'
+  TASK_DEPENDENCY_CHECK_USER: '{{.TASK_DEPENDENCY_CHECK_USER | default ""}}'
   TASK_DEPENDENCY_CHECK_VERSION: "latest"
   TASK_DEPENDENCY_CHECK_DIRECTORY: "{{.HOME}}/OWASP-Dependency-Check"
   TASK_DEPENDENCY_CHECK_PROJECT: "dependency-check scan: {{.PWD}}"

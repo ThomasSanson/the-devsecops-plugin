@@ -2,15 +2,15 @@
 version: "3"
 
 vars:
-  TASK_K3D_ENABLED: '{{.OVERRIDE_TASK_K3D_ENABLED | default "true"}}'
-  TASK_K3D_VENV_DIR: '{{.OVERRIDE_TASK_K3D_VENV_DIR | default "./venv/k3d"}}'
-  TASK_K3D_ANSIBLE_CMD: '{{.OVERRIDE_TASK_K3D_ANSIBLE_CMD | default "./venv/k3d/bin/ansible-playbook"}}'
-  TASK_K3D_ANSIBLE_GALAXY_CMD: '{{.OVERRIDE_TASK_K3D_ANSIBLE_GALAXY_CMD | default "./venv/k3d/bin/ansible-galaxy"}}'
-  TASK_K3D_ANSIBLE_REQUIREMENTS_FILE: '{{.OVERRIDE_TASK_K3D_ANSIBLE_REQUIREMENTS_FILE | default ".config/k3d/requirements.txt"}}'
-  TASK_K3D_ANSIBLE_PLAYBOOK_FILE: '{{.OVERRIDE_TASK_K3D_ANSIBLE_PLAYBOOK_FILE | default ".config/k3d/playbook.yml"}}'
-  TASK_K3D_PYTHON_VERSION_FILE: '{{.OVERRIDE_TASK_K3D_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
+  TASK_K3D_ENABLED: '{{.TASK_K3D_ENABLED | default "true"}}'
+  TASK_K3D_VENV_DIR: '{{.TASK_K3D_VENV_DIR | default "./venv/k3d"}}'
+  TASK_K3D_ANSIBLE_CMD: '{{.TASK_K3D_ANSIBLE_CMD | default "./venv/k3d/bin/ansible-playbook"}}'
+  TASK_K3D_ANSIBLE_GALAXY_CMD: '{{.TASK_K3D_ANSIBLE_GALAXY_CMD | default "./venv/k3d/bin/ansible-galaxy"}}'
+  TASK_K3D_ANSIBLE_REQUIREMENTS_FILE: '{{.TASK_K3D_ANSIBLE_REQUIREMENTS_FILE | default ".config/k3d/requirements.txt"}}'
+  TASK_K3D_ANSIBLE_PLAYBOOK_FILE: '{{.TASK_K3D_ANSIBLE_PLAYBOOK_FILE | default ".config/k3d/playbook.yml"}}'
+  TASK_K3D_PYTHON_VERSION_FILE: '{{.TASK_K3D_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
   TASK_K3D_ANSIBLE_INVENTORY_TARGET: "localhost" # DevSkim: ignore DS162092
-  TASK_K3D_VERSION: '{{.OVERRIDE_TASK_K3D_VERSION | default "v5.8.3"}}'
+  TASK_K3D_VERSION: '{{.TASK_K3D_VERSION | default "v5.8.3"}}'
 
 env:
   LANG: "C.UTF-8"

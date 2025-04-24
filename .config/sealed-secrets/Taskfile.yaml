@@ -2,12 +2,12 @@
 version: "3"
 
 vars:
-  TASK_SEALED_SECRETS_NAMESPACE: '{{.OVERRIDE_TASK_SEALED_SECRETS_NAMESPACE | default "kube-system"}}'
-  TASK_SEALED_SECRETS_CONTROLLER: '{{.OVERRIDE_TASK_SEALED_SECRETS_CONTROLLER | default "sealed-secrets"}}'
-  TASK_SEALED_SECRETS_KUBECONFIG: '{{.OVERRIDE_TASK_SEALED_SECRETS_KUBECONFIG | default "iac/environment/testing/kubeconfig.yaml"}}'
-  TASK_SEALED_SECRETS_SECRETS_FILE: '{{.OVERRIDE_TASK_SEALED_SECRETS_SECRETS_FILE | default "iac/environment/testing/secrets.yaml"}}'
-  TASK_SEALED_SECRETS_SEALED_FILE: '{{.OVERRIDE_TASK_SEALED_SECRETS_SEALED_FILE | default "iac/environment/testing/sealed-secrets.yaml"}}'
-  TASK_SEALED_SECRETS_HELM_DIR: '{{.OVERRIDE_TASK_SEALED_SECRETS_HELM_DIR | default "iac/helm"}}'
+  TASK_SEALED_SECRETS_NAMESPACE: '{{.TASK_SEALED_SECRETS_NAMESPACE | default "kube-system"}}'
+  TASK_SEALED_SECRETS_CONTROLLER: '{{.TASK_SEALED_SECRETS_CONTROLLER | default "sealed-secrets"}}'
+  TASK_SEALED_SECRETS_KUBECONFIG: '{{.TASK_SEALED_SECRETS_KUBECONFIG | default "iac/environment/testing/kubeconfig.yaml"}}'
+  TASK_SEALED_SECRETS_SECRETS_FILE: '{{.TASK_SEALED_SECRETS_SECRETS_FILE | default "iac/environment/testing/secrets.yaml"}}'
+  TASK_SEALED_SECRETS_SEALED_FILE: '{{.TASK_SEALED_SECRETS_SEALED_FILE | default "iac/environment/testing/sealed-secrets.yaml"}}'
+  TASK_SEALED_SECRETS_HELM_DIR: '{{.TASK_SEALED_SECRETS_HELM_DIR | default "iac/helm"}}'
 
 tasks:
   install:

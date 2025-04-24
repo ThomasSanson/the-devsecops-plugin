@@ -2,15 +2,15 @@
 version: "3"
 
 vars:
-  TASK_KIND_ENABLED: '{{.OVERRIDE_TASK_KIND_ENABLED | default "false"}}'
-  TASK_KIND_VENV_DIR: '{{.OVERRIDE_TASK_KIND_VENV_DIR | default "./venv/kind"}}'
-  TASK_KIND_ANSIBLE_CMD: '{{.OVERRIDE_TASK_KIND_ANSIBLE_CMD | default "./venv/kind/bin/ansible-playbook"}}'
-  TASK_KIND_ANSIBLE_GALAXY_CMD: '{{.OVERRIDE_TASK_KIND_ANSIBLE_GALAXY_CMD | default "./venv/kind/bin/ansible-galaxy"}}'
-  TASK_KIND_ANSIBLE_REQUIREMENTS_FILE: '{{.OVERRIDE_TASK_KIND_ANSIBLE_REQUIREMENTS_FILE | default ".config/kind/requirements.txt"}}'
-  TASK_KIND_ANSIBLE_PLAYBOOK_FILE: '{{.OVERRIDE_TASK_KIND_ANSIBLE_PLAYBOOK_FILE | default ".config/kind/playbook.yml"}}'
-  TASK_KIND_PYTHON_VERSION_FILE: '{{.OVERRIDE_TASK_KIND_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
+  TASK_KIND_ENABLED: '{{.TASK_KIND_ENABLED | default "false"}}'
+  TASK_KIND_VENV_DIR: '{{.TASK_KIND_VENV_DIR | default "./venv/kind"}}'
+  TASK_KIND_ANSIBLE_CMD: '{{.TASK_KIND_ANSIBLE_CMD | default "./venv/kind/bin/ansible-playbook"}}'
+  TASK_KIND_ANSIBLE_GALAXY_CMD: '{{.TASK_KIND_ANSIBLE_GALAXY_CMD | default "./venv/kind/bin/ansible-galaxy"}}'
+  TASK_KIND_ANSIBLE_REQUIREMENTS_FILE: '{{.TASK_KIND_ANSIBLE_REQUIREMENTS_FILE | default ".config/kind/requirements.txt"}}'
+  TASK_KIND_ANSIBLE_PLAYBOOK_FILE: '{{.TASK_KIND_ANSIBLE_PLAYBOOK_FILE | default ".config/kind/playbook.yml"}}'
+  TASK_KIND_PYTHON_VERSION_FILE: '{{.TASK_KIND_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
   TASK_KIND_ANSIBLE_INVENTORY_TARGET: "localhost" # DevSkim: ignore DS162092
-  TASK_KIND_VERSION: '{{.OVERRIDE_TASK_KIND_VERSION | default "v0.26.0"}}'
+  TASK_KIND_VERSION: '{{.TASK_KIND_VERSION | default "v0.26.0"}}'
 
 env:
   LANG: "C.UTF-8"
