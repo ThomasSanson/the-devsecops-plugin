@@ -2,19 +2,19 @@
 version: "3"
 
 vars:
-  TASK_KUBESEAL_ENABLED: '{{.OVERRIDE_TASK_KUBESEAL_ENABLED | default "true"}}'
-  TASK_KUBESEAL_VERSION: '{{.OVERRIDE_TASK_KUBESEAL_VERSION | default "v0.28.0"}}'
-  TASK_KUBESEAL_VENV_DIR: '{{.OVERRIDE_TASK_KUBESEAL_VENV_DIR | default "./venv/kubeseal"}}'
-  TASK_KUBESEAL_ANSIBLE_CMD: '{{.OVERRIDE_TASK_KUBESEAL_ANSIBLE_CMD | default "./venv/kubeseal/bin/ansible-playbook"}}'
-  TASK_KUBESEAL_ANSIBLE_REQUIREMENTS_FILE: '{{.OVERRIDE_TASK_KUBESEAL_ANSIBLE_REQUIREMENTS_FILE | default ".config/kubeseal/requirements.txt"}}'
-  TASK_KUBESEAL_ANSIBLE_PLAYBOOK_FILE: '{{.OVERRIDE_TASK_KUBESEAL_ANSIBLE_PLAYBOOK_FILE | default ".config/kubeseal/playbook.yml"}}'
-  TASK_KUBESEAL_PYTHON_VERSION_FILE: '{{.OVERRIDE_TASK_KUBESEAL_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
+  TASK_KUBESEAL_ENABLED: '{{.TASK_KUBESEAL_ENABLED | default "true"}}'
+  TASK_KUBESEAL_VERSION: '{{.TASK_KUBESEAL_VERSION | default "v0.28.0"}}'
+  TASK_KUBESEAL_VENV_DIR: '{{.TASK_KUBESEAL_VENV_DIR | default "./venv/kubeseal"}}'
+  TASK_KUBESEAL_ANSIBLE_CMD: '{{.TASK_KUBESEAL_ANSIBLE_CMD | default "./venv/kubeseal/bin/ansible-playbook"}}'
+  TASK_KUBESEAL_ANSIBLE_REQUIREMENTS_FILE: '{{.TASK_KUBESEAL_ANSIBLE_REQUIREMENTS_FILE | default ".config/kubeseal/requirements.txt"}}'
+  TASK_KUBESEAL_ANSIBLE_PLAYBOOK_FILE: '{{.TASK_KUBESEAL_ANSIBLE_PLAYBOOK_FILE | default ".config/kubeseal/playbook.yml"}}'
+  TASK_KUBESEAL_PYTHON_VERSION_FILE: '{{.TASK_KUBESEAL_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
   TASK_KUBESEAL_ANSIBLE_INVENTORY_TARGET: "localhost" # DevSkim: ignore DS162092
-  TASK_KUBESEAL_NAMESPACE: '{{.OVERRIDE_TASK_KUBESEAL_NAMESPACE | default "kube-system"}}'
-  TASK_KUBESEAL_CONTROLLER: '{{.OVERRIDE_TASK_KUBESEAL_CONTROLLER | default "sealed-secrets"}}'
-  TASK_KUBESEAL_KUBECONFIG: '{{.OVERRIDE_TASK_KUBESEAL_KUBECONFIG | default "iac/environment/testing/kubeconfig.yaml"}}'
-  TASK_KUBESEAL_SECRETS_FILE: '{{.OVERRIDE_TASK_KUBESEAL_SECRETS_FILE | default "iac/environment/testing/secrets.yaml"}}'
-  TASK_KUBESEAL_SEALED_FILE: '{{.OVERRIDE_TASK_KUBESEAL_SEALED_FILE | default "iac/environment/testing/sealed-secrets.yaml"}}'
+  TASK_KUBESEAL_NAMESPACE: '{{.TASK_KUBESEAL_NAMESPACE | default "kube-system"}}'
+  TASK_KUBESEAL_CONTROLLER: '{{.TASK_KUBESEAL_CONTROLLER | default "sealed-secrets"}}'
+  TASK_KUBESEAL_KUBECONFIG: '{{.TASK_KUBESEAL_KUBECONFIG | default "iac/environment/testing/kubeconfig.yaml"}}'
+  TASK_KUBESEAL_SECRETS_FILE: '{{.TASK_KUBESEAL_SECRETS_FILE | default "iac/environment/testing/secrets.yaml"}}'
+  TASK_KUBESEAL_SEALED_FILE: '{{.TASK_KUBESEAL_SEALED_FILE | default "iac/environment/testing/sealed-secrets.yaml"}}'
 
 env:
   LANG: "C.UTF-8"
