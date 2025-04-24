@@ -250,8 +250,8 @@ graph TD
 - Includes optional tools and configurations (bun, commitizen, megalinter, etc.)
 - Controls which DevOps phases are enabled through variables:
   ```yaml
-  TASK_DEVSECOPS_PLAN_ENABLED: '{{.OVERRIDE_TASK_PLAN_ENABLED | default "true"}}'
-  TASK_DEVSECOPS_CODE_ENABLED: '{{.OVERRIDE_TASK_CODE_ENABLED | default "true"}}'
+  TASK_DEVSECOPS_PLAN_ENABLED: '{{.TASK_PLAN_ENABLED | default "true"}}'
+  TASK_DEVSECOPS_CODE_ENABLED: '{{.TASK_CODE_ENABLED | default "true"}}'
   # ... other phase toggles
   ```
 
@@ -281,7 +281,7 @@ Task variables must follow these standardised formats for consistency and mainta
 1. **Variable Naming Convention**
 ```yaml
 vars:
-  TASK_COMPONENT_ENABLED: "{{ default "true" .OVERRIDE_TASK_COMPONENT_ENABLED }}"
+  TASK_COMPONENT_ENABLED: "{{ default "true" .TASK_COMPONENT_ENABLED }}"
 ```
 - Use SCREAMING_SNAKE_CASE for all variable names
 - Prefix all task-related variables with `TASK_`
@@ -295,14 +295,14 @@ vars:
 - Example:
   ```yaml
   vars:
-    TASK_PLAN_ENABLED: "{{ default "true" .OVERRIDE_TASK_PLAN_ENABLED }}"
-    TASK_CODE_ENABLED: "{{ default "true" .OVERRIDE_TASK_CODE_ENABLED }}"
-    TASK_BUILD_ENABLED: "{{ default "false" .OVERRIDE_TASK_BUILD_ENABLED }}"
+    TASK_PLAN_ENABLED: "{{ default "true" .TASK_PLAN_ENABLED }}"
+    TASK_CODE_ENABLED: "{{ default "true" .TASK_CODE_ENABLED }}"
+    TASK_BUILD_ENABLED: "{{ default "false" .TASK_BUILD_ENABLED }}"
   ```
 
 3. **Value Standards**
 - Use string literals for boolean values: `"true"` or `"false"`
-- Keep the format consistent: `"{{ default "value" .OVERRIDE_VARIABLE }}"`
+- Keep the format consistent: `"{{ default "value" .VARIABLE }}"`
 - Avoid using complex expressions in variable definitions
 - Document any deviation from these standards
 
