@@ -2,7 +2,29 @@
 version: "3"
 
 vars:
-  TASK_DEVSECOPS_TEST_ENABLED: '{{.OVERRIDE_TASK_DEVSECOPS_TEST_ENABLED | default "true"}}'
+  TASK_DEVSECOPS_TEST_ENABLED: '{{.TASK_DEVSECOPS_TEST_ENABLED | default "true"}}'
+  TASK_DEVSECOPS_TEST_STEPS_FULL:
+    - test:infra:kube:dependency
+    - test:infra:kube:destroy
+    - test:infra:kube:cleanup
+    - test:infra:kube:syntax
+    - test:infra:kube:create
+    - test:infra:kube:prepare
+    - test:infra:kube:converge
+    - test:infra:kube:idempotence
+    - test:infra:kube:side_effect
+    - test:infra:kube:verify
+    - project:test
+    - test:infra:kube:destroy
+    - test:infra:kube:cleanup
+  TASK_DEVSECOPS_TEST_STEPS_TDD:
+    - test:infra:kube:dependency
+    - test:infra:kube:syntax
+    - test:infra:kube:create
+    - test:infra:kube:prepare
+    - test:infra:kube:converge
+    - test:infra:kube:verify
+    - project:test:tdd
 
 tasks:
   default:
@@ -10,43 +32,21 @@ tasks:
     status:
       - test "{{.TASK_DEVSECOPS_TEST_ENABLED}}" = "false"
     cmds:
-      - task: infrastructure
+      - for: { var: TASK_DEVSECOPS_TEST_STEPS_FULL }
+        task: ":{{.ITEM}}"
 
   tdd:
     desc: Run all tdd tests tasks
     status:
       - test "{{.TASK_DEVSECOPS_TEST_ENABLED}}" = "false"
     cmds:
-      - task: infrastructure:tdd
+      - for: { var: TASK_DEVSECOPS_TEST_STEPS_TDD }
+        task: ":{{.ITEM}}"
 
-  infrastructure:
-    desc: Run all infrastructure tests tasks
+  reset:
+    desc: Reset infra
     status:
       - test "{{.TASK_DEVSECOPS_TEST_ENABLED}}" = "false"
     cmds:
-      - task: :test:infra:kube:dependency
-      - task: :test:infra:kube:cleanup
-      - task: :test:infra:kube:destroy
-      - task: :test:infra:kube:syntax
-      - task: :test:infra:kube:create
-      - task: :test:infra:kube:prepare
-      - task: :test:infra:kube:converge
-      - task: :test:infra:kube:idempotence
-      - task: :test:infra:kube:side_effect
-      - task: :test:infra:kube:verify
       - task: :test:infra:kube:destroy
       - task: :test:infra:kube:cleanup
-
-  infrastructure:tdd:
-    desc: Run tdd infrastructure tests tasks
-    status:
-      - test "{{.TASK_DEVSECOPS_TEST_ENABLED}}" = "false"
-    cmds:
-      - task: :test:infra:kube:dependency
-      - task: :test:infra:kube:syntax
-      - task: :test:infra:kube:create
-      - task: :test:infra:kube:prepare
-      - task: :test:infra:kube:converge
-      - task: :test:infra:kube:idempotence
-      - task: :test:infra:kube:side_effect
-      - task: :test:infra:kube:verify
