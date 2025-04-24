@@ -1,6 +1,8 @@
 .cache
 .config/**/roles
+.env
 .mega-linter.yml
+.task
 .vscode
 *.log
 *.tar
@@ -8,6 +10,8 @@
 *megalinter*.txt
 /*.sh
 megalinter-reports
-node_modules
+**/node_modules
+tests/e2e/codeceptjs/output
+tests/e2e/codeceptjs/screenshots/diff
 tmp
 venv
