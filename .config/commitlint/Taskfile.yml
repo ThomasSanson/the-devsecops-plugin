@@ -2,12 +2,12 @@
 version: "3"
 
 vars:
-  TASK_COMMITLINT_ENABLED: '{{.OVERRIDE_TASK_COMMITLINT_ENABLED | default "true"}}'
-  TASK_COMMITLINT_DIR: '{{.OVERRIDE_TASK_COMMITLINT_DIR | default ".config/commitlint"}}'
-  TASK_COMMITLINT_COMMAND: '{{.OVERRIDE_TASK_COMMITLINT_COMMAND | default "$HOME/.bun/bin/bunx --install=force --bun commitlint"}}'
-  TASK_COMMITLINT_CONFIG: '{{.OVERRIDE_TASK_COMMITLINT_CONFIG | default ".config/commitlint/config.yml"}}'
-  TASK_COMMITLINT_FROM: '{{.OVERRIDE_TASK_COMMITLINT_FROM | default "origin/main"}}'
-  TASK_COMMITLINT_TO: '{{.OVERRIDE_TASK_COMMITLINT_TO | default "HEAD"}}'
+  TASK_COMMITLINT_ENABLED: '{{.TASK_COMMITLINT_ENABLED | default "true"}}'
+  TASK_COMMITLINT_DIR: '{{.TASK_COMMITLINT_DIR | default ".config/commitlint"}}'
+  TASK_COMMITLINT_COMMAND: '{{.TASK_COMMITLINT_COMMAND | default "$HOME/.bun/bin/bunx --install=force --bun commitlint"}}'
+  TASK_COMMITLINT_CONFIG: '{{.TASK_COMMITLINT_CONFIG | default ".config/commitlint/config.yml"}}'
+  TASK_COMMITLINT_FROM: '{{.TASK_COMMITLINT_FROM | default "origin/main"}}'
+  TASK_COMMITLINT_TO: '{{.TASK_COMMITLINT_TO | default "HEAD"}}'
 
 tasks:
   default:
@@ -62,4 +62,40 @@ tasks:
           fi
         silent: true
       - cmd: echo "🎉 All commit messages successfully passed commitlint!"
+        silent: true
+
+  lint-message:
+    desc: Lint a specific commit message file (for commit-msg hook).
+    summary: |
+      ℹ️ Description:
+        Runs commitlint --edit on a specific file provided as an argument.
+        This is intended for use with the git commit-msg hook.
+
+      🔧 Arguments:
+        - Commit message file path (provided by the hook).
+
+      🔄 Execution:
+        Runs commitlint in edit mode on the specified file.
+    vars:
+      # Prend le premier argument passé à la tâche (le chemin du fichier) - Ancienne méthode
+      # COMMIT_MSG_FILE: '{{index .CLI_ARGS 0}}'
+      # La variable COMMIT_MSG_FILE est maintenant passée directement lors de l'appel de la tâche
+      # et est accessible via {{.COMMIT_MSG_FILE}}
+      # Commande commitlint avec l'option --edit
+      COMMITLINT_EDIT_COMMAND: "{{.TASK_COMMITLINT_COMMAND}} --config {{.TASK_COMMITLINT_CONFIG}} --edit {{.COMMIT_MSG_FILE}}"
+      RED: '\033[0;31m'
+      NC: '\033[0m' # No Color
+    cmds:
+      - cmd: echo "🔄 Linting commit message file {{.COMMIT_MSG_FILE}}..."
+        silent: true
+      - cmd: echo "{{.COMMITLINT_EDIT_COMMAND}}"
+        silent: true
+      - cmd: |
+          # Run commitlint --edit and capture the exit status
+          if ! {{.COMMITLINT_EDIT_COMMAND}}; then
+            echo -e "{{.RED}}❌ Commit message lint failed. Please fix the message in your editor or use 'git commit --amend'.{{.NC}}"
+            exit 1
+          fi
+        silent: true
+      - cmd: echo "✅ Commit message OK!"
         silent: true
