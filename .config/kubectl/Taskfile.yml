@@ -2,15 +2,15 @@
 version: "3"
 
 vars:
-  TASK_KUBECTL_ENABLED: '{{.OVERRIDE_TASK_KUBECTL_ENABLED | default "false"}}'
-  TASK_KUBECTL_VENV_DIR: '{{.OVERRIDE_TASK_KUBECTL_VENV_DIR | default "./venv/kubectl"}}'
-  TASK_KUBECTL_ANSIBLE_CMD: '{{.OVERRIDE_TASK_KUBECTL_ANSIBLE_CMD | default "./venv/kubectl/bin/ansible-playbook"}}'
-  TASK_KUBECTL_ANSIBLE_GALAXY_CMD: '{{.OVERRIDE_TASK_KUBECTL_ANSIBLE_GALAXY_CMD | default "./venv/kubectl/bin/ansible-galaxy"}}'
-  TASK_KUBECTL_ANSIBLE_REQUIREMENTS_FILE: '{{.OVERRIDE_TASK_KUBECTL_ANSIBLE_REQUIREMENTS_FILE | default ".config/kubectl/requirements.txt"}}'
-  TASK_KUBECTL_ANSIBLE_PLAYBOOK_FILE: '{{.OVERRIDE_TASK_KUBECTL_ANSIBLE_PLAYBOOK_FILE | default ".config/kubectl/playbook.yml"}}'
-  TASK_KUBECTL_PYTHON_VERSION_FILE: '{{.OVERRIDE_TASK_KUBECTL_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
+  TASK_KUBECTL_ENABLED: '{{.TASK_KUBECTL_ENABLED | default "false"}}'
+  TASK_KUBECTL_VENV_DIR: '{{.TASK_KUBECTL_VENV_DIR | default "./venv/kubectl"}}'
+  TASK_KUBECTL_ANSIBLE_CMD: '{{.TASK_KUBECTL_ANSIBLE_CMD | default "./venv/kubectl/bin/ansible-playbook"}}'
+  TASK_KUBECTL_ANSIBLE_GALAXY_CMD: '{{.TASK_KUBECTL_ANSIBLE_GALAXY_CMD | default "./venv/kubectl/bin/ansible-galaxy"}}'
+  TASK_KUBECTL_ANSIBLE_REQUIREMENTS_FILE: '{{.TASK_KUBECTL_ANSIBLE_REQUIREMENTS_FILE | default ".config/kubectl/requirements.txt"}}'
+  TASK_KUBECTL_ANSIBLE_PLAYBOOK_FILE: '{{.TASK_KUBECTL_ANSIBLE_PLAYBOOK_FILE | default ".config/kubectl/playbook.yml"}}'
+  TASK_KUBECTL_PYTHON_VERSION_FILE: '{{.TASK_KUBECTL_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
   TASK_KUBECTL_ANSIBLE_INVENTORY_TARGET: "localhost" # DevSkim: ignore DS162092
-  TASK_KUBECTL_VERSION: '{{.OVERRIDE_TASK_KUBECTL_VERSION | default "v1.32.0"}}'
+  TASK_KUBECTL_VERSION: '{{.TASK_KUBECTL_VERSION | default "v1.32.0"}}'
 
 env:
   LANG: "C.UTF-8"
@@ -83,3 +83,15 @@ tasks:
     cmds:
       - cmd: rm -rf {{.TASK_KUBECTL_VENV_DIR}}
         ignore_error: true
+
+  port-forward:
+    desc: Port-forward a Kubernetes service to localhost # DevSkim: ignore DS162092
+    cmds:
+      - cmd: echo "🔄 Stopping existing port-forwards..."
+        silent: true
+      - pkill -f "kubectl.*port-forward.*svc/{{.SERVICE_NAME}}" || true
+      - cmd: echo "🔄 Starting port-forward for service '{{.SERVICE_NAME}}'..."
+        silent: true
+      - bash -c "kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml port-forward svc/{{.SERVICE_NAME}} {{.LOCAL_PORT}}:{{.REMOTE_PORT}} -n {{.NAMESPACE | default "default"}} > /dev/null 2>&1 &"
+      - cmd: echo "🌐 Open http://localhost:{{.LOCAL_PORT}} in your browser" # DevSkim: ignore DS162092
+        silent: true
