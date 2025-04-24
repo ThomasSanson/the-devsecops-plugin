@@ -29,38 +29,21 @@ variables:
   DOCKER_TLS_VERIFY: 1
   DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   DOCKER_DRIVER: overlay2
+  CZ_ALLOW_PUSH: "true"
+  # Variables for the init Taskfile
+  TASK_DEV_INIT_PROJECT_DIR: $CI_PROJECT_DIR
+  # TASK_DEV_INIT_OWNER: 'developer:developer' # Default is handled in Taskfile
+  TASK_DEV_INIT_DEPLOY_KEY_PATH: $CZ_DEPLOY_KEY
+  TASK_DEV_INIT_GIT_SERVER_HOST: $CI_SERVER_HOST
+  TASK_DEV_INIT_GIT_USER_NAME: $GITLAB_USER_LOGIN
+  TASK_DEV_INIT_GIT_USER_EMAIL: $GITLAB_USER_EMAIL
 
 services:
   # kics-scan ignore-line
   - name: docker:24.0.5-dind # The rule [ce76b7d0-9e77-464d-b86f-c5c48e03e22d,698ed579-b239-4f8f-a388-baa4bcb13ef8,610e266e-6c12-4bca-9925-1ed0cd29742b] are ignored here because it causes false positives specifically related to the Docker-in-Docker service.
 
 before_script:
-  # Fix git security
-  - git config --global --add safe.directory "${CI_PROJECT_DIR}"
-  # Fix permissions
-  - sudo chown -R developer:developer /home/developer
-  - sudo chmod -R u+rw /home/developer
-  # Setup SSH
-  - eval $(ssh-agent -s)
-  - mkdir -p ~/.ssh
-  - chmod 700 ~/.ssh
-  - |
-    if [ -n "${CZ_DEPLOY_KEY}" ]; then
-      echo "${CZ_DEPLOY_KEY}" | base64 -d > ~/.ssh/id_rsa
-      chmod 600 ~/.ssh/id_rsa
-      ssh-add ~/.ssh/id_rsa
-    else
-      echo "Skip: CZ_DEPLOY_KEY is not defined"
-    fi
-  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-  - ssh-keyscan $CI_SERVER_HOST >> ~/.ssh/known_hosts
-  - git fetch --all && git fetch --tags && git fetch origin --tags
-  - |
-    git config --local user.name "${GITLAB_USER_LOGIN}"
-    git config --local user.email "${GITLAB_USER_EMAIL}"
-    git config --local pull.rebase true
-    echo "Git name: $(git config --get user.name)"
-    echo "Git email: $(git config --get user.email)"
+  # Install Taskfile if not present
   - |
     if ! command -v task &> /dev/null; then
       echo "Taskfile not found. Installation in progress..."
@@ -68,8 +51,10 @@ before_script:
     else
       echo "Taskfile already installed."
     fi
-
     task --version
+  # Execute the initialization Taskfile
+  - task dev:init
+  # Source bash profile (might be needed if task install modifies it, keep for safety)
   - source ~/.bash_profile
 
 stages:
@@ -107,35 +92,39 @@ test:
   needs: []  # Allows parallel execution
   script:
     - task test
+  artifacts:
+    exclude:
+      - $CI_PROJECT_DIR/.config/**/node_modules/**/*
+      - $CI_PROJECT_DIR/.git/**/*
+      - $CI_PROJECT_DIR/tmp/**/*
+      - $CI_PROJECT_DIR/venv/**/*
+    expire_in: 1 week
+    name: "full_repository_${CI_COMMIT_SHORT_SHA}"
+    paths:
+      - $CI_PROJECT_DIR
+    when: always
 
 release:
   stage: release
   needs: []  # Allows parallel execution
   variables:
-    OVERRIDE_TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH: $CI_COMMIT_BRANCH
-    OVERRIDE_TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH: $CI_DEFAULT_BRANCH
-    OVERRIDE_TASK_DOCKER_CE_AUTH_ENABLED: "true"
-    OVERRIDE_TASK_DOCKER_CE_IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    OVERRIDE_TASK_DOCKER_CE_PUSH: "true"
-    OVERRIDE_TASK_DOCKER_CE_REGISTRY_PASSWORD: ${CI_REGISTRY_PASSWORD}
-    OVERRIDE_TASK_DOCKER_CE_REGISTRY_URL: ${CI_REGISTRY}
-    OVERRIDE_TASK_DOCKER_CE_REGISTRY_USERNAME: ${CI_REGISTRY_USER}
+    # Variables for commitizen bump (likely used within 'task release')
+    TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH: $CI_COMMIT_BRANCH
+    TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH: $CI_DEFAULT_BRANCH
+    # Variables for push-release task
+    TASK_DEVSECOPS_RELEASE_ALLOW_PUSH: $CZ_ALLOW_PUSH
+    TASK_DEVSECOPS_RELEASE_DEPLOY_KEY: $CZ_DEPLOY_KEY
+    TASK_DEVSECOPS_RELEASE_GIT_SERVER_HOST: $CI_SERVER_SHELL_SSH_HOST
+    TASK_DEVSECOPS_RELEASE_PROJECT_PATH: $CI_PROJECT_PATH
+    # Variables for Docker (likely used within 'task release')
+    TASK_DOCKER_CE_AUTH_ENABLED: "true"
+    TASK_DOCKER_CE_IMAGE_NAME: ${CI_REGISTRY_IMAGE}
+    TASK_DOCKER_CE_PUSH: "true"
+    TASK_DOCKER_CE_REGISTRY_PASSWORD: ${CI_REGISTRY_PASSWORD}
+    TASK_DOCKER_CE_REGISTRY_URL: ${CI_REGISTRY}
+    TASK_DOCKER_CE_REGISTRY_USERNAME: ${CI_REGISTRY_USER}
   script:
     - task release
-    - |
-      if [ -n "${CZ_DEPLOY_KEY}" ]; then
-        git remote set-url origin git@$CI_SERVER_SHELL_SSH_HOST:$CI_PROJECT_PATH.git
-
-        # Push tags
-        git push origin --tags
-
-        # When executing from the default branch, proceed with pushing the changes
-        if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
-          git push origin HEAD:$CI_DEFAULT_BRANCH
-        fi
-      else
-          echo "Skip: CZ_DEPLOY_KEY is not defined"
-      fi
 
 deploy:
   stage: deploy
