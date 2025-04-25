@@ -2,6 +2,59 @@
 
 # Changelog
 
+## 7.0.0 (2025-04-25)
+
+### Feat
+
+- **Taskfile.yml**: add entrypoint content verification task to ensure expected comments in entrypoint.js file
+- **entrypoint.js.jinja**: add step definitions loader for specific files to enhance test modularity
+- **create.taskfile.yaml**: enhance cluster creation with dynamic cluster name and additional variables for ports mapping and agents count
+- **tests**: add verification tasks for features, screenshots, and step definitions structure to enhance test integrity and organization
+- **Taskfile**: add new tasks for deployment, CodeceptJS, and port-forwarding for Superset service to enhance project workflow and testing capabilities
+- **playbook.yml**: add local_bin_path variable and ensure ~/.local/bin directory exists for user-specific binary installations
+- **Taskfile**: refactor variable definitions to use TASK_ prefix for consistency and add port-forward task for easier service access
+- **Taskfile.release.yml**: enhance release process with additional variables and a new push-release task for better deployment control
+- **Taskfile**: enhance development setup with initialization tasks and environment variables for better configuration management
+- **Taskfile**: include additional optional taskfiles for codeceptjs and lefthook to enhance development capabilities
+- **ansible**: refactor task variables to use TASK_ANSIBLE_ prefix for consistency and add syntax-check task for verifying playbook syntax
+- **entrypoint.js**: add entry point for step definitions to load authentication steps for e2e tests
+- **authentication**: add end-to-end tests for Superset login functionality to ensure proper authentication and dashboard display
+- **tests**: add dashboard_after_login screenshot for end-to-end testing validation
+- **authentication**: add admin authentication feature with successful login scenario and dashboard verification
+- **lefthook**: add Taskfile.yml for Lefthook installation and configuration to streamline Git hooks management
+- **steps_file.js**: add custom step methods file for CodeceptJS to enhance test automation capabilities
+- **codeceptjs**: add initial configuration and step definitions for CodeceptJS testing framework to enable automated testing capabilities
+- **jsconfig**: add jsconfig.json to enable JavaScript support in CodeceptJS for improved development experience
+- **codeceptjs**: add initial configuration for CodeceptJS testing framework to enable end-to-end testing with Playwright and screenshot comparison features
+- **codeceptjs**: add Taskfile.yml for CodeceptJS setup and test execution automation
+
+### Fix
+
+- **verify.taskfile.yaml**: update variable reference from OVERRIDE_TASK_ANSIBLE_VIRTUALENV to TASK_ANSIBLE_VIRTUALENV for consistency and clarity
+- **side_effect.taskfile.yaml**: update variable reference from OVERRIDE_TASK_ANSIBLE_VIRTUALENV to TASK_ANSIBLE_VIRTUALENV for consistency in task configuration
+- **destroy.taskfile.yaml**: update default value for cluster name to use current directory name for better context in task execution
+- **converge.taskfile.yaml**: update task reference from :project:deploy to :deploy for clarity and consistency
+- **cleanup.taskfile.yaml**: update variable reference to use correct context for TASK_TEST_INFRASTRUCTURE_CLEANUP_KUBECONFIG_DIR to ensure proper configuration loading
+- **docs**: update variable references in DevSecOps guidelines to remove OVERRIDE prefix for consistency and clarity
+- **Taskfile.yaml**: update variable references to remove OVERRIDE prefix for consistency and clarity in sealed secrets configuration
+- **megalinter**: update variable references to use TASK_ prefix for consistency and clarity in Taskfile.yml
+- **Taskfile.yml**: update variable references to use TASK_KIND_ prefix for consistency and clarity
+- **Taskfile.plan.yml**: update variable reference from OVERRIDE_TASK_DEVSECOPS_PLAN_ENABLED to TASK_DEVSECOPS_PLAN_ENABLED for consistency and clarity
+- **Taskfile.operate.yml**: correct variable reference from OVERRIDE_TASK_DEVSECOPS_OPERATE_ENABLED to TASK_DEVSECOPS_OPERATE_ENABLED for proper configuration handling
+- **Taskfile.monitor.yml**: update variable reference for TASK_DEVSECOPS_MONITOR_ENABLED to ensure correct value retrieval
+- **Taskfile.feedback.yml**: correct variable reference for TASK_DEVSECOPS_FEEDBACK_ENABLED to ensure proper configuration usage
+- **Taskfile.deploy.yml**: update variable reference for TASK_DEVSECOPS_DEPLOY_ENABLED to ensure correct value retrieval
+- **Taskfile.code.yml**: update variable reference for TASK_DEVSECOPS_CODE_ENABLED to ensure correct value retrieval
+- **Taskfile.build.yml**: update variable reference for TASK_DEVSECOPS_BUILD_ENABLED to ensure correct value retrieval
+- **dependency-check**: correct variable reference for TASK_DEPENDENCY_CHECK_USER to ensure proper functionality in Taskfile.yml
+- **Taskfile.yml**: update variable references from OVERRIDE to TASK for consistency and clarity in configuration management
+- **Taskfile.yml**: update variable references from OVERRIDE to direct TASK variables for consistency and clarity
+
+### Refactor
+
+- **tests**: simplify syntax checking tasks by replacing inline scripts with reusable tasks for Helm and Ansible to enhance maintainability and clarity
+- **kaniko**: replace OVERRIDE_ prefix with TASK_ for consistency in variable naming across Taskfile.yml
+
 ## 6.0.0 (2025-04-03)
 
 ### Feat
