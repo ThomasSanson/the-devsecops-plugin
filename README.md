@@ -143,7 +143,7 @@ pip install copier
 cd ~/workspace/path/to/your/new/project
 
 source ~/workspace/venv/bin/activate
-copier copy -a .config/devsecops/copier-answers.yml https://gitlab.gitlab.com/digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin.git .
+copier copy -a .config/devsecops/.copier-answers.yml https://gitlab.com/digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin.git .
 ```
 
 Replace `/path/to/your/new/project` with your desired project location.
