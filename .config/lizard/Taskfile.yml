@@ -36,11 +36,11 @@ tasks:
     status:
       - test "{{.TASK_LIZARD_ENABLED}}" = "false"
     cmds:
-      - cmd: echo "🔄 Running lizard code analysis..."
+      - cmd: echo "🔄 Starting lizard analysis phase"
         silent: true
       - |
         {{.TASK_LIZARD_COMMAND}} $(grep -v '^#' .gitignore | grep -v '^$' | awk '{if ($0 ~ /\./) print "-x"$0; else print "-x./"$0"/*"}' | tr '\n' ' ') {{.TASK_LIZARD_CLI_OPTS}} {{.TASK_LIZARD_PATH_TO_ANALYSE}}
-      - cmd: echo "✅ Lizard analysis completed successfully."
+      - cmd: echo "🎉 Lizard analysis phase completed successfully"
         silent: true
 
   install:
@@ -78,9 +78,11 @@ tasks:
       - |
         {{.TASK_LIZARD_COMMAND}} --version | grep -q $(awk -F '==' '{print $2}' {{.TASK_LIZARD_REQUIREMENTS_FILE}})
     cmds:
+      - cmd: echo "🔄 Starting install phase"
+        silent: true
       - python$(cut -d '=' -f 2 {{.TASK_LIZARD_PYTHON_VERSION_FILE}}) -m venv {{.TASK_LIZARD_VIRTUALENV}}
       - "{{.TASK_LIZARD_VIRTUALENV}}/bin/pip install -r {{.TASK_LIZARD_REQUIREMENTS_FILE}}"
-      - cmd: echo "☑️  Lizard and dependencies installed successfully."
+      - cmd: echo "🎉 Install phase completed successfully"
         silent: true
 
   uninstall:
@@ -99,6 +101,8 @@ tasks:
       📝 Note:
         This task is typically called via defer in other tasks
     cmds:
+      - cmd: echo "🔄 Starting uninstall phase"
+        silent: true
       - rm -rf {{.TASK_LIZARD_VIRTUALENV}}
-      - cmd: echo "✅ Uninstall completed successfully."
+      - cmd: echo "🎉 Uninstall phase completed successfully"
         silent: true
