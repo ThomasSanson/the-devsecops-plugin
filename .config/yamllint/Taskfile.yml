@@ -34,6 +34,8 @@ tasks:
       📝 Note:
         This task should be executed after any modifications to YAML files to maintain consistent formatting.
     cmds:
+      - cmd: echo "🔄 Starting yamllint phase"
+        silent: true
       - "{{.TASK_YAMLLINT_COMMAND}} {{.TASK_YAMLLINT_CLI_OPTS}} -c {{.TASK_YAMLLINT_CONFIG_FULL_PATH}} {{.TASK_YAMLLINT_PATH_TO_LINT}}"
       - cmd: echo "🎉 All files correctly linted with yamllint!"
         silent: true
@@ -82,7 +84,9 @@ tasks:
       - |
         {{.TASK_YAMLLINT_COMMAND}} --version | grep -q $(awk -F '==' '{print $2}' {{.TASK_YAMLLINT_REQUIREMENTS_FILE}})
     cmds:
+      - cmd: echo "🔄 Starting install phase"
+        silent: true
       - python$(cut -d '=' -f 2 {{.TASK_YAMLLINT_PYTHON_VERSION_FILE}}) -m venv {{.TASK_YAMLLINT_VIRTUALENV}}
       - "{{.TASK_YAMLLINT_VIRTUALENV}}/bin/pip install -r {{.TASK_YAMLLINT_REQUIREMENTS_FILE}}"
-      - cmd: echo "☑️  Yamllint and dependencies are successfully installed in the virtual environment."
+      - cmd: echo "🎉  Yamllint and dependencies are successfully installed in the virtual environment."
         silent: true
