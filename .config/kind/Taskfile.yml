@@ -42,9 +42,11 @@ tasks:
       - sh: "test -f {{.TASK_KIND_ANSIBLE_REQUIREMENTS_FILE}}"
         msg: "❌ Requirements file not found at {{.TASK_KIND_ANSIBLE_REQUIREMENTS_FILE}}"
     cmds:
+      - cmd: echo "🔄 Starting install dependencies phase"
+        silent: true
       - python$(cut -d '=' -f 2 {{.TASK_KIND_PYTHON_VERSION_FILE}}) -m venv {{.TASK_KIND_VENV_DIR}}
       - "{{.TASK_KIND_VENV_DIR}}/bin/pip install -r {{.TASK_KIND_ANSIBLE_REQUIREMENTS_FILE}}"
-      - cmd: echo "✅ Dependencies installed successfully"
+      - cmd: echo "🎉 Install dependencies phase completed successfully"
         silent: true
 
   install:
@@ -68,6 +70,8 @@ tasks:
       - sh: "test -f {{.TASK_KIND_ANSIBLE_PLAYBOOK_FILE}}"
         msg: "❌ Playbook file not found at {{.TASK_KIND_ANSIBLE_PLAYBOOK_FILE}}"
     cmds:
+      - cmd: echo "🔄 Starting kind installation phase"
+        silent: true
       - task: install:dependencies
       - |
         {{.TASK_KIND_ANSIBLE_CMD}} \
@@ -75,11 +79,15 @@ tasks:
           -e "kind_version={{.TASK_KIND_VERSION}}" \
           {{.TASK_KIND_ANSIBLE_PLAYBOOK_FILE}}
       - task: cleanup
-      - cmd: echo "✅ Kind installed successfully"
+      - cmd: echo "🎉 Kind installation phase completed successfully"
         silent: true
 
   cleanup:
     desc: Removes temporary files and directories
     cmds:
+      - cmd: echo "🔄 Starting cleanup phase"
+        silent: true
       - cmd: rm -rf {{.TASK_KIND_VENV_DIR}}
         ignore_error: true
+      - cmd: echo "🎉 Cleanup phase completed successfully"
+        silent: true
