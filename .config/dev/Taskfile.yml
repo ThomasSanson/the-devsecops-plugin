@@ -15,16 +15,22 @@ tasks:
   init:
     desc: "Run all CI/CD initialization steps (git config, permissions, ssh)"
     cmds:
+      - cmd: echo "🔄 Starting development environment initialisation"
+        silent: true
       - task: setup-git-security
       - task: setup-permissions
       - task: setup-ssh
       - task: setup-git-config
       - task: fetch-git-data
+      - cmd: echo "🎉 Development environment initialisation completed successfully"
+        silent: true
 
   setup-environment:
     alias: "default"
     desc: Configure the development environment.
     cmds:
+      - cmd: echo "🔄 Starting development environment setup"
+        silent: true
       - task: ansible
       - task: bun
       - task: docker-ce
@@ -37,19 +43,29 @@ tasks:
       - task: nodejs
       - task: podman
       - task: codeceptjs
+      - cmd: echo "🎉 Development environment setup completed successfully"
+        silent: true
 
   up:
     cmds:
+      - cmd: echo "🔄 Starting project launch sequence"
+        silent: true
       - task: setup-environment
       - task: :deploy
       - cmd: echo " Open http://localhost:8080 in your browser" # DevSkim: ignore DS162092
         silent: true
       - cmd: echo "=> Run 'task dev:reset to destroy and cleanup"
         silent: true
+      - cmd: echo "🎉 Project launch sequence completed successfully"
+        silent: true
 
   reset:
     cmds:
+      - cmd: echo "🔄 Starting development environment reset"
+        silent: true
       - task: :devsecops:test:reset
+      - cmd: echo "🎉 Development environment reset completed successfully"
+        silent: true
 
   ansible:
     internal: true
@@ -141,12 +157,18 @@ tasks:
     internal: true
     desc: "Configure git safe directory"
     cmds:
+      - cmd: echo "🔄 Starting git safe directory configuration"
+        silent: true
       - git config --global --add safe.directory "{{.TASK_DEV_INIT_PROJECT_DIR}}"
+      - cmd: echo "🎉 Git safe directory configuration completed successfully"
+        silent: true
 
   setup-permissions:
     internal: true
     desc: "Set ownership and permissions for the project directory"
     cmds:
+      - cmd: echo "🔄 Starting project directory permissions setup"
+        silent: true
       - |
         if command -v sudo >/dev/null 2>&1; then
           echo "INFO: Setting ownership to {{.TASK_DEV_INIT_OWNER}} for {{.TASK_DEV_INIT_PROJECT_DIR}}"
@@ -156,11 +178,15 @@ tasks:
         else
           echo "WARN: sudo not found. Skipping permission setup."
         fi
+      - cmd: echo "🎉 Project directory permissions setup completed successfully"
+        silent: true
 
   setup-ssh:
     internal: true
     desc: "Configure SSH agent, keys, and known hosts"
     cmds:
+      - cmd: echo "🔄 Starting SSH configuration"
+        silent: true
       - | # Combine agent start, key adding, and host key scan into one script
         eval $(ssh-agent -s)
         mkdir -p ~/.ssh
@@ -197,20 +223,30 @@ tasks:
         else
           echo "WARN: TASK_DEV_INIT_GIT_SERVER_HOST is not defined. Skipping ssh-keyscan."
         fi
+      - cmd: echo "🎉 SSH configuration completed successfully"
+        silent: true
 
   setup-git-config:
     internal: true
     desc: "Configure local git user name and email"
     cmds:
+      - cmd: echo "🔄 Starting git user configuration"
+        silent: true
       - |
         git config --local user.name "{{.TASK_DEV_INIT_GIT_USER_NAME}}"
         git config --local user.email "{{.TASK_DEV_INIT_GIT_USER_EMAIL}}"
         git config --local pull.rebase true
         echo "Git name: $(git config --get user.name)"
         echo "Git email: $(git config --get user.email)"
+      - cmd: echo "🎉 Git user configuration completed successfully"
+        silent: true
 
   fetch-git-data:
     internal: true
     desc: "Fetch all git data including tags"
     cmds:
+      - cmd: echo "🔄 Starting git data fetch"
+        silent: true
       - git fetch --all && git fetch --tags && git fetch origin --tags
+      - cmd: echo "🎉 Git data fetch completed successfully"
+        silent: true
