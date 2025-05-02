@@ -46,9 +46,11 @@ tasks:
       - sh: "test -f {{.TASK_KUBESEAL_ANSIBLE_REQUIREMENTS_FILE}}"
         msg: "❌ Requirements file not found at {{.TASK_KUBESEAL_ANSIBLE_REQUIREMENTS_FILE}}"
     cmds:
+      - cmd: echo "🔄 Starting install dependencies phase"
+        silent: true
       - python$(cut -d '=' -f 2 {{.TASK_KUBESEAL_PYTHON_VERSION_FILE}}) -m venv {{.TASK_KUBESEAL_VENV_DIR}}
       - "{{.TASK_KUBESEAL_VENV_DIR}}/bin/pip install -r {{.TASK_KUBESEAL_ANSIBLE_REQUIREMENTS_FILE}}"
-      - cmd: echo "✅ Dependencies installed successfully"
+      - cmd: echo "🎉 Install dependencies phase completed successfully"
         silent: true
 
   install:
@@ -79,6 +81,8 @@ tasks:
       - sh: "test -f {{.TASK_KUBESEAL_ANSIBLE_PLAYBOOK_FILE}}"
         msg: "❌ Playbook file not found at {{.TASK_KUBESEAL_ANSIBLE_PLAYBOOK_FILE}}"
     cmds:
+      - cmd: echo "🔄 Starting kubeseal installation phase"
+        silent: true
       - task: install:dependencies
       - |
         {{.TASK_KUBESEAL_ANSIBLE_CMD}} \
@@ -86,14 +90,18 @@ tasks:
           -e "kubeseal_version={{.TASK_KUBESEAL_VERSION}}" \
           {{.TASK_KUBESEAL_ANSIBLE_PLAYBOOK_FILE}}
       - task: cleanup
-      - cmd: echo "✅ Kubeseal installed successfully"
+      - cmd: echo "🎉 Kubeseal installation phase completed successfully"
         silent: true
 
   cleanup:
     desc: Removes temporary files and directories
     cmds:
+      - cmd: echo "🔄 Starting cleanup phase"
+        silent: true
       - cmd: rm -rf {{.TASK_KUBESEAL_VENV_DIR}}
         ignore_error: true
+      - cmd: echo "🎉 Cleanup phase completed successfully"
+        silent: true
 
   validate:
     desc: |
@@ -116,6 +124,8 @@ tasks:
       - sh: "test -f {{.TASK_KUBESEAL_SEALED_FILE}}"
         msg: "❌ Sealed secrets file not found at {{.TASK_KUBESEAL_SEALED_FILE}}"
     cmds:
+      - cmd: echo "🔄 Starting validate phase"
+        silent: true
       - cmd: echo "🔍 Validating sealed secrets format and integrity..."
         silent: true
       - |
@@ -124,7 +134,7 @@ tasks:
           --controller-name {{.TASK_KUBESEAL_CONTROLLER}} \
           --kubeconfig {{.TASK_KUBESEAL_KUBECONFIG}} \
           < {{.TASK_KUBESEAL_SEALED_FILE}}
-      - cmd: echo "✅ Sealed secrets validation successful"
+      - cmd: echo "🎉 Validate phase completed successfully"
         silent: true
 
   seal:
@@ -154,11 +164,11 @@ tasks:
       - sh: "test -f {{.TASK_KUBESEAL_SECRETS_FILE}}"
         msg: "❌ Cleartext secrets file not found at {{.TASK_KUBESEAL_SECRETS_FILE}}"
     cmds:
+      - cmd: echo "🔄 Starting seal phase"
+        silent: true
       - cmd: echo "🔍 Performing initial verification..."
         silent: true
-
       - mkdir -p $(dirname {{.TASK_KUBESEAL_SEALED_FILE}})
-
       - cmd: echo "🔍 Checking for changes in secrets..."
         silent: true
       - |
@@ -184,7 +194,6 @@ tasks:
         else
           echo "✅ No changes detected in secrets file"
         fi
-
       - task: validate
-      - cmd: echo "✅ Secrets sealing process completed successfully"
+      - cmd: echo "🎉 Seal phase completed successfully"
         silent: true
