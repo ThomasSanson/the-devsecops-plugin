@@ -43,10 +43,12 @@ tasks:
       - |
         {{.TASK_COPIER_COMMAND}} --version | grep -q $(awk -F '==' '{print $2}' {{.TASK_COPIER_REQUIREMENTS_FILE}})
     cmds:
+      - cmd: echo "🔄 Setting up Copier virtual environment"
+        silent: true
       - defer: { task: cleanup }
       - python$(cut -d '=' -f 2 {{.TASK_COPIER_PYTHON_VERSION_FILE}}) -m venv {{.TASK_COPIER_VIRTUALENV}}
       - "{{.TASK_COPIER_VIRTUALENV}}/bin/pip install -r {{.TASK_COPIER_REQUIREMENTS_FILE}}"
-      - cmd: echo "✅ Copier and dependencies are successfully installed in the virtual environment."
+      - cmd: echo '🎉 Copier and dependencies installed successfully.'
         silent: true
 
   default:
@@ -70,7 +72,11 @@ tasks:
       📝 Note:
         Use CLI_ARGS to pass additional arguments to Copier
     cmds:
+      - cmd: echo "🔄 Running Copier with specified options"
+        silent: true
       - "{{.TASK_COPIER_COMMAND}} {{.TASK_COPIER_CLI_OPTS}} {{.CLI_ARGS}}"
+      - cmd: echo '🎉 Copier run completed successfully.'
+        silent: true
 
   cleanup:
     internal: true
@@ -88,6 +94,8 @@ tasks:
       📝 Note:
         This task is internal and automatically called via defer.
     cmds:
+      - cmd: echo "🔄 Cleaning up temporary files"
+        silent: true
       - rm -rf {{.TASK_COPIER_VIRTUALENV}}/*-cache/
-      - cmd: echo "✅ Temporary files have been cleaned up."
+      - cmd: echo '🎉 Temporary files have been cleaned up.'
         silent: true
