@@ -104,27 +104,6 @@ includes:
     taskfile: .config/yamllint/Taskfile.yml
     optional: true
 
-  test:infra:kube:dependency:
-    taskfile: ./tests/infra/kube/dependency.taskfile.yaml
-  test:infra:kube:syntax:
-    taskfile: ./tests/infra/kube/syntax.taskfile.yaml
-  test:infra:kube:create:
-    taskfile: ./tests/infra/kube/create.taskfile.yaml
-  test:infra:kube:prepare:
-    taskfile: ./tests/infra/kube/prepare.taskfile.yaml
-  test:infra:kube:converge:
-    taskfile: ./tests/infra/kube/converge.taskfile.yaml
-  test:infra:kube:idempotence:
-    taskfile: ./tests/infra/kube/idempotence.taskfile.yaml
-  test:infra:kube:side_effect:
-    taskfile: ./tests/infra/kube/side_effect.taskfile.yaml
-  test:infra:kube:verify:
-    taskfile: ./tests/infra/kube/verify.taskfile.yaml
-  test:infra:kube:destroy:
-    taskfile: ./tests/infra/kube/destroy.taskfile.yaml
-  test:infra:kube:cleanup:
-    taskfile: ./tests/infra/kube/cleanup.taskfile.yaml
-
 tasks:
   tdd:
     # Orchestrates Test Driven Development (TDD) workflows.
@@ -152,7 +131,6 @@ tasks:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Plan"
         silent: true
-      - task: project:plan
       - task: devsecops:plan
       - cmd: echo "{{.TASK_SEPARATOR}}"
         silent: true
@@ -161,7 +139,6 @@ tasks:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Code"
         silent: true
-      - task: project:code
       - task: devsecops:code
       - cmd: echo "{{.TASK_SEPARATOR}}"
         silent: true
@@ -170,7 +147,6 @@ tasks:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Build"
         silent: true
-      - task: project:build
       - task: devsecops:build
       - cmd: echo "{{.TASK_SEPARATOR}}"
         silent: true
@@ -196,7 +172,6 @@ tasks:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Release"
         silent: true
       - task: devsecops:release
-      - task: project:release
       - cmd: echo "{{.TASK_SEPARATOR}}"
         silent: true
 
@@ -205,7 +180,6 @@ tasks:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Deploy"
         silent: true
       - task: devsecops:deploy
-      - task: project:deploy
       - cmd: echo "{{.TASK_SEPARATOR}}"
         silent: true
 
@@ -213,7 +187,6 @@ tasks:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Operate"
         silent: true
-      - task: project:operate
       - task: devsecops:operate
       - cmd: echo "{{.TASK_SEPARATOR}}"
         silent: true
@@ -222,7 +195,6 @@ tasks:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Monitor"
         silent: true
-      - task: project:monitor
       - task: devsecops:monitor
       - cmd: echo "{{.TASK_SEPARATOR}}"
         silent: true
@@ -231,7 +203,6 @@ tasks:
     cmds:
       - cmd: echo "{{.TASK_DEVSECOPS_ICON}} Feedback"
         silent: true
-      - task: project:feedback
       - task: devsecops:feedback
       - cmd: echo "{{.TASK_SEPARATOR}}"
         silent: true
