@@ -42,9 +42,11 @@ tasks:
       - sh: "test -f {{.TASK_PODMAN_ANSIBLE_REQUIREMENTS_FILE}}"
         msg: "❌ Requirements file not found at {{.TASK_PODMAN_ANSIBLE_REQUIREMENTS_FILE}}"
     cmds:
+      - cmd: echo "🔄 Starting install dependencies phase"
+        silent: true
       - python$(cut -d '=' -f 2 {{.TASK_PODMAN_PYTHON_VERSION_FILE}}) -m venv {{.TASK_PODMAN_VENV_DIR}}
       - "{{.TASK_PODMAN_VENV_DIR}}/bin/pip install -r {{.TASK_PODMAN_ANSIBLE_REQUIREMENTS_FILE}}"
-      - cmd: echo "✅ Dependencies installed successfully"
+      - cmd: echo "🎉 Install dependencies phase completed successfully"
         silent: true
 
   install:roles:
@@ -66,9 +68,11 @@ tasks:
       - sh: "test -f {{.TASK_PODMAN_ANSIBLE_ROLES_REQUIREMENTS}}"
         msg: "❌ Roles requirements file not found at {{.TASK_PODMAN_ANSIBLE_ROLES_REQUIREMENTS}}"
     cmds:
+      - cmd: echo "🔄 Starting install roles phase"
+        silent: true
       - mkdir -p .config/podman/roles
       - "{{.TASK_PODMAN_ANSIBLE_GALAXY_CMD}} install -r {{.TASK_PODMAN_ANSIBLE_ROLES_REQUIREMENTS}} --roles-path .config/podman/roles"
-      - cmd: echo "✅ Ansible roles installed successfully"
+      - cmd: echo "🎉 Install roles phase completed successfully"
         silent: true
 
   install:
@@ -92,6 +96,8 @@ tasks:
       - sh: "test -f {{.TASK_PODMAN_ANSIBLE_PLAYBOOK_FILE}}"
         msg: "❌ Playbook file not found at {{.TASK_PODMAN_ANSIBLE_PLAYBOOK_FILE}}"
     cmds:
+      - cmd: echo "🔄 Starting podman installation phase"
+        silent: true
       - defer: { task: cleanup }
       - task: install:roles
       - |
@@ -100,7 +106,7 @@ tasks:
           -c local \
           {{.TASK_PODMAN_ANSIBLE_PLAYBOOK_FILE}} \
           -e 'ansible_python_interpreter=/usr/bin/python3'
-      - cmd: echo "✅ Podman installed successfully"
+      - cmd: echo "🎉 Podman installation phase completed successfully"
         silent: true
 
   cleanup:
@@ -117,7 +123,9 @@ tasks:
         Removes temporary files and partial installations
     internal: true
     cmds:
+      - cmd: echo "🔄 Starting cleanup phase"
+        silent: true
       - rm -rf .config/podman/roles
       - rm -rf {{.TASK_PODMAN_VENV_DIR}}
-      - cmd: echo "✅ Cleanup completed"
+      - cmd: echo "🎉 Cleanup phase completed successfully"
         silent: true
