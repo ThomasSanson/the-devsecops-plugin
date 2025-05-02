@@ -16,19 +16,29 @@ tasks:
   setup:
     desc: Prepare directories for Dependency-Check.
     cmds:
+      - cmd: echo "🔄 Preparing directories for Dependency-Check"
+        silent: true
       - mkdir -p {{.TASK_DEPENDENCY_CHECK_DATA_DIRECTORY}}
       - mkdir -p {{.TASK_DEPENDENCY_CHECK_CACHE_DIRECTORY}}
       - mkdir -p {{.TASK_DEPENDENCY_CHECK_REPORT_DIRECTORY}}
+      - cmd: echo '🎉 Directories prepared for Dependency-Check.'
+        silent: true
 
   pull:
     desc: Download latest Dependency-Check Docker image.
     cmds:
+      - cmd: echo "🔄 Downloading latest Dependency-Check Docker image"
+        silent: true
       - docker pull owasp/dependency-check:{{.TASK_DEPENDENCY_CHECK_VERSION}}
+      - cmd: echo '🎉 Dependency-Check Docker image downloaded.'
+        silent: true
 
   analyze:
     desc: Run Dependency-Check analysis.
     deps: [setup, pull]
     cmds:
+      - cmd: echo "🔄 Running Dependency-Check analysis"
+        silent: true
       - |
         docker run --rm \
           -e user={{.TASK_DEPENDENCY_CHECK_USER}} \
@@ -40,17 +50,26 @@ tasks:
           --format "ALL" \
           --project "{{.TASK_DEPENDENCY_CHECK_PROJECT}}" \
           --out /report
-      - echo "Dependency-Check analysis completed. Reports available in {{.TASK_DEPENDENCY_CHECK_REPORT_DIRECTORY}}"
+      - cmd: echo '🎉 Dependency-Check analysis completed. Reports available in {{.TASK_DEPENDENCY_CHECK_REPORT_DIRECTORY}}'
+        silent: true
 
   clean:
     desc: Remove Dependency-Check data and reports.
     cmds:
+      - cmd: echo "🔄 Cleaning up Dependency-Check data and reports"
+        silent: true
       - rm -rf {{.TASK_DEPENDENCY_CHECK_DIRECTORY}}
       - rm -rf {{.TASK_DEPENDENCY_CHECK_REPORT_DIRECTORY}}
+      - cmd: echo '🎉 Dependency-Check data and reports removed.'
+        silent: true
 
   # Note: There's no direct update command in the Docker example,
   # but pulling the latest image serves a similar purpose
   update:
     desc: Update Dependency-Check Docker image.
     cmds:
+      - cmd: echo "🔄 Updating Dependency-Check Docker image"
+        silent: true
       - task: pull
+      - cmd: echo '🎉 Dependency-Check Docker image updated.'
+        silent: true
