@@ -40,7 +40,7 @@ tasks:
       PURPLE: '\033[0;35m'
       NC: '\033[0m' # No Color
     cmds:
-      - cmd: echo "🔄 Running commitlint..."
+      - cmd: echo "🔄 Checking commit messages with commitlint"
         silent: true
       - cmd: echo "{{.COMMITLINT_LINT_COMMAND}}"
         silent: true
@@ -61,7 +61,7 @@ tasks:
             exit 1
           fi
         silent: true
-      - cmd: echo "🎉 All commit messages successfully passed commitlint!"
+      - cmd: echo '🎉 All commit messages passed commitlint checks.'
         silent: true
 
   lint-message:
@@ -86,7 +86,7 @@ tasks:
       RED: '\033[0;31m'
       NC: '\033[0m' # No Color
     cmds:
-      - cmd: echo "🔄 Linting commit message file {{.COMMIT_MSG_FILE}}..."
+      - cmd: echo "🔄 Linting commit message file {{.COMMIT_MSG_FILE}} with commitlint"
         silent: true
       - cmd: echo "{{.COMMITLINT_EDIT_COMMAND}}"
         silent: true
@@ -97,5 +97,5 @@ tasks:
             exit 1
           fi
         silent: true
-      - cmd: echo "✅ Commit message OK!"
+      - cmd: echo '🎉 Commit message passed commitlint.'
         silent: true
