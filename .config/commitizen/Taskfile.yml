@@ -56,7 +56,11 @@ tasks:
       📝 Note:
         This task should be executed when creating a new commit.
     cmds:
+      - cmd: echo "🔄 Starting Commitizen commit message formatting"
+        silent: true
       - "{{.TASK_COMMITIZEN_COMMAND}} --config {{.TASK_COMMITIZEN_CONFIG_FULL_PATH}} {{.TASK_COMMITIZEN_CLI_OPTS}} commit {{.CLI_ARGS}}"
+      - cmd: echo '🎉 Commitizen commit message formatting completed.'
+        silent: true
 
   install:
     desc: Set up Commitizen in a virtual environment.
@@ -101,9 +105,11 @@ tasks:
       - |
         {{.TASK_COMMITIZEN_COMMAND}} version | grep -q $(awk -F '==' '{print $2}' {{.TASK_COMMITIZEN_REQUIREMENTS_FILE}})
     cmds:
+      - cmd: echo "🔄 Setting up Commitizen virtual environment"
+        silent: true
       - python$(cut -d '=' -f 2 {{.TASK_COMMITIZEN_PYTHON_VERSION_FILE}}) -m venv {{.TASK_COMMITIZEN_VIRTUALENV}}
       - "{{.TASK_COMMITIZEN_VIRTUALENV}}/bin/pip install -r {{.TASK_COMMITIZEN_REQUIREMENTS_FILE}}"
-      - cmd: echo "✅ Commitizen and dependencies are successfully installed in the virtual environment."
+      - cmd: echo '🎉 Commitizen and dependencies installed successfully.'
         silent: true
 
   check:
@@ -136,7 +142,7 @@ tasks:
       COMMITIZEN_CHECK_COMMAND:
         sh: echo "{{.TASK_COMMITIZEN_COMMAND}} --config {{.TASK_COMMITIZEN_CONFIG_FULL_PATH}} {{.TASK_COMMITIZEN_CLI_OPTS}} check {{.TASK_COMMITIZEN_CLI_CHECK_OPTS}}"
     cmds:
-      - cmd: echo "🔄 Running commitizen check..."
+      - cmd: echo "🔄 Running Commitizen check"
         silent: true
       - cmd: echo "{{.COMMITIZEN_CHECK_COMMAND}}"
         silent: true
@@ -152,6 +158,8 @@ tasks:
               exit $exit_code
             fi
           fi
+        silent: true
+      - cmd: echo '🎉 Commitizen check completed.'
         silent: true
 
   bump:
@@ -216,7 +224,7 @@ tasks:
     status:
       - test "{{.TASK_COMMITIZEN_ENABLED}}" = "false"
     cmds:
-      - cmd: echo "🔄 Running commitizen bump..."
+      - cmd: echo "🔄 Running Commitizen version bump"
         silent: true
       - cmd: echo "{{.COMMITIZEN_BUMP_COMMAND}}"
         silent: true
@@ -239,4 +247,6 @@ tasks:
           else
             echo "🎉 Version bump completed successfully!"
           fi
+        silent: true
+      - cmd: echo '🎉 Commitizen version bump process completed.'
         silent: true
