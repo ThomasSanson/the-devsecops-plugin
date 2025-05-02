@@ -3,13 +3,19 @@ version: "3"
 
 vars:
   TASK_K3D_ENABLED: '{{.TASK_K3D_ENABLED | default "true"}}'
-  TASK_K3D_VENV_DIR: '{{.TASK_K3D_VENV_DIR | default "./venv/k3d"}}'
   TASK_K3D_ANSIBLE_CMD: '{{.TASK_K3D_ANSIBLE_CMD | default "./venv/k3d/bin/ansible-playbook"}}'
   TASK_K3D_ANSIBLE_GALAXY_CMD: '{{.TASK_K3D_ANSIBLE_GALAXY_CMD | default "./venv/k3d/bin/ansible-galaxy"}}'
-  TASK_K3D_ANSIBLE_REQUIREMENTS_FILE: '{{.TASK_K3D_ANSIBLE_REQUIREMENTS_FILE | default ".config/k3d/requirements.txt"}}'
-  TASK_K3D_ANSIBLE_PLAYBOOK_FILE: '{{.TASK_K3D_ANSIBLE_PLAYBOOK_FILE | default ".config/k3d/playbook.yml"}}'
-  TASK_K3D_PYTHON_VERSION_FILE: '{{.TASK_K3D_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
   TASK_K3D_ANSIBLE_INVENTORY_TARGET: "localhost" # DevSkim: ignore DS162092
+  TASK_K3D_ANSIBLE_PLAYBOOK_FILE: '{{.TASK_K3D_ANSIBLE_PLAYBOOK_FILE | default ".config/k3d/playbook.yml"}}'
+  TASK_K3D_ANSIBLE_REQUIREMENTS_FILE: '{{.TASK_K3D_ANSIBLE_REQUIREMENTS_FILE | default ".config/k3d/requirements.txt"}}'
+  TASK_K3D_CLUSTER_AGENTS: '{{.TASK_K3D_CLUSTER_AGENTS | default "0"}}'
+  TASK_K3D_CLUSTER_NAME: '{{.TASK_K3D_CLUSTER_NAME | default "${PWD##*/}"}}'
+  TASK_K3D_IMAGE_TO_LOAD: '{{.TASK_K3D_IMAGE_TO_LOAD | default ""}}'
+  TASK_K3D_KUBECONFIG_DIR: '{{.TASK_K3D_KUBECONFIG_DIR | default "iac/environment/${ENV:-testing}"}}'
+  TASK_K3D_KUBECONFIG_FILE: '{{.TASK_K3D_KUBECONFIG_DIR}}/kubeconfig.yaml'
+  TASK_K3D_PORTS_MAPPING: '{{.TASK_K3D_PORTS_MAPPING | default ""}}'
+  TASK_K3D_PYTHON_VERSION_FILE: '{{.TASK_K3D_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
+  TASK_K3D_VENV_DIR: '{{.TASK_K3D_VENV_DIR | default "./venv/k3d"}}'
   TASK_K3D_VERSION: '{{.TASK_K3D_VERSION | default "v5.8.3"}}'
 
 env:
@@ -42,9 +48,11 @@ tasks:
       - sh: "test -f {{.TASK_K3D_ANSIBLE_REQUIREMENTS_FILE}}"
         msg: "❌ Requirements file not found at {{.TASK_K3D_ANSIBLE_REQUIREMENTS_FILE}}"
     cmds:
+      - cmd: echo "🔄 Starting install dependencies phase"
+        silent: true
       - python$(cut -d '=' -f 2 {{.TASK_K3D_PYTHON_VERSION_FILE}}) -m venv {{.TASK_K3D_VENV_DIR}}
       - "{{.TASK_K3D_VENV_DIR}}/bin/pip install -r {{.TASK_K3D_ANSIBLE_REQUIREMENTS_FILE}}"
-      - cmd: echo "✅ Dependencies installed successfully"
+      - cmd: echo "🎉 Install dependencies phase completed successfully"
         silent: true
 
   install:
@@ -68,6 +76,8 @@ tasks:
       - sh: "test -f {{.TASK_K3D_ANSIBLE_PLAYBOOK_FILE}}"
         msg: "❌ Playbook file not found at {{.TASK_K3D_ANSIBLE_PLAYBOOK_FILE}}"
     cmds:
+      - cmd: echo "🔄 Starting k3d installation phase"
+        silent: true
       - task: install:dependencies
       - |
         {{.TASK_K3D_ANSIBLE_CMD}} \
@@ -75,11 +85,222 @@ tasks:
           -e "k3d_version={{.TASK_K3D_VERSION}}" \
           {{.TASK_K3D_ANSIBLE_PLAYBOOK_FILE}}
       - task: cleanup
-      - cmd: echo "✅ k3d installed successfully"
+      - cmd: echo "🎉 K3d installation phase completed successfully"
+        silent: true
+
+  load-image:
+    desc: |
+      ℹ️ Description:
+        Loads a local Docker image into the specified k3d cluster.
+
+      🔧 Variables:
+        - TASK_K3D_IMAGE_TO_LOAD: Name of the Docker image to load (e.g., my-app:latest).
+        - TASK_K3D_CLUSTER_NAME: Name of the target k3d cluster (default: k3d-default).
+
+      🔐 Preconditions:
+        - k3d must be installed and the cluster must be running.
+        - The specified Docker image must exist locally.
+
+      🔄 Execution:
+        Imports the image into the specified k3d cluster.
+
+      💡 Example:
+        task k3d:load-image TASK_K3D_IMAGE_TO_LOAD=my-image:latest TASK_K3D_CLUSTER_NAME=my-cluster
+    status:
+      # Check if the cluster does NOT exist. Status succeeds (task is up-to-date) if cluster is absent.
+      - cluster_name=$(echo {{.TASK_K3D_CLUSTER_NAME}}); ! k3d cluster get "$cluster_name" > /dev/null 2>&1
+    run: once
+    preconditions:
+      - sh: "command -v k3d >/dev/null 2>&1"
+        msg: "❌ k3d is not installed or not available in the system's PATH."
+      - sh: "test -n '{{.TASK_K3D_CLUSTER_NAME}}'"
+        msg: "❌ The TASK_K3D_CLUSTER_NAME variable must be set."
+      - sh: "test -n '{{.TASK_K3D_IMAGE_TO_LOAD}}'"
+        msg: "❌ The TASK_K3D_IMAGE_TO_LOAD variable must be set."
+      - sh: "docker image inspect {{.TASK_K3D_IMAGE_TO_LOAD}} >/dev/null 2>&1"
+        msg: "❌ The image {{.TASK_K3D_IMAGE_TO_LOAD}} was not found locally."
+    cmds:
+      - cmd: echo "🔄 Starting load image phase"
+        silent: true
+      - time k3d image import {{.TASK_K3D_IMAGE_TO_LOAD}} --cluster {{.TASK_K3D_CLUSTER_NAME}}
+      - cmd: echo "🎉 Image {{.TASK_K3D_IMAGE_TO_LOAD}} successfully loaded into k3d cluster '{{.TASK_K3D_CLUSTER_NAME}}'"
         silent: true
 
   cleanup:
     desc: Removes temporary files and directories
     cmds:
+      - cmd: echo "🔄 Starting cleanup phase"
+        silent: true
       - cmd: rm -rf {{.TASK_K3D_VENV_DIR}}
         ignore_error: true
+      - cmd: echo "🎉 Cleanup phase completed successfully"
+        silent: true
+
+  destroy:cluster:
+    desc: |
+      ℹ️ Description:
+        Deletes the k3d cluster if it exists
+
+      🔧 Variables:
+        - TASK_K3D_CLUSTER_NAME: Name of the k3d cluster
+
+      🔄 Execution:
+        1. Verifies cluster existence
+        2. Deletes cluster
+    status:
+      - '! k3d cluster list | grep -q "{{.TASK_K3D_CLUSTER_NAME}}"'
+    cmds:
+      - cmd: echo "🔄 Starting destroy cluster phase"
+        silent: true
+      - k3d cluster delete {{.TASK_K3D_CLUSTER_NAME}}
+      - cmd: echo "🎉 Cluster '{{.TASK_K3D_CLUSTER_NAME}}' successfully deleted"
+        silent: true
+
+  create:ensure:kubeconfig:
+    desc: |
+      ℹ️ Description:
+        Ensures the kubeconfig file exists and is valid for the specified k3d cluster.
+        If the cluster exists, retrieves its kubeconfig. Otherwise, only creates the directory.
+
+      🔧 Variables:
+        - TASK_K3D_KUBECONFIG_DIR: Directory to store kubeconfig files
+        - TASK_K3D_CLUSTER_NAME: Name of the k3d cluster
+        - TASK_K3D_KUBECONFIG_FILE: Path to kubeconfig file
+
+      ✅ Verifications:
+        1. Checks if the k3d cluster exists
+        2. Validates kubeconfig file if cluster exists
+    status:
+      - mkdir -p {{.TASK_K3D_KUBECONFIG_DIR}}
+      - |
+        if k3d cluster list | grep -q "{{.TASK_K3D_CLUSTER_NAME}}"; then
+          if [ ! -f "{{.TASK_K3D_KUBECONFIG_FILE}}" ]; then
+            exit 1
+          fi
+          exit 0
+        else
+          exit 0
+        fi
+    cmds:
+      - cmd: echo "🔄 Starting ensure kubeconfig phase"
+        silent: true
+      - mkdir -p {{.TASK_K3D_KUBECONFIG_DIR}}
+      - |
+        if k3d cluster list | grep -q "{{.TASK_K3D_CLUSTER_NAME}}"; then
+          k3d kubeconfig get {{.TASK_K3D_CLUSTER_NAME}} > {{.TASK_K3D_KUBECONFIG_FILE}}
+        fi
+      - cmd: echo "🎉 Ensure kubeconfig phase completed successfully"
+        silent: true
+
+  create:cluster:
+    desc: |
+      ℹ️ Description:
+        Creates a new k3d cluster if it doesn't exist
+
+      🔧 Variables:
+        - TASK_K3D_CLUSTER_NAME: Name of the k3d cluster
+        - TASK_K3D_KUBECONFIG_FILE: Path to kubeconfig file
+        - TASK_K3D_PORTS_MAPPING: Ports mapping for the cluster
+        - TASK_K3D_CLUSTER_AGENTS: Number of agents (default: 2)
+    status:
+      - k3d cluster list | grep -q "{{.TASK_K3D_CLUSTER_NAME}}"
+      - test -f {{.TASK_K3D_KUBECONFIG_FILE}}
+    cmds:
+      - cmd: echo "🔄 Starting create cluster phase"
+        silent: true
+      - k3d cluster create {{.TASK_K3D_CLUSTER_NAME}} --kubeconfig-update-default=false --kubeconfig-switch-context=false --agents {{.TASK_K3D_CLUSTER_AGENTS}} --timeout 360s {{.TASK_K3D_PORTS_MAPPING}}
+      - k3d kubeconfig get {{.TASK_K3D_CLUSTER_NAME}} > {{.TASK_K3D_KUBECONFIG_FILE}}
+      - cmd: echo "🎉 Create cluster phase completed successfully"
+        silent: true
+
+  create:cluster:verify:
+    desc: |
+      ℹ️ Description:
+        Verifies that all cluster components are operational
+
+      🔧 Variables:
+        - TASK_K3D_KUBECONFIG_FILE: Path to kubeconfig file
+    cmds:
+      - cmd: echo "🔄 Starting cluster verification phase"
+        silent: true
+      - task: wait:nodes:ready
+      - task: wait:coredns:ready
+      - |
+        if ! kubectl --kubeconfig {{.TASK_K3D_KUBECONFIG_FILE}} get pods -A | grep -q "Running"; then
+          echo "❌ Some pods are not running"
+          exit 1
+        fi
+      - cmd: |
+          echo "🔍 Cluster components:"
+          kubectl --kubeconfig {{.TASK_K3D_KUBECONFIG_FILE}} get pods -A
+          echo ""
+          echo "📝 Kubeconfig: {{.TASK_K3D_KUBECONFIG_FILE}}"
+          echo "✅ Cluster '{{.TASK_K3D_CLUSTER_NAME}}' is ready!"
+        silent: false
+      - cmd: echo "🎉 Cluster verification phase completed successfully"
+        silent: true
+
+  create:check:cluster:exists:
+    desc: |
+      ℹ️ Description:
+        Verifies if the k3d cluster already exists
+
+      🔧 Variables:
+        - TASK_K3D_CLUSTER_NAME: Name of the k3d cluster
+    cmds:
+      - cmd: echo "🔄 Starting check cluster exists phase"
+        silent: true
+      - k3d cluster list
+      - cmd: echo "🎉 Check cluster exists phase completed successfully"
+        silent: true
+
+  wait:nodes:ready:
+    desc: |
+      ℹ️ Description:
+        Waits for Kubernetes nodes to be in Ready state
+
+      🔧 Variables:
+        - TASK_K3D_KUBECONFIG_FILE: Path to kubeconfig file
+    cmds:
+      - cmd: echo "🔄 Starting wait nodes ready phase"
+        silent: true
+      - cmd: echo 'kubectl --kubeconfig {{.TASK_K3D_KUBECONFIG_FILE}} get nodes | grep -q "Ready"'
+        silent: true
+      - cmd: |
+          # Capture the resolved kubeconfig path provided by Taskfile
+          KUBECONFIG_PATH="{{.TASK_K3D_KUBECONFIG_FILE}}"
+          echo "ℹ️  Attempting to use Kubeconfig: ${KUBECONFIG_PATH}"
+
+          for i in {1..15}; do
+            # Use the captured path variable, quoted for safety
+            if kubectl --kubeconfig "${KUBECONFIG_PATH}" get nodes | grep -q "Ready"; then
+              echo "✅ Nodes are ready using Kubeconfig: ${KUBECONFIG_PATH}"
+              exit 0
+            fi
+            echo "⏳ Waiting for nodes to be ready (attempt $i/15)..."
+            sleep 20
+          done
+          echo "❌ Nodes did not become ready after 15 attempts using Kubeconfig: ${KUBECONFIG_PATH}."
+          exit 1
+        silent: true
+      - cmd: echo "🎉 Wait nodes ready phase completed successfully"
+        silent: true
+
+  wait:coredns:ready:
+    desc: |
+      ℹ️ Description:
+        Waits for CoreDNS pods to be running
+    cmds:
+      - cmd: echo "🔄 Starting wait coredns ready phase"
+        silent: true
+      - |
+        for i in {1..15}; do
+          if kubectl --kubeconfig {{.TASK_K3D_KUBECONFIG_FILE}} -n kube-system get pods -l k8s-app=kube-dns | grep -q "Running"; then
+            exit 0
+          fi
+          echo "⏳ Waiting for CoreDNS pods to be ready (attempt $i/15)..."
+          sleep 20
+        done
+        exit 1
+      - cmd: echo "🎉 Wait coredns ready phase completed successfully"
+        silent: true
