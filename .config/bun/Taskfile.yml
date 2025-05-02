@@ -34,6 +34,8 @@ tasks:
       - sh: "command -v unzip &> /dev/null"
         msg: "❌ unzip is not installed. Please install unzip and try again."
     cmds:
+      - cmd: echo "🔄 Installing Bun runtime"
+        silent: true
       - |
         if [[ {{OS}} == 'linux' ]]; then
           curl -fsSL https://bun.sh/install | bash
@@ -49,7 +51,7 @@ tasks:
         export BUN_INSTALL="$HOME/.bun"
         export PATH=$BUN_INSTALL/bin:$PATH
         bun --version
-      - cmd: echo '✅ Bun has been installed successfully.'
+      - cmd: echo '🎉 Bun has been installed successfully.'
         silent: true
 
   configure-bashrc:
@@ -71,6 +73,8 @@ tasks:
         This task ensures that Bun is correctly configured in .bashrc without duplicates
         and maintains a clean file structure with at most one empty line between entries.
     cmds:
+      - cmd: echo "🔄 Configuring Bun in .bashrc"
+        silent: true
       - |
         # Remove any existing Bun configurations
         sed -i '/# bun/d' ~/.bashrc
@@ -87,7 +91,7 @@ tasks:
       - |
         # Ensure there's exactly one newline at the end of the file
         sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' ~/.bashrc
-      - cmd: echo '✅ Bun configuration in .bashrc has been updated and file structure cleaned.'
+      - cmd: echo '🎉 Bun .bashrc configuration updated successfully.'
         silent: true
 
   uninstall:
@@ -110,6 +114,8 @@ tasks:
       ⚠️  Warning: This will completely remove Bun from your system.
       Are you sure you want to continue? This action cannot be undone.
     cmds:
+      - cmd: echo "🔄 Uninstalling Bun and cleaning configuration"
+        silent: true
       - rm -rf ~/.bun
       - |
         # Remove any existing Bun configurations
@@ -122,5 +128,5 @@ tasks:
       - |
         # Ensure there's exactly one newline at the end of the file
         sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' ~/.bashrc
-      - cmd: echo '✅ Bun has been successfully uninstalled from your system and .bashrc cleaned.'
+      - cmd: echo '🎉 Bun has been uninstalled and configuration cleaned.'
         silent: true
