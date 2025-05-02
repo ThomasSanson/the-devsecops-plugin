@@ -42,9 +42,11 @@ tasks:
       - sh: "test -f {{.TASK_KUBECTL_ANSIBLE_REQUIREMENTS_FILE}}"
         msg: "❌ Requirements file not found at {{.TASK_KUBECTL_ANSIBLE_REQUIREMENTS_FILE}}"
     cmds:
+      - cmd: echo "🔄 Starting install dependencies phase"
+        silent: true
       - python$(cut -d '=' -f 2 {{.TASK_KUBECTL_PYTHON_VERSION_FILE}}) -m venv {{.TASK_KUBECTL_VENV_DIR}}
       - "{{.TASK_KUBECTL_VENV_DIR}}/bin/pip install -r {{.TASK_KUBECTL_ANSIBLE_REQUIREMENTS_FILE}}"
-      - cmd: echo "✅ Dependencies installed successfully"
+      - cmd: echo "🎉 Install dependencies phase completed successfully"
         silent: true
 
   install:
@@ -68,6 +70,8 @@ tasks:
       - sh: "test -f {{.TASK_KUBECTL_ANSIBLE_PLAYBOOK_FILE}}"
         msg: "❌ Playbook file not found at {{.TASK_KUBECTL_ANSIBLE_PLAYBOOK_FILE}}"
     cmds:
+      - cmd: echo "🔄 Starting kubectl installation phase"
+        silent: true
       - task: install:dependencies
       - |
         {{.TASK_KUBECTL_ANSIBLE_CMD}} \
@@ -75,18 +79,24 @@ tasks:
           -e "kubectl_version={{.TASK_KUBECTL_VERSION}}" \
           {{.TASK_KUBECTL_ANSIBLE_PLAYBOOK_FILE}}
       - task: cleanup
-      - cmd: echo "✅ kubectl installed successfully"
+      - cmd: echo "🎉 Kubectl installation phase completed successfully"
         silent: true
 
   cleanup:
     desc: Removes temporary files and directories
     cmds:
+      - cmd: echo "🔄 Starting cleanup phase"
+        silent: true
       - cmd: rm -rf {{.TASK_KUBECTL_VENV_DIR}}
         ignore_error: true
+      - cmd: echo "🎉 Cleanup phase completed successfully"
+        silent: true
 
   port-forward:
     desc: Port-forward a Kubernetes service to localhost # DevSkim: ignore DS162092
     cmds:
+      - cmd: echo "🔄 Starting port-forward phase"
+        silent: true
       - cmd: echo "🔄 Stopping existing port-forwards..."
         silent: true
       - pkill -f "kubectl.*port-forward.*svc/{{.SERVICE_NAME}}" || true
@@ -94,4 +104,132 @@ tasks:
         silent: true
       - bash -c "kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml port-forward svc/{{.SERVICE_NAME}} {{.LOCAL_PORT}}:{{.REMOTE_PORT}} -n {{.NAMESPACE | default "default"}} > /dev/null 2>&1 &"
       - cmd: echo "🌐 Open http://localhost:{{.LOCAL_PORT}} in your browser" # DevSkim: ignore DS162092
+        silent: true
+      - cmd: echo "🎉 Port-forward phase completed successfully"
+        silent: true
+
+  status:pods:
+    desc: Vérifie l'état de tous les pods dans tous les namespaces en utilisant la configuration kubeconfig spécifiée par l'environnement.
+    cmds:
+      - cmd: echo "🔄 Vérification de l'état des pods pour l'environnement '{{.ENV | default "testing"}}'..."
+        silent: true
+      - kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml get pods -A
+      - cmd: echo "🎉 Vérification de l'état des pods terminée."
+        silent: true
+
+  logs:errors:
+    desc: Affiche les logs des pods en état 'Error' ou 'CrashLoopBackOff'.
+    cmds:
+      - cmd: echo "🔄 Recherche des pods en erreur pour l'environnement '{{.ENV | default "testing"}}'..."
+        silent: true
+      - |
+        PODS=$(kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml get pods -A --no-headers | awk '$4 == "Error" || $4 == "CrashLoopBackOff" {print $1 "/" $2}')
+        if [ -z "$PODS" ]; then
+          echo "✅ Aucun pod en état Error ou CrashLoopBackOff trouvé."
+        else
+          echo "🔥 Pods en erreur trouvés. Affichage des logs (50 dernières lignes) :"
+          for pod_id in $PODS; do
+            namespace=$(echo "$pod_id" | cut -d'/' -f1)
+            pod_name=$(echo "$pod_id" | cut -d'/' -f2)
+            echo "--- Logs for $pod_id ---"
+            kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml logs "$pod_name" -n "$namespace" --tail=50 || echo "   (Impossible de récupérer les logs pour $pod_id)"
+          done
+        fi
+      - cmd: echo "🎉 Vérification des logs des pods en erreur terminée."
+        silent: true
+
+  troubleshoot:start:
+    desc: "[Organigramme Étape 1] Vérifie le statut général des pods. Lancez ceci pour commencer le dépannage."
+    cmds:
+      - task: status:pods
+
+  troubleshoot:pod:describe:
+    desc: |-
+      [Organigramme] Affiche les détails et événements d'un pod spécifique.
+      Utilisez ceci si un pod est 'Pending', 'Not Ready', 'ImagePullBackOff', ou 'CrashLoopBackOff'.
+      Usage: task kubectl:troubleshoot:pod:describe -- <nom-du-pod> [-n <namespace>]
+    cmds:
+      - |
+        if [ -z "{{.CLI_ARGS}}" ]; then
+          echo "❌ Erreur: Nom du pod manquant. Usage: task kubectl:troubleshoot:pod:describe -- <nom-du-pod> [-n <namespace>]"
+          exit 1
+        fi
+        echo "🔍 Affichage des détails pour le pod '{{.CLI_ARGS}}' dans l'environnement '{{.ENV | default "testing"}}'..."
+        kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml describe pod {{.CLI_ARGS}}
+
+  troubleshoot:pod:logs:
+    desc: |-
+      [Organigramme] Affiche les logs actuels d'un pod spécifique.
+      Utilisez ceci si un pod est 'Running' mais que l'application a des problèmes.
+      Usage: task kubectl:troubleshoot:pod:logs -- <nom-du-pod> [-n <namespace>] [--tail=N]
+    cmds:
+      - |
+        if [ -z "{{.CLI_ARGS}}" ]; then
+          echo "❌ Erreur: Nom du pod manquant. Usage: task kubectl:troubleshoot:pod:logs -- <nom-du-pod> [-n <namespace>]"
+          exit 1
+        fi
+        echo "📜 Affichage des logs pour le pod '{{.CLI_ARGS}}' dans l'environnement '{{.ENV | default "testing"}}'..."
+        kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml logs {{.CLI_ARGS}}
+
+  troubleshoot:pod:logs:previous:
+    desc: |-
+      [Organigramme] Affiche les logs du conteneur précédent (s'il a redémarré/crashé).
+      Usage: task kubectl:troubleshoot:pod:logs:previous -- <nom-du-pod> [-n <namespace>]
+    cmds:
+      - |
+        if [ -z "{{.CLI_ARGS}}" ]; then
+          echo "❌ Erreur: Nom du pod manquant. Usage: task kubectl:troubleshoot:pod:logs:previous -- <nom-du-pod> [-n <namespace>]"
+          exit 1
+        fi
+        echo "📜 Affichage des logs précédents pour le pod '{{.CLI_ARGS}}' dans l'environnement '{{.ENV | default "testing"}}'..."
+        kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml logs --previous {{.CLI_ARGS}}
+
+  troubleshoot:pods:node:
+    desc: "[Organigramme] Vérifie sur quels nœuds les pods sont assignés."
+    cmds:
+      - echo "🗺️  Vérification de l'assignation des pods aux nœuds pour l'environnement '{{.ENV | default "testing"}}'..."
+      - kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml get pods -A -o wide
+
+  troubleshoot:pods:describe:problems:
+    desc: "[Organigramme] Décrit automatiquement TOUS les pods qui ne sont PAS 'Running' ou 'Completed'."
+    cmds:
+      - cmd: echo "🔄 Recherche des pods non-sains ('Pending', 'Error', 'CrashLoop...', '0/X Ready', etc.) pour l'environnement '{{.ENV | default "testing"}}'..."
+        silent: true
+      - |
+        KUBECONFIG_PATH="iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml"
+        # Ensure the path is canonical
+        # KUBECONFIG_PATH=$(realpath "$KUBECONFIG_PATH") # Reverted this change
+
+        PROBLEMATIC_PODS=$(kubectl --kubeconfig "$KUBECONFIG_PATH" get pods -A --no-headers | awk '$4 != "Running" && $4 != "Completed" {print $1 "/" $2}')
+        if [ -z "$PROBLEMATIC_PODS" ]; then
+          echo "✅ Aucun pod dans un état non-sain trouvé."
+        else
+          echo "🔥 Pods non-sains trouvés. Affichage des détails ('describe') pour chacun :"
+          for pod_id in $PROBLEMATIC_PODS; do
+            namespace=$(echo "$pod_id" | cut -d'/' -f1)
+            pod_name=$(echo "$pod_id" | cut -d'/' -f2)
+            echo "--- Describe for $pod_id ---"
+            kubectl --kubeconfig "$KUBECONFIG_PATH" describe pod "$pod_name" -n "$namespace"
+            echo "---------------------------"
+          done
+        fi
+      - cmd: echo "🎉 Vérification des pods non-sains terminée."
+        silent: true
+
+  debug:
+    desc: "Lance une séquence de tâches de dépannage pour les pods."
+    cmds:
+      - cmd: echo "== Étape 1 Statut Général des Pods =="
+        silent: true
+      - task: troubleshoot:start
+      - cmd: echo "\n== Étape 2 Description des Pods Non-Sains =="
+        silent: true
+      - task: troubleshoot:pods:describe:problems
+      - cmd: echo "\n== Étape 3 Logs des Pods en Erreur =="
+        silent: true
+      - task: logs:errors
+      - cmd: echo "\n== Étape 4 Assignation des Pods aux Nœuds =="
+        silent: true
+      - task: troubleshoot:pods:node
+      - cmd: echo "\n🏁 Séquence de débogage des pods terminée."
         silent: true
