@@ -9,3 +9,9 @@ tasks:
     desc: Run all generic feedback tasks
     status:
       - test "{{.TASK_DEVSECOPS_FEEDBACK_ENABLED}}" = "false"
+    cmds:
+      - cmd: echo "🔄 Starting feedback phase"
+        silent: true
+      - task: :project:feedback
+      - cmd: echo "🎉 Feedback phase completed successfully"
+        silent: true
