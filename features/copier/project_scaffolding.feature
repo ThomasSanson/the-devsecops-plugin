@@ -58,5 +58,7 @@ Feature: Project Scaffolding Verification
       // require('./domain_name.js')
       """
 
-  Scenario: Verify DevSecOps task executability
-    Then a DevSecOps test task should be executable in the generated project
+  Scenario: Running a DevSecOps test task in the generated project
+    Given a project has been generated with the DevSecOps plugin
+    When I execute the DevSecOps test task
+    Then the DevSecOps test task should complete successfully
