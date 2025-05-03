@@ -158,7 +158,6 @@ tasks:
               exit $exit_code
             fi
           fi
-        silent: true
       - cmd: echo '🎉 Commitizen check completed.'
         silent: true
 
