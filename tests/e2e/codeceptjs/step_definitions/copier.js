@@ -11,7 +11,7 @@ let tempDir = ''
 let projectRoot = ''
 
 // Utility functions
-function removeDirRecursive(dirPath) {
+function removeDirRecursive (dirPath) {
   try {
     execSync(`rm -rf "${dirPath}"`)
   } catch (err) {
@@ -19,15 +19,15 @@ function removeDirRecursive(dirPath) {
   }
 }
 
-function getProjectRoot() {
+function getProjectRoot () {
   return path.join(tempDir, PROJECT_NAME)
 }
 
-function resolveProjectPath(...parts) {
+function resolveProjectPath (...parts) {
   return path.join(getProjectRoot(), ...parts)
 }
 
-function executeCommand(cmd, cwd = null) {
+function executeCommand (cmd, cwd = null) {
   try {
     execSync(cmd, { stdio: 'inherit', ...(cwd ? { cwd } : {}) })
   } catch (err) {
@@ -35,35 +35,35 @@ function executeCommand(cmd, cwd = null) {
   }
 }
 
-function assertFileExists(filePath, errorMessage = null) {
+function assertFileExists (filePath, errorMessage = null) {
   if (!fs.existsSync(filePath) || !fs.lstatSync(filePath).isFile()) {
     throw new Error(errorMessage || `File does not exist: ${filePath}`)
   }
   return true
 }
 
-function assertFileNotExists(filePath) {
+function assertFileNotExists (filePath) {
   if (fs.existsSync(filePath) && fs.lstatSync(filePath).isFile()) {
     throw new Error(`File should NOT exist: ${filePath}`)
   }
   return true
 }
 
-function assertDirExists(dirPath, errorMessage = null) {
+function assertDirExists (dirPath, errorMessage = null) {
   if (!fs.existsSync(dirPath) || !fs.statSync(dirPath).isDirectory()) {
     throw new Error(errorMessage || `Directory does not exist: ${dirPath}`)
   }
   return true
 }
 
-function assertDirNotExists(dirPath) {
+function assertDirNotExists (dirPath) {
   if (fs.existsSync(dirPath) && fs.statSync(dirPath).isDirectory()) {
     throw new Error(`Directory should NOT exist: ${dirPath}`)
   }
   return true
 }
 
-function getTableRows(table, columnName = null) {
+function getTableRows (table, columnName = null) {
   const rows = table.rows.map(row => {
     if (columnName && row[columnName]) {
       return row[columnName]
@@ -75,7 +75,7 @@ function getTableRows(table, columnName = null) {
   return columnName && rows[0] === columnName ? rows.slice(1) : rows
 }
 
-function compareFileContent(filePath, expected) {
+function compareFileContent (filePath, expected) {
   const actual = fs.readFileSync(filePath, 'utf8').replace(/\r\n/g, '\n').trim()
 
   // Normalize expected content based on its type
@@ -98,7 +98,7 @@ function compareFileContent(filePath, expected) {
   return true
 }
 
-function ensureProjectExists() {
+function ensureProjectExists () {
   projectRoot = getProjectRoot()
   if (!fs.existsSync(projectRoot) || !fs.statSync(projectRoot).isDirectory()) {
     // Simulate the sequence: clean, generate, check
