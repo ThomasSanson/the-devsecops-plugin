@@ -249,3 +249,33 @@ tasks:
         silent: true
       - cmd: echo '🎉 Commitizen version bump process completed.'
         silent: true
+
+  check-message:
+    desc: Check a specific commit message file using Commitizen (for commit-msg hook).
+    summary: |
+      ℹ️ Description:
+        Runs 'cz check --commit-msg-file' on a specific file provided as an argument.
+        This is intended for use with the git commit-msg hook.
+
+      🔧 Arguments:
+        - COMMIT_MSG_FILE: Path to the commit message file (passed to the task).
+
+      🔄 Execution:
+        Runs Commitizen check on the specified file.
+    vars:
+      TASK_COMMITIZEN_COMMAND: "{{.TASK_COMMITIZEN_COMMAND | default \"/home/tsanson/.bun/bin/bunx --install=force --bun cz\"}}"
+      COMMITIZEN_CHECK_COMMAND: "{{.TASK_COMMITIZEN_COMMAND}} check --commit-msg-file {{.COMMIT_MSG_FILE}}"
+      _RED: '{{.RED | default "\033[0;31m"}}'
+      _NC: '{{.NC | default "\033[0m"}}'
+    cmds:
+      - cmd: echo "🔄 Checking commit message file {{.COMMIT_MSG_FILE}} with Commitizen"
+        silent: true
+      - cmd: |
+          # Run cz check and capture the exit status
+          if ! {{.COMMITIZEN_CHECK_COMMAND}}; then
+            echo -e "{{._RED}}❌ Commitizen check failed. Please review the message format based on Commitizen rules.{{._NC}}"
+            exit 1
+          fi
+        silent: true
+      - cmd: echo '🎉 Commit message passed Commitizen checks.'
+        silent: true
