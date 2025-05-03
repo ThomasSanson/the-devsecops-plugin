@@ -89,7 +89,7 @@ tasks:
         silent: true
       - cmd: echo "{{.CODECEPTJS_RUN_COMMAND}}"
         silent: true
-      - cmd: "{{.CODECEPTJS_RUN_COMMAND}}"
+      - cmd: "{{.CODECEPTJS_RUN_COMMAND}} {{.CLI_ARGS}}"
         silent: true
       - cmd: echo '🎉 CodeceptJS tests completed successfully.'
         silent: true
