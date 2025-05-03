@@ -23,3 +23,10 @@ tasks:
       - task: :lizard
       - cmd: echo "🎉 Code phase completed successfully"
         silent: true
+
+  sync-templates:
+    desc: "Syncs the project templates using the specific answers file."
+    cmds:
+      - task: :copier:update
+        vars:
+          TASK_COPIER_ANSWER_FILE: ".config/devsecops/.copier-answers.yml"
