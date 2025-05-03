@@ -274,14 +274,7 @@ tasks:
       - cmd: |
           # Run cz check and capture the exit status
           if ! {{.COMMITIZEN_CHECK_COMMAND}}; then
-            echo -e "{{._RED}}❌ Commitizen check failed. Please review the message format based on Commitizen rules.{{._NC}}"
-            echo -e "   Please follow these steps to correct the issue:"
-            echo -e "   1. The commit process was halted because the message in '{{.COMMIT_MSG_FILE}}' did not pass Commitizen checks."
-            echo -e "   2. Edit the commit message in your editor or staging area to comply with Commitizen rules."
-            echo -e "   3. Once corrected, try committing again. If you already closed the editor, use:"
-            echo -e "      {{._GREEN}}git commit --amend{{._NC}}"
-            echo -e "   4. This command will re-open your editor with the last commit message, allowing you to fix it."
-            echo -e "   5. After saving the corrected message, the commit process will continue."
+            echo -e "{{._RED}}❌ Commitizen check failed. Please fix the message in your editor or use 'git commit --amend'.{{.NC}}"
             exit 1
           fi
       - cmd: echo '🎉 Commit message passed Commitizen checks.'
