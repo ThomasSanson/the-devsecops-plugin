@@ -239,17 +239,27 @@ Then('the content of the file {string} should be exactly:', function (filePath, 
   }
 });
 
-Then('a DevSecOps test task should be executable in the generated project', () => {
-  const projectRoot = getProjectRoot();
-  // Check that the Taskfile.test.yml exists
+Given('a project has been generated with the DevSecOps plugin', function () {
+  projectRoot = getProjectRoot();
   const taskfile = path.join(projectRoot, '.config', 'devsecops', 'Taskfile.test.yml');
   if (!fs.existsSync(taskfile)) {
     throw new Error(`DevSecOps Taskfile.test.yml not found: ${taskfile}`);
   }
-  // Execute 'task test' in the generated project
+});
+
+When('I execute the DevSecOps test task', function () {
+  const projectRoot = getProjectRoot();
   try {
     execSync('task test', { cwd: projectRoot, stdio: 'inherit' });
   } catch (err) {
     throw new Error(`DevSecOps test task failed to execute in the generated project: ${err}`);
+  }
+});
+
+Then('the DevSecOps test task should complete successfully', function () {
+  if (this.testError) {
+    throw new Error(
+      `DevSecOps test task failed to execute in the generated project:\n${this.testError}\nOutput:\n${this.testResult}`
+    );
   }
 });
