@@ -139,15 +139,15 @@ tasks:
     status:
       - test "{{.TASK_COMMITIZEN_ENABLED}}" = "false"
     vars:
-      COMMITIZEN_CHECK_COMMAND:
+      TASK_COMMITIZEN_COMMAND:
         sh: echo "{{.TASK_COMMITIZEN_COMMAND}} --config {{.TASK_COMMITIZEN_CONFIG_FULL_PATH}} {{.TASK_COMMITIZEN_CLI_OPTS}} check {{.TASK_COMMITIZEN_CLI_CHECK_OPTS}}"
     cmds:
       - cmd: echo "🔄 Running Commitizen check"
         silent: true
-      - cmd: echo "{{.COMMITIZEN_CHECK_COMMAND}}"
+      - cmd: echo "{{.TASK_COMMITIZEN_COMMAND}}"
         silent: true
       - cmd: |
-          if {{.COMMITIZEN_CHECK_COMMAND}}; then
+          if {{.TASK_COMMITIZEN_COMMAND}}; then
             echo "🎉 All commits successfully verified with Commitizen!"
           else
             exit_code=$?
@@ -263,8 +263,7 @@ tasks:
       🔄 Execution:
         Runs Commitizen check on the specified file.
     vars:
-      TASK_COMMITIZEN_COMMAND: "{{.TASK_COMMITIZEN_COMMAND | default \"/home/tsanson/.bun/bin/bunx --install=force --bun cz\"}}"
-      COMMITIZEN_CHECK_COMMAND: "{{.TASK_COMMITIZEN_COMMAND}} check --commit-msg-file {{.COMMIT_MSG_FILE}}"
+      TASK_COMMITIZEN_COMMAND: "{{.TASK_COMMITIZEN_COMMAND}} check --commit-msg-file {{.COMMIT_MSG_FILE}}"
       _RED: '{{.RED | default "\033[0;31m"}}'
       _GREEN: '{{.GREEN | default "\033[0;32m"}}'
       _NC: '{{.NC | default "\033[0m"}}'
@@ -273,7 +272,7 @@ tasks:
         silent: true
       - cmd: |
           # Run cz check and capture the exit status
-          if ! {{.COMMITIZEN_CHECK_COMMAND}}; then
+          if ! {{.TASK_COMMITIZEN_COMMAND}}; then
             echo -e "{{._RED}}❌ Commitizen check failed. Please fix the message in your editor or use 'git commit --amend'.{{.NC}}"
             exit 1
           fi
