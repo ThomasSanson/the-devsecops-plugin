@@ -1,7 +1,9 @@
-Feature: Project Scaffolding Verification
-  Ensure the copier template correctly scaffolds a new project with the expected initial structure and configuration.
+Feature: Project Scaffolding
+  As a DevSecOps engineer
+  I want to generate a project from a Copier template
+  So that I can quickly start with the correct structure and configuration
 
-  Scenario: Successfully scaffold a new project from template
+  Scenario: Generating a new project from template
     Given a clean temporary directory for tests
     When the copier command is executed to generate a project from the template
     Then the generated project directory should exist
