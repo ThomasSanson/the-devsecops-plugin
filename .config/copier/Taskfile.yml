@@ -78,6 +78,39 @@ tasks:
       - cmd: echo '🎉 Copier run completed successfully.'
         silent: true
 
+  update:
+    deps: [install]
+    desc: |
+      ℹ️ Description:
+        Updates the project using Copier with a specific answers file.
+
+      🔧 Variables:
+        - TASK_COPIER_ANSWER_FILE: Path to the Copier answers file (e.g., .config/devsecops/.copier-answers.yml)
+          Required: Yes
+        - TASK_COPIER_COMMAND: Command to run Copier
+          Default: "./venv/copier/bin/copier"
+        - TASK_COPIER_CLI_OPTS: Additional command line options
+          Default: ""
+
+      🔐 Preconditions:
+        - The 'install' task must be completed
+        - The TASK_COPIER_ANSWER_FILE variable must be provided
+
+      🔄 Execution:
+        Runs 'copier update -a <TASK_COPIER_ANSWER_FILE>'
+
+      📝 Note:
+        Provide the answers file path via 'task update TASK_COPIER_ANSWER_FILE=path/to/answers.yml'
+    preconditions:
+      - sh: test -n "{{.TASK_COPIER_ANSWER_FILE}}"
+        msg: "❌ Error: TASK_COPIER_ANSWER_FILE variable is required. Usage: task update TASK_COPIER_ANSWER_FILE=path/to/answers.yml"
+    cmds:
+      - cmd: echo "🔄 Updating Copier project using {{.TASK_COPIER_ANSWER_FILE}}"
+        silent: true
+      - "{{.TASK_COPIER_COMMAND}} update {{.TASK_COPIER_CLI_OPTS}} --answers-file {{.TASK_COPIER_ANSWER_FILE}}"
+      - cmd: echo "🎉 Copier update completed successfully."
+        silent: true
+
   cleanup:
     internal: true
     desc: |
