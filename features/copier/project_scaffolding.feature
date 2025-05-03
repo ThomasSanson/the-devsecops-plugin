@@ -1,20 +1,20 @@
 Feature: Project Scaffolding Verification
   Ensure the copier template correctly scaffolds a new project with the expected initial structure and configuration.
 
-  Background:
+  Scenario: Successfully scaffold a new project from template
     Given a clean temporary directory for tests
     When the copier command is executed to generate a project from the template
-    Then the generated project directory should exist # Basic check needed for subsequent steps
+    Then the generated project directory should exist
 
   Scenario: Verify core Copier artifact presence
     Then the ".copier-answers.yml" file should exist in the ".config/devsecops" directory
 
   Scenario: Verify excluded files are absent
     Then the following files should NOT exist:
-      | File Path                                                  |
-      | iac/environment/testing/superset-values.yaml               |
-      | iac/helm/Chart.lock                                        |
-      | tests/infra/kube/ansible/verify/superset_is_ready.yml      |
+      | File Path                                                     |
+      | iac/environment/testing/superset-values.yaml                  |
+      | iac/helm/Chart.lock                                           |
+      | tests/infra/kube/ansible/verify/superset_is_ready.yml         |
       | tests/infra/kube/ansible/verify/superset_login_page_check.yml |
 
   Scenario: Verify excluded directories are absent
