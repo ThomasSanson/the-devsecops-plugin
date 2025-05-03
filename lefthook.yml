@@ -1,5 +1,7 @@
 ---
 commit-msg:
   commands:
-    "lint commit message":
+    commitlint:
       run: task commitlint:lint-message COMMIT_MSG_FILE={1}
+    commitizen:
+      run: task commitizen:check-message COMMIT_MSG_FILE={1}
