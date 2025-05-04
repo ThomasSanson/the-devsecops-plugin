@@ -28,7 +28,13 @@ vars:
       elif [ -n "$GIT_BRANCH" ]; then
         echo "$GIT_BRANCH"
       else
-        git rev-parse --abbrev-ref HEAD
+        # Check if we are in a Git repository
+        if git rev-parse --is-inside-work-tree &>/dev/null; then
+          git rev-parse --abbrev-ref HEAD
+        else
+          # Default value if we are not in a Git repository
+          echo "main"
+        fi
       fi
 
 tasks:
