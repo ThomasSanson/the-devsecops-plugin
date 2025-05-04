@@ -29,7 +29,7 @@ vars:
       else
         echo "latest"
       fi
-  TASK_DOCKER_CE_DOCKERFILE: '{{.TASK_DOCKER_CE_DOCKERFILE | default ".config/devcontainer/debian/Dockerfile"}}'
+  TASK_DOCKER_CE_DOCKERFILE: '{{.TASK_DOCKER_CE_DOCKERFILE | default ""}}'
   TASK_DOCKER_CE_CONTEXT: '{{.TASK_DOCKER_CE_CONTEXT | default "."}}'
   TASK_DOCKER_CE_PUSH:
     sh: |
