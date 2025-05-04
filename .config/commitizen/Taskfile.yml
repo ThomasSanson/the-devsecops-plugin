@@ -258,6 +258,7 @@ tasks:
 
   check-message:
     desc: Check a specific commit message file using Commitizen (for commit-msg hook).
+    deps: [install]
     summary: |
       ℹ️ Description:
         Runs 'cz check --commit-msg-file' on a specific file provided as an argument.
