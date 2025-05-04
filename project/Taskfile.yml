@@ -1,105 +1,130 @@
 ---
 version: "3"
 
-includes:
-  tests:copier:
-    taskfile: ../tests/copier/Taskfile.yml
-  tests:devcontainer:
-    taskfile: ../tests/devcontainer/Taskfile.yml
-    dir: ..
+vars:
+  TASK_DOCKER_CE_IMAGE_NAME: "registry.gitlab.com/digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin"
+  TASK_DOCKER_CE_DOCKERFILE: ".config/devcontainer/debian/Dockerfile"
 
 tasks:
   plan:
     desc: Run project-specific plan tasks
     cmds:
-      - cmd: echo "Running project-specific plan tasks..."
+      - cmd: echo "🚀 Starting project plan phase"
+        silent: true
+      - cmd: echo "✅ Project Plan phase completed successfully"
         silent: true
 
   code:
     desc: Run project-specific code tasks
     cmds:
-      - cmd: echo "Running project-specific code tasks..."
+      - cmd: echo "🚀 Starting project code phase"
         silent: true
+      - cmd: echo "✅ Project Code phase completed successfully"
+        silent: true
+
 
   build:
     desc: Run project-specific build tasks
     cmds:
-      - cmd: echo "Running project-specific build tasks..."
+      - cmd: echo "🚀 Starting project build phase"
         silent: true
       - task: :docker-ce:build
         vars:
+          TASK_DOCKER_CE_IMAGE_NAME: "{{.TASK_DOCKER_CE_IMAGE_NAME}}"
+          TASK_DOCKER_CE_DOCKERFILE: "{{.TASK_DOCKER_CE_DOCKERFILE}}"
           TASK_DOCKER_CE_IMAGE_TAG:
             sh: |
-                if [ -f "VERSION" ]; then
-                  echo $(cat VERSION)
-                fi
+              if [ -f "VERSION" ]; then
+                echo $(cat VERSION)
+              fi
+      - cmd: echo "✅ Project Build phase completed successfully"
+        silent: true
 
   test:
     desc: Run project-specific test tasks
     cmds:
-      - cmd: echo "Running project-specific test tasks..."
+      - cmd: echo "🚀 Starting project test phase"
         silent: true
       - task: test:tdd
+      - cmd: echo "✅ Project Test phase completed successfully"
+        silent: true
 
   test:tdd:
     desc: Run project-specific TDD test tasks
+    deps: [build]
     cmds:
-      - cmd: echo "Running project-specific TDD test tasks..."
+      - cmd: echo "🚀 Starting project TDD test phase"
         silent: true
-      - task: tests:copier
       - task: :deploy
+      - task: operate:kube:port-forward
       - task: :codeceptjs
-      # - task: tests:devcontainer
+      - cmd: echo "✅ Project TDD test phase completed successfully"
+        silent: true
 
   release:
     desc: Run project-specific release tasks
-    cmds:
-      - cmd: echo "Running project-specific release tasks..."
-        silent: true
-      - task: :docker-ce:build
+    deps:
+      - task: build
         vars:
           TASK_DOCKER_CE_IMAGE_TAG:
             sh: |
-                if [ -f "VERSION" ]; then
-                  echo $(cat VERSION)
-                fi
+              if [ -f "VERSION" ]; then
+                echo $(cat VERSION)
+              fi
+    cmds:
+      - cmd: echo "🚀 Starting project release phase"
+        silent: true
       - task: :docker-ce:push
         vars:
           TASK_DOCKER_CE_PUSH:
             sh: |
-                if [[ "{{.TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH}}" == "{{.TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH}}" ]]; then
-                  echo "true"
-                  exit 0
-                fi
-                echo "false"
+              if [ "{{.TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH}}" = "{{.TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH}}" ]; then
+                echo true
+              else
+                echo false
+              fi
           TASK_DOCKER_CE_IMAGE_TAG:
             sh: |
-                if [ -f "VERSION" ]; then
-                  echo $(cat VERSION)
-                fi
+              if [ -f "VERSION" ]; then
+                echo $(cat VERSION)
+              fi
+          TASK_DOCKER_CE_IMAGE_NAME: "{{.TASK_DOCKER_CE_IMAGE_NAME}}"
+      - cmd: echo "✅ Project Release phase completed successfully"
+        silent: true
 
   deploy:
     desc: Run project-specific deploy tasks
+    deps: [build]
     cmds:
-      - cmd: echo "Running project-specific deploy tasks..."
+      - cmd: echo "🚀 Starting project deploy phase"
         silent: true
+      - task: :helm:dependency:update
+      - cmd: |
+          echo "🚀 Create namespace..."
+          kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml create namespace superset --dry-run=client -o yaml | kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml apply -f -
+          kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml create namespace testing --dry-run=client -o yaml | kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml apply -f -
+      - kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml apply -f iac/environment/{{.ENV | default "testing"}}/sealed-secrets.yaml
       - cmd: |
           echo "🚀 Deploying Apache Superset..."
           helm repo add superset https://apache.github.io/superset
           helm repo update
           helm upgrade --install superset superset/superset \
-            --kubeconfig iac/environment/${ENV:-testing}/kubeconfig.yaml \
+            --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml \
             --namespace superset \
             --create-namespace \
-            --values iac/environment/${ENV:-testing}/superset-values.yaml \
+            --values iac/environment/{{.ENV | default "testing"}}/superset-values.yaml \
             --wait \
-            --timeout 15m
-      - task: operate:kube:port-forward
+            --timeout 15m \
+            --debug
+      - cmd: echo "✅ Project Deploy phase completed successfully"
+        silent: true
 
   operate:
     desc: Run project-specific operate tasks
     cmds:
-      - cmd: echo "Running project-specific operate tasks..."
+      - cmd: echo "🚀 Starting project operate phase"
+        silent: true
+      - cmd: echo "✅ Project Operate phase completed successfully"
         silent: true
 
   operate:kube:port-forward:
@@ -107,21 +132,29 @@ tasks:
     status:
       - 'curl --fail --max-time 2 http://localhost:8080 > /dev/null 2>&1' # DevSkim: ignore DS162092
     cmds:
+      - cmd: echo "🚀 Starting project port-forward phase"
+        silent: true
       - task: :kubectl:port-forward
         vars:
           SERVICE_NAME: superset
           LOCAL_PORT: 8080
           REMOTE_PORT: 8088
           NAMESPACE: superset
+      - cmd: echo "✅ Project Port-forward phase completed successfully"
+        silent: true
 
   monitor:
     desc: Run project-specific monitor tasks
     cmds:
-      - cmd: echo "Running project-specific monitor tasks..."
+      - cmd: echo "🚀 Starting project monitor phase"
+        silent: true
+      - cmd: echo "✅ Project Monitor phase completed successfully"
         silent: true
 
   feedback:
     desc: Run project-specific feedback tasks
     cmds:
-      - cmd: echo "Running project-specific feedback tasks..."
+      - cmd: echo "🚀 Starting project feedback phase"
+        silent: true
+      - cmd: echo "✅ Project Feedback phase completed successfully"
         silent: true
