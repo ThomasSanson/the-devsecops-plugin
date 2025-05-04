@@ -22,7 +22,6 @@ tasks:
       - cmd: echo "✅ Project Code phase completed successfully"
         silent: true
 
-
   build:
     desc: Run project-specific build tasks
     cmds:
