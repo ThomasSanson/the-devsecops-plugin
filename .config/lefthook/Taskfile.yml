@@ -12,10 +12,17 @@ tasks:
     cmds:
       - cmd: echo "🔄 Starting lefthook:install phase"
         silent: true
-      - "{{.TASK_LEFTHOOK_BIN_PATH}} install"
+      - |
+        # Check if we are in a Git repository
+        if git rev-parse --is-inside-work-tree &>/dev/null; then
+          {{.TASK_LEFTHOOK_BIN_PATH}} install
+        else
+          # Skip if not in a Git repository
+          echo "⏩ Skipping Lefthook installation - not in a Git repository"
+        fi
       - cmd: echo "🎉 Lefthook:install phase completed successfully"
         silent: true
-  
+
   install:
     desc: Install Lefthook using Go
     summary: |
