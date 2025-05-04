@@ -9,8 +9,14 @@ vars:
       if [ -n "${TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH:-}" ]; then
         echo "${TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH}"
       else
-        git config --global --add safe.directory "${PWD}"
-        git rev-parse --abbrev-ref HEAD
+        # Check if we are in a Git repository
+        if git rev-parse --is-inside-work-tree &>/dev/null; then
+          git config --global --add safe.directory "${PWD}"
+          git rev-parse --abbrev-ref HEAD
+        else
+          # Default value if we are not in a Git repository
+          echo "main"
+        fi
       fi
   TASK_DEVSECOPS_RELEASE_ALLOW_PUSH: '{{.TASK_DEVSECOPS_RELEASE_ALLOW_PUSH | default "true"}}'
   TASK_DEVSECOPS_RELEASE_DEPLOY_KEY: '{{.TASK_DEVSECOPS_RELEASE_DEPLOY_KEY | default ""}}'
