@@ -2,6 +2,52 @@
 
 # Changelog
 
+## 7.1.0 (2025-05-05)
+
+### Feat
+
+- **tests**: add Ansible requirements file for infrastructure testing dependencies
+- **copier.js**: enhance DevSecOps test task verification by adding steps to check task execution and success status
+- **tests**: add end-to-end tests for the copier functionality to ensure project generation and validation of expected files and directories
+- **entrypoint.js**: add copier step definitions to enhance test coverage and functionality
+- **copier**: add project scaffolding feature tests to verify correct project structure and configuration after template generation
+- **Taskfile**: add sync-templates task to streamline project template updates using a specific answers file
+- **Taskfile**: add update task for project updates using Copier with specific answers file and preconditions for execution
+- **commitizen**: add check-message task to validate commit message format using Commitizen for improved consistency and adherence to standards
+- **ci**: add TASK_CODECEPTJS_CI variable to enable CodeceptJS in CI environment
+- **Taskfile**: enhance task commands with informative echo statements for better user feedback and add troubleshooting tasks for pod status and logs
+- **kaniko**: add logging messages for build and cache warmup processes to improve visibility and user feedback during execution
+- **k3d**: enhance Taskfile with additional variables and tasks for improved cluster management and image loading capabilities
+- **docker-ce**: enhance Taskfile.yml with improved variable handling and status messages for better clarity during execution phases
+- **Taskfile.release.yml**: enhance release process with dynamic branch detection and improved logging for better user feedback during release tasks
+- **Taskfile.plan.yml**: add logging for plan phase start and completion to enhance visibility during execution
+- **Taskfile.operate.yml**: add logging for the start and completion of the operate phase to enhance visibility during execution
+- **Taskfile.monitor.yml**: add monitor phase start and completion messages for better visibility during execution
+- **Taskfile.feedback.yml**: add feedback phase start and completion messages to enhance user experience during task execution
+- **Taskfile**: add start and completion messages for the code phase to improve user feedback during execution
+- **Taskfile.build.yml**: add build phase start and completion messages for better feedback during the build process
+- **Taskfile.yml**: add TASK_CODECEPTJS_CI variable to control CI behavior and improve task output messages for better clarity and user experience
+
+### Fix
+
+- **Taskfile.yml**: update TASK_CODECEPTJS_COMMAND to prevent failure on empty run by adding DONT_FAIL_ON_EMPTY_RUN environment variable
+- **Taskfile.test.yml**: update path for TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE to reflect new directory structure for Ansible requirements
+- **ansible**: update path for TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE to reflect the correct directory structure
+- **Taskfile.yaml**: increase timeout from 5 minutes to 10 minutes for sealed-secrets deployment to ensure successful completion
+- **lefthook**: add check for Git repository before running Lefthook installation to prevent errors when outside a repo
+- **Taskfile.yml**: update default value for TASK_DOCKER_CE_DOCKERFILE to an empty string for better flexibility in Docker configurations
+- **Taskfile.release.yml**: add check for Git repository before setting safe.directory and getting current branch to prevent errors in non-Git contexts
+- **commitizen**: add check for Git repository in Taskfile to prevent errors when outside a repo and provide a default branch name
+- **Taskfile.yml**: append CLI_ARGS to CODECEPTJS_RUN_COMMAND for enhanced command flexibility during test execution
+- **docs**: update copier answers file path in README to reflect correct location for project setup instructions
+
+### Refactor
+
+- **copier.js**: reorganize utility functions and improve readability by consolidating file and directory assertions into dedicated functions, enhancing maintainability and clarity of test steps
+- **project_scaffolding.feature**: update scenario description for clarity and add steps for executing DevSecOps test task
+- **commitizen**: rename COMMITIZEN_CHECK_COMMAND to TASK_COMMITIZEN_COMMAND for consistency and clarity in task definitions
+- **devsecops**: restructure Taskfile to improve readability and maintainability by simplifying task definitions and adding descriptive phases for testing operations
+
 ## 7.0.0 (2025-04-25)
 
 ### Feat
