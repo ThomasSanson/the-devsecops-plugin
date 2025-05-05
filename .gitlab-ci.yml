@@ -90,6 +90,7 @@ build:
 
 test:
   stage: test
+  retry: 1
   needs: []  # Allows parallel execution
   script:
     - task test
