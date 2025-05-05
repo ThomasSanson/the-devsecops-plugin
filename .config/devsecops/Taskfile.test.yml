@@ -88,7 +88,7 @@ tasks:
       # Install infrastructure test collections
       - task: :ansible:galaxy:collection:install
         vars:
-          TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE: tests/infra/kube/requirements.yml
+          TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE: tests/infra/kube/ansible/requirements.yml
       - cmd: echo "🎉 Dependency phase completed successfully"
         silent: true
 
