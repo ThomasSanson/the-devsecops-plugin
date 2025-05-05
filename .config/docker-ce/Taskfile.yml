@@ -20,16 +20,33 @@ vars:
 
   # Build settings
   TASK_DOCKER_CE_IMAGE_NAME: '{{.TASK_DOCKER_CE_IMAGE_NAME | default "test"}}'
-  TASK_DOCKER_CE_IMAGE_TAG: '{{.TASK_DOCKER_CE_IMAGE_TAG | default "latest"}}'
-  TASK_DOCKER_CE_DOCKERFILE: '{{.TASK_DOCKER_CE_DOCKERFILE | default ".config/devcontainer/debian/Dockerfile"}}'
+  TASK_DOCKER_CE_IMAGE_TAG:
+    sh: |
+      if [ -n "${TASK_DOCKER_CE_IMAGE_TAG:-}" ]; then
+        echo "${TASK_DOCKER_CE_IMAGE_TAG}"
+      elif [ -f "VERSION" ]; then
+        echo $(cat VERSION)
+      else
+        echo "latest"
+      fi
+  TASK_DOCKER_CE_DOCKERFILE: '{{.TASK_DOCKER_CE_DOCKERFILE | default ""}}'
   TASK_DOCKER_CE_CONTEXT: '{{.TASK_DOCKER_CE_CONTEXT | default "."}}'
-  TASK_DOCKER_CE_PUSH: '{{.TASK_DOCKER_CE_PUSH | default "false"}}'
+  TASK_DOCKER_CE_PUSH:
+    sh: |
+      if [ -n "${TASK_DOCKER_CE_PUSH:-}" ]; then
+        echo "${TASK_DOCKER_CE_PUSH}"
+      elif [[ "{{.TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH}}" == "{{.TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH}}" ]]; then
+        echo "true"
+        exit 0
+      else
+        echo "false"
+      fi
+  TASK_DOCKER_CE_BUILD_RUN: '{{.TASK_DOCKER_CE_BUILD_RUN | default "always"}}'
 
   # Labels (optional)
   TASK_DOCKER_CE_CUSTOM_LABELS: '{{.TASK_DOCKER_CE_CUSTOM_LABELS | default ""}}'
   TASK_DOCKER_CE_BASE_LABELS: >
     --label org.opencontainers.image.source={{.REPO_URL | default "local"}}
-    --label org.opencontainers.image.version={{.TASK_DOCKER_CE_IMAGE_TAG}}
 
 env:
   LANG: "C.UTF-8"
@@ -53,6 +70,8 @@ tasks:
 
       🔄 Execution:
         Creates virtualenv and installs required packages
+    status:
+      - test "{{.TASK_DOCKER_CE_ENABLED}}" = "false"
     preconditions:
       - sh: "command -v python3 >/dev/null 2>&1"
         msg: "❌ Python 3 is not installed"
@@ -61,10 +80,12 @@ tasks:
       - sh: "test -f {{.TASK_DOCKER_CE_ANSIBLE_REQUIREMENTS_FILE}}"
         msg: "❌ Requirements file not found at {{.TASK_DOCKER_CE_ANSIBLE_REQUIREMENTS_FILE}}"
     cmds:
+      - cmd: echo "🔄 Starting install dependencies phase"
+        silent: true
       - defer: { task: cleanup }
       - python$(cut -d '=' -f 2 {{.TASK_DOCKER_CE_PYTHON_VERSION_FILE}}) -m venv {{.TASK_DOCKER_CE_VENV_DIR}}
       - "{{.TASK_DOCKER_CE_VENV_DIR}}/bin/pip install -r {{.TASK_DOCKER_CE_ANSIBLE_REQUIREMENTS_FILE}}"
-      - cmd: echo "✅ Dependencies installed successfully"
+      - cmd: echo "🎉 Install dependencies phase completed successfully"
         silent: true
 
   install:roles:
@@ -81,15 +102,19 @@ tasks:
 
       🔄 Execution:
         Installs required Ansible roles
+    status:
+      - test "{{.TASK_DOCKER_CE_ENABLED}}" = "false"
     deps: [install:dependencies]
     preconditions:
       - sh: "test -f {{.TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS}}"
         msg: "❌ Roles requirements file not found at {{.TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS}}"
     cmds:
+      - cmd: echo "🔄 Starting install roles phase"
+        silent: true
       - mkdir -p .config/docker-ce/roles
       - "{{.TASK_DOCKER_CE_ANSIBLE_GALAXY_CMD}} install -r {{.TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS}} --roles-path .config/docker-ce/roles"
       - "{{.TASK_DOCKER_CE_ANSIBLE_GALAXY_CMD}} collection install -r {{.TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS}}"
-      - cmd: echo "✅ Ansible roles installed successfully"
+      - cmd: echo "🎉 Install roles phase completed successfully"
         silent: true
 
   install:
@@ -113,6 +138,8 @@ tasks:
       - sh: "test -f {{.TASK_DOCKER_CE_ANSIBLE_PLAYBOOK_FILE}}"
         msg: "❌ Playbook file not found at {{.TASK_DOCKER_CE_ANSIBLE_PLAYBOOK_FILE}}"
     cmds:
+      - cmd: echo "🔄 Starting docker-ce installation phase"
+        silent: true
       - defer: { task: cleanup }
       - task: install:roles
       - |
@@ -121,7 +148,7 @@ tasks:
           -c local \
           {{.TASK_DOCKER_CE_ANSIBLE_PLAYBOOK_FILE}} \
           -e 'ansible_python_interpreter=/usr/bin/python3'
-      - cmd: echo "✅ Docker-CE installed successfully"
+      - cmd: echo "🎉 Docker-ce installation phase completed successfully"
         silent: true
 
   cleanup:
@@ -137,10 +164,14 @@ tasks:
       🔄 Execution:
         Removes temporary files and partial installations
     internal: true
+    status:
+      - test "{{.TASK_DOCKER_CE_ENABLED}}" = "false"
     cmds:
+      - cmd: echo "🔄 Starting cleanup phase"
+        silent: true
       - rm -rf {{.TASK_DOCKER_CE_VENV_DIR}}/*.tmp
       - rm -rf {{.TASK_DOCKER_CE_VENV_DIR}}/*.log
-      - cmd: echo "✅ Cleanup completed"
+      - cmd: echo "🎉 Cleanup phase completed successfully"
         silent: true
 
   build:all:dockerfile:
@@ -174,13 +205,19 @@ tasks:
         msg: "❌ sha256sum is not installed or not in PATH. Please install sha256sum first."
       - sh: command -v git >/dev/null 2>&1
         msg: "❌ git is not installed or not in PATH. Please install git first."
+    status:
+      - test "{{.TASK_DOCKER_CE_ENABLED}}" = "false"
     cmds:
+      - cmd: echo "🔄 Starting build all dockerfiles phase"
+        silent: true
       - defer: { task: cleanup }
       - for: { var: DOCKERFILE_LIST }
         cmd: |
           echo "Building Dockerfile: {{.ITEM}}"
           HASH=$(sha256sum {{.ITEM}} | cut -d' ' -f1)
           docker build -t test-build-${HASH} -f {{.ITEM}} .
+      - cmd: echo "🎉 Build all dockerfiles phase completed successfully"
+        silent: true
 
   build:
     desc: |
@@ -192,7 +229,12 @@ tasks:
         - TASK_DOCKER_CE_IMAGE_TAG: Tag for the built image
         - TASK_DOCKER_CE_DOCKERFILE: Path to Dockerfile
         - TASK_DOCKER_CE_CUSTOM_LABELS: Additional custom labels
+    run: "{{.TASK_DOCKER_CE_BUILD_RUN}}"
+    status:
+      - test "{{.TASK_DOCKER_CE_ENABLED}}" = "false"
     cmds:
+      - cmd: echo "🔄 Starting build phase"
+        silent: true
       - |
         echo "Building Docker image..."
         DOCKER_ARGS=""
@@ -206,6 +248,8 @@ tasks:
           -f {{.TASK_DOCKER_CE_DOCKERFILE}} \
           $DOCKER_ARGS \
           {{.TASK_DOCKER_CE_CONTEXT}}
+      - cmd: echo "🎉 Build phase completed successfully"
+        silent: true
 
   push:
     desc: |
@@ -218,7 +262,11 @@ tasks:
         - TASK_DOCKER_CE_REGISTRY_URL: Registry URL
         - TASK_DOCKER_CE_REGISTRY_USERNAME: Registry username
         - TASK_DOCKER_CE_REGISTRY_PASSWORD: Registry password
+    status:
+      - test "{{.TASK_DOCKER_CE_ENABLED}}" = "false"
     cmds:
+      - cmd: echo "🔄 Starting push phase"
+        silent: true
       - |
         if [ "{{.TASK_DOCKER_CE_PUSH}}" = "true" ]; then
           if [ "{{.TASK_DOCKER_CE_AUTH_ENABLED}}" = "true" ]; then
@@ -237,3 +285,5 @@ tasks:
         else
           echo "Skipping push (TASK_DOCKER_CE_PUSH is not true)"
         fi
+      - cmd: echo "🎉 Push phase completed successfully"
+        silent: true

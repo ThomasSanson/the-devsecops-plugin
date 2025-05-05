@@ -9,3 +9,9 @@ tasks:
     desc: Run all generic operate tasks
     status:
       - test "{{.TASK_DEVSECOPS_OPERATE_ENABLED}}" = "false"
+    cmds:
+      - cmd: echo "🔄 Starting operate phase"
+        silent: true
+      - task: :project:operate
+      - cmd: echo "🎉 Operate phase completed successfully"
+        silent: true

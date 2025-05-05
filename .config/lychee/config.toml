@@ -1,9 +1,10 @@
 exclude = [
+  '.*package-lock\.json',
+  'file://*',
   'file://charts/',
-  'https://tidelift.com/funding/github/npm/parse-function',
   'http://localhost',
   'https://dl.k8s.io/release/',
   'https://localhost',
-  'tcp://*',
-  '.*package-lock\.json'
+  'https://tidelift.com/funding/github/npm/parse-function',
+  'tcp://*'
 ]

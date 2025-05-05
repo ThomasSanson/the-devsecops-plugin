@@ -10,8 +10,19 @@ tasks:
   lefthook:install:
     deps: ["install"]
     cmds:
-      - "{{.TASK_LEFTHOOK_BIN_PATH}} install"
-  
+      - cmd: echo "🔄 Starting lefthook:install phase"
+        silent: true
+      - |
+        # Check if we are in a Git repository
+        if git rev-parse --is-inside-work-tree &>/dev/null; then
+          {{.TASK_LEFTHOOK_BIN_PATH}} install
+        else
+          # Skip if not in a Git repository
+          echo "⏩ Skipping Lefthook installation - not in a Git repository"
+        fi
+      - cmd: echo "🎉 Lefthook:install phase completed successfully"
+        silent: true
+
   install:
     desc: Install Lefthook using Go
     summary: |
@@ -33,6 +44,10 @@ tasks:
       - sh: "command -v go >/dev/null 2>&1"
         msg: "❌ Go is not installed or not in PATH"
     cmds:
+      - cmd: echo "🔄 Starting install phase"
+        silent: true
       - go install github.com/evilmartians/lefthook@{{.TASK_LEFTHOOK_VERSION}}
       - cmd: echo "✅ Lefthook {{.TASK_LEFTHOOK_VERSION}} installed successfully at {{.TASK_LEFTHOOK_BIN_PATH}}"
+        silent: true
+      - cmd: echo "🎉 Install phase completed successfully"
         silent: true

@@ -50,6 +50,8 @@ tasks:
         TASK_KANIKO_PUSH: Push the image to registry (default: false)
         TASK_KANIKO_AUTH_ENABLED: Enable registry authentication (default: false)
     cmds:
+      - cmd: echo "🔄 Starting Kaniko image build process"
+        silent: true
       - |
         if [ "{{.TASK_KANIKO_AUTH_ENABLED}}" = "true" ]; then
           echo "Creating secret.json for authentication..."
@@ -95,6 +97,8 @@ tasks:
           $KANIKO_ARGS
 
       - rm -f .config/kaniko/secret.json
+      - cmd: echo "🎉 Kaniko image build process completed successfully"
+        silent: true
 
   warmup:
     desc: |
@@ -104,6 +108,8 @@ tasks:
         TASK_KANIKO_CACHE_REPO: Cache repository path (default: oci:~/tmp/cache)
         TASK_KANIKO_CACHE_TTL: Cache time-to-live (default: 24h)
     cmds:
+      - cmd: echo "🔄 Starting Kaniko cache warmup"
+        silent: true
       - |
         # Create cache directory if it doesn't exist
         mkdir -p $(echo "{{.TASK_KANIKO_CACHE_REPO}}" | sed 's/^oci://')
@@ -114,3 +120,5 @@ tasks:
           {{.TASK_KANIKO_WARMER}} \
           --cache-repo={{.TASK_KANIKO_CACHE_REPO}} \
           --image=debian:12
+      - cmd: echo "🎉 Kaniko cache warmup completed successfully"
+        silent: true

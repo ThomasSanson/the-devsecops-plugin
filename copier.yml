@@ -25,11 +25,36 @@ _exclude:
   - tests/e2e/codeceptjs/output
   - tests/e2e/codeceptjs/screenshots/base/dashboard_after_login.png
   - tests/e2e/codeceptjs/step_definitions/authentication.js
+  - tests/e2e/codeceptjs/step_definitions/copier.js
   - tests/infra/kube/ansible/verify/superset_is_ready.yml
   - tests/infra/kube/ansible/verify/superset_login_page_check.yml
   - tmp
   - venv
   - VERSION
+
+_migrations:
+  # Migration to remove obsolete files when updating to version 8.0.0
+  - version: 8.0.0
+    command: |
+      # Remove obsolete files
+      rm -f tests/infra/kube/cleanup.taskfile.yaml \
+            tests/infra/kube/converge.taskfile.yaml \
+            tests/infra/kube/create.taskfile.yaml \
+            tests/infra/kube/dependency.taskfile.yaml \
+            tests/infra/kube/destroy.taskfile.yaml \
+            tests/infra/kube/idempotence.taskfile.yaml \
+            tests/infra/kube/prepare.taskfile.yaml \
+            tests/infra/kube/side_effect.taskfile.yaml \
+            tests/infra/kube/syntax.taskfile.yaml \
+            tests/infra/kube/verify.taskfile.yaml
+      
+      # Move requirements.yml if it exists in the old location
+      if [ -f tests/infra/kube/requirements.yml ]; then
+        mkdir -p tests/infra/kube/ansible
+        mv -f tests/infra/kube/requirements.yml tests/infra/kube/ansible/requirements.yml
+        echo "⏩ Moved requirements.yml to new location"
+      fi
+    when: "{{ _stage == 'before' }}"
 
 _message_after_copy: |
   Your DevSecOps project has been created successfully!

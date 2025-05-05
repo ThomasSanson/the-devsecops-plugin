@@ -3,28 +3,9 @@ version: "3"
 
 vars:
   TASK_DEVSECOPS_TEST_ENABLED: '{{.TASK_DEVSECOPS_TEST_ENABLED | default "true"}}'
-  TASK_DEVSECOPS_TEST_STEPS_FULL:
-    - test:infra:kube:dependency
-    - test:infra:kube:destroy
-    - test:infra:kube:cleanup
-    - test:infra:kube:syntax
-    - test:infra:kube:create
-    - test:infra:kube:prepare
-    - test:infra:kube:converge
-    - test:infra:kube:idempotence
-    - test:infra:kube:side_effect
-    - test:infra:kube:verify
-    - project:test
-    - test:infra:kube:destroy
-    - test:infra:kube:cleanup
-  TASK_DEVSECOPS_TEST_STEPS_TDD:
-    - test:infra:kube:dependency
-    - test:infra:kube:syntax
-    - test:infra:kube:create
-    - test:infra:kube:prepare
-    - test:infra:kube:converge
-    - test:infra:kube:verify
-    - project:test:tdd
+  TASK_DEVSECOPS_TEST_ANSIBLE_VIRTUALENV: '{{.TASK_DEVSECOPS_TEST_ANSIBLE_VIRTUALENV | default "./venv/ansible"}}'
+  TASK_DEVSECOPS_TEST_KUBECONFIG_DIR: '{{.TASK_DEVSECOPS_TEST_KUBECONFIG_DIR | default "iac/environment/testing"}}'
+  TASK_DEVSECOPS_TEST_KUBECONFIG_FILE: '{{.TASK_DEVSECOPS_TEST_KUBECONFIG_DIR}}/kubeconfig.yaml'
 
 tasks:
   default:
@@ -32,21 +13,260 @@ tasks:
     status:
       - test "{{.TASK_DEVSECOPS_TEST_ENABLED}}" = "false"
     cmds:
-      - for: { var: TASK_DEVSECOPS_TEST_STEPS_FULL }
-        task: ":{{.ITEM}}"
+      - cmd: echo "🔄 Starting test phase"
+        silent: true
+      - task: dependency
+      - task: destroy
+      - task: cleanup
+      - task: syntax
+      - task: create
+      - task: prepare
+      - task: :project:test
+      - task: side_effect
+      - task: verify
+      - task: destroy
+      - task: cleanup
+      - cmd: echo "🎉 Test phase completed successfully"
+        silent: true
 
   tdd:
     desc: Run all tdd tests tasks
     status:
       - test "{{.TASK_DEVSECOPS_TEST_ENABLED}}" = "false"
     cmds:
-      - for: { var: TASK_DEVSECOPS_TEST_STEPS_TDD }
-        task: ":{{.ITEM}}"
+      - cmd: echo "🔄 Starting tdd phase"
+        silent: true
+      - task: dependency
+      - task: syntax
+      - task: create
+      - task: prepare
+      - task: :project:test:tdd
+      - task: verify
+      - cmd: echo "🎉 Tdd phase completed successfully"
+        silent: true
 
   reset:
     desc: Reset infra
     status:
       - test "{{.TASK_DEVSECOPS_TEST_ENABLED}}" = "false"
     cmds:
-      - task: :test:infra:kube:destroy
-      - task: :test:infra:kube:cleanup
+      - cmd: echo "🔄 Starting reset phase"
+        silent: true
+      - task: destroy
+      - task: cleanup
+      - cmd: echo "🎉 Reset phase completed successfully"
+        silent: true
+
+  destroy:
+    desc: |
+      ℹ️ Description:
+        Destroys the test infrastructure
+    cmds:
+      - cmd: echo "🔄 Starting destroy phase"
+        silent: true
+      - task: :k3d:destroy:cluster
+      - cmd: echo "🎉 Destroy phase completed successfully"
+        silent: true
+
+  dependency:
+    desc: Verify and install required dependencies tools for testing
+    cmds:
+      - cmd: echo "🔄 Starting dependency phase"
+        silent: true
+      # Install Ansible and its dependencies first
+      - task: :ansible:install
+      # Verify Go installation
+      - task: :go:install
+      # Verify kubectl installation
+      - task: :kubectl:install
+      # Verify k3d installation
+      - task: :k3d:install
+      # Verify kubeseal installation
+      - task: :kubeseal:install
+      # Verify helm installation
+      - task: :helm:install
+      # Install infrastructure test collections
+      - task: :ansible:galaxy:collection:install
+        vars:
+          TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE: tests/infra/kube/ansible/requirements.yml
+      - cmd: echo "🎉 Dependency phase completed successfully"
+        silent: true
+
+  cleanup:
+    desc: |
+      ℹ️ Description:
+        Performs cleanup operations in the following order:
+        1. Removes kubeconfig files
+        2. Removes sealed secrets files
+        3. Removes Helm chart archives
+    cmds:
+      - cmd: echo "🔄 Starting cleanup phase"
+        silent: true
+      - task: cleanup:kubeconfig
+      - task: cleanup:sealed-secrets
+      - task: cleanup:helm
+      - cmd: echo "🎉 Cleanup phase completed successfully"
+        silent: true
+
+  cleanup:kubeconfig:
+    desc: |
+      ℹ️ Description:
+        Removes the kubeconfig file if it exists
+
+      🔧 Variables:
+        - TASK_DEVSECOPS_TEST_KUBECONFIG_FILE: Path to kubeconfig file
+    status:
+      - test ! -f {{.TASK_DEVSECOPS_TEST_KUBECONFIG_FILE}}
+    cmds:
+      - cmd: echo "🔄 Starting kubeconfig cleanup"
+        silent: true
+      - rm -f {{.TASK_DEVSECOPS_TEST_KUBECONFIG_FILE}}
+      - cmd: echo "🎉 Kubeconfig cleanup completed successfully"
+        silent: true
+
+  cleanup:sealed-secrets:
+    desc: |
+      ℹ️ Description:
+        Removes sealed secrets files from the environment directory
+
+      🔧 Variables:
+        - TASK_DEVSECOPS_TEST_KUBECONFIG_DIR: Environment directory containing sealed secrets
+    status:
+      - test ! -f {{.TASK_DEVSECOPS_TEST_KUBECONFIG_DIR}}/sealed-secrets.yaml
+      - test ! -f {{.TASK_DEVSECOPS_TEST_KUBECONFIG_DIR}}/.secrets.hash
+    cmds:
+      - cmd: echo "🔄 Starting sealed secrets cleanup"
+        silent: true
+      - rm -f {{.TASK_DEVSECOPS_TEST_KUBECONFIG_DIR}}/sealed-secrets.yaml
+      - rm -f {{.TASK_DEVSECOPS_TEST_KUBECONFIG_DIR}}/.secrets.hash
+      - cmd: echo "🎉 Sealed secrets cleanup completed successfully"
+        silent: true
+
+  cleanup:helm:
+    desc: |
+      ℹ️ Description:
+        Removes downloaded Helm chart archives (*.tgz files)
+
+      🔧 Variables:
+        None - Removes all .tgz files from iac/helm directory
+    status:
+      - test -z "$(find iac/helm -name '*.tgz' 2>/dev/null)"
+    cmds:
+      - cmd: echo "🔄 Starting Helm chart cleanup"
+        silent: true
+      - rm -f iac/helm/**/*.tgz
+      - cmd: echo "🎉 Helm chart cleanup completed successfully"
+        silent: true
+
+  syntax:
+    desc: Perform syntax checks and linting
+    cmds:
+      - cmd: echo "🔄 Starting syntax phase"
+        silent: true
+      - task: :helm:lint
+      - task: :ansible:syntax-check
+        vars: { TASK_ANSIBLE_PLAYBOOK_DIR: "tests/infra/kube/ansible" }
+      - cmd: echo "🎉 Syntax phase completed successfully"
+        silent: true
+
+  create:
+    desc: |
+      ℹ️ Description:
+        Creates and verifies the test infrastructure
+
+      🔄 Execution:
+        1. Creates k3d cluster
+        2. Verifies all components are running
+    cmds:
+      - cmd: echo "🔄 Starting create phase"
+        silent: true
+      - task: :k3d:create:ensure:kubeconfig
+      - task: :k3d:create:cluster
+      - task: :k3d:create:cluster:verify
+      - cmd: echo "🎉 Create phase completed successfully"
+        silent: true
+
+  prepare:
+    desc: |
+      ℹ️ Description:
+        Prepares the test infrastructure with required components
+    cmds:
+      - cmd: echo "🔄 Starting prepare phase"
+        silent: true
+      - task: :devsecops:deploy:bootstrap
+      - cmd: echo "🎉 Prepare phase completed successfully"
+        silent: true
+
+  check-testing-environment:
+    internal: true
+    desc: Check if any of the KUBECONFIG variables contain "testing" and run TDD tests if so
+    status:
+      - test -v ENV && test -n "$ENV"
+    cmds:
+      - cmd: echo "🔄 Starting check-testing-environment phase"
+        silent: true
+      - task: dependency
+      - task: create
+      - cmd: echo "🎉 Check-testing-environment phase completed successfully"
+        silent: true
+
+  side_effect:
+    desc: |
+      ℹ️ Description:
+        Simulates side effects to test system resilience in the following order:
+        1. Executes Ansible playbooks that disrupt normal operation
+        2. Waits for automatic recovery mechanisms to engage
+    cmds:
+      - cmd: echo "🔄 Starting side effect simulation phase"
+        silent: true
+      - task: side_effect:ansible
+      - cmd: echo "🎉 Side effect simulation phase completed successfully"
+        silent: true
+
+  side_effect:ansible:
+    desc: |
+      ℹ️ Description:
+        Executes infrastructure disruption playbooks
+
+      🔧 Variables:
+        - TASK_DEVSECOPS_TEST_ANSIBLE_VIRTUALENV: Path to Ansible virtual environment
+    cmds:
+      - cmd: echo "🔄 Starting ansible side effect disruption"
+        silent: true
+      - |
+        find tests/infra/kube/ansible/side_effects -type f \( -name "*.yml" -o -name "*.yaml" \) | while read playbook; do
+          echo "⚠️ Executing side effect playbook: $playbook"
+          {{.TASK_DEVSECOPS_TEST_ANSIBLE_VIRTUALENV}}/bin/ansible-playbook "$playbook"
+        done
+      - cmd: echo "🎉 Ansible side effect disruption completed successfully"
+        silent: true
+
+  verify:
+    desc: |
+      ℹ️ Description:
+        Performs verification operations in the following order:
+        1. Executes Ansible verification playbooks
+    cmds:
+      - cmd: echo "🔄 Starting verification phase"
+        silent: true
+      - task: verify:ansible
+      - cmd: echo "🎉 Verification phase completed successfully"
+        silent: true
+
+  verify:ansible:
+    desc: |
+      ℹ️ Description:
+        Executes infrastructure verification playbooks
+
+      🔧 Variables:
+        - TASK_DEVSECOPS_TEST_ANSIBLE_VIRTUALENV: Path to Ansible virtual environment
+    cmds:
+      - cmd: echo "🔄 Starting ansible verification"
+        silent: true
+      - |
+        find tests/infra/kube/ansible/verify -type f \( -name "*.yml" -o -name "*.yaml" \) | while read playbook; do
+          echo "🔎 Executing verification playbook: $playbook"
+          {{.TASK_DEVSECOPS_TEST_ANSIBLE_VIRTUALENV}}/bin/ansible-playbook "$playbook"
+        done
+      - cmd: echo "🎉 Ansible verification completed successfully"
+        silent: true

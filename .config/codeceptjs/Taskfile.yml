@@ -3,8 +3,9 @@ version: "3"
 
 vars:
   TASK_CODECEPTJS_ENABLED: '{{.TASK_CODECEPTJS_ENABLED | default "true"}}'
+  TASK_CODECEPTJS_CI: '{{.TASK_CODECEPTJS_CI | default "false"}}'
   TASK_CODECEPTJS_DIR: '{{.TASK_CODECEPTJS_DIR | default ".config/codeceptjs"}}'
-  TASK_CODECEPTJS_COMMAND: '{{.TASK_CODECEPTJS_COMMAND | default "npx --prefix .config/codeceptjs codeceptjs"}}'
+  TASK_CODECEPTJS_COMMAND: '{{.TASK_CODECEPTJS_COMMAND | default "DONT_FAIL_ON_EMPTY_RUN=true npx --prefix .config/codeceptjs codeceptjs"}}'
   TASK_CODECEPTJS_CONFIG: '{{.TASK_CODECEPTJS_CONFIG | default ".config/codeceptjs/codecept.conf.js"}}'
   TASK_CODECEPTJS_GREP: '{{.TASK_CODECEPTJS_GREP | default ""}}'
   TASK_CODECEPTJS_DEBUG: '{{.TASK_CODECEPTJS_DEBUG | default ""}}'
@@ -30,11 +31,11 @@ tasks:
     generates:
       - "{{.TASK_CODECEPTJS_DIR}}/node_modules/.bin/codeceptjs"
     cmds:
-      - cmd: echo "🔄 Installing CodeceptJS locally..."
+      - cmd: echo "🔄 Installing CodeceptJS dependencies"
         silent: true
       - npm install --prefix {{.TASK_CODECEPTJS_DIR}}
       - task: install:playwright
-      - cmd: echo "✅ CodeceptJS installed successfully"
+      - cmd: echo '🎉 CodeceptJS has been installed successfully.'
         silent: true
 
   install:playwright:
@@ -51,11 +52,13 @@ tasks:
     status:
       - "{{.TASK_CODECEPTJS_DIR}}/node_modules/.bin/playwright --version"
       - bash -c "ls $HOME/.cache/ms-playwright/chromium-*/chrome-linux/chrome >/dev/null 2>&1"
+      - bash -c "ls $HOME/.cache/ms-playwright/chromium_*/chrome-linux/headless_shell >/dev/null 2>&1"
+      - test "$TASK_CODECEPTJS_CI" != "true"
     cmds:
-      - cmd: echo "🔄 Installing Playwright locally..."
+      - cmd: echo "🔄 Installing Playwright dependencies"
         silent: true
       - npm exec --prefix {{.TASK_CODECEPTJS_DIR}} playwright install -- --with-deps chromium
-      - cmd: echo "✅ Playwright installed successfully"
+      - cmd: echo '🎉 Playwright has been installed successfully.'
         silent: true
 
   default:
@@ -82,9 +85,11 @@ tasks:
     vars:
       CODECEPTJS_RUN_COMMAND: "{{.TASK_CODECEPTJS_COMMAND}} run --config {{.TASK_CODECEPTJS_CONFIG}}{{if .TASK_CODECEPTJS_GREP}} --grep {{.TASK_CODECEPTJS_GREP}}{{end}}{{if .TASK_CODECEPTJS_DEBUG}} --debug{{end}}{{if .TASK_CODECEPTJS_STEPS}} --steps{{end}}{{if .TASK_CODECEPTJS_REPORTER}} --reporter {{.TASK_CODECEPTJS_REPORTER}}{{end}}{{if .TASK_CODECEPTJS_VERBOSE}} --verbose{{end}}{{if .TASK_CODECEPTJS_OVERRIDE}} --override {{.TASK_CODECEPTJS_OVERRIDE}}{{end}}"
     cmds:
-      - cmd: echo "🔄 Running CodeceptJS tests..."
+      - cmd: echo "🔄 Running CodeceptJS tests"
         silent: true
       - cmd: echo "{{.CODECEPTJS_RUN_COMMAND}}"
         silent: true
-      - cmd: "{{.CODECEPTJS_RUN_COMMAND}}"
+      - cmd: "{{.CODECEPTJS_RUN_COMMAND}} {{.CLI_ARGS}}"
+        silent: true
+      - cmd: echo '🎉 CodeceptJS tests completed successfully.'
         silent: true

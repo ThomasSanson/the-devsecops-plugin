@@ -28,7 +28,13 @@ vars:
       elif [ -n "$GIT_BRANCH" ]; then
         echo "$GIT_BRANCH"
       else
-        git rev-parse --abbrev-ref HEAD
+        # Check if we are in a Git repository
+        if git rev-parse --is-inside-work-tree &>/dev/null; then
+          git rev-parse --abbrev-ref HEAD
+        else
+          # Default value if we are not in a Git repository
+          echo "main"
+        fi
       fi
 
 tasks:
@@ -56,7 +62,11 @@ tasks:
       📝 Note:
         This task should be executed when creating a new commit.
     cmds:
+      - cmd: echo "🔄 Starting Commitizen commit message formatting"
+        silent: true
       - "{{.TASK_COMMITIZEN_COMMAND}} --config {{.TASK_COMMITIZEN_CONFIG_FULL_PATH}} {{.TASK_COMMITIZEN_CLI_OPTS}} commit {{.CLI_ARGS}}"
+      - cmd: echo '🎉 Commitizen commit message formatting completed.'
+        silent: true
 
   install:
     desc: Set up Commitizen in a virtual environment.
@@ -101,9 +111,11 @@ tasks:
       - |
         {{.TASK_COMMITIZEN_COMMAND}} version | grep -q $(awk -F '==' '{print $2}' {{.TASK_COMMITIZEN_REQUIREMENTS_FILE}})
     cmds:
+      - cmd: echo "🔄 Setting up Commitizen virtual environment"
+        silent: true
       - python$(cut -d '=' -f 2 {{.TASK_COMMITIZEN_PYTHON_VERSION_FILE}}) -m venv {{.TASK_COMMITIZEN_VIRTUALENV}}
       - "{{.TASK_COMMITIZEN_VIRTUALENV}}/bin/pip install -r {{.TASK_COMMITIZEN_REQUIREMENTS_FILE}}"
-      - cmd: echo "✅ Commitizen and dependencies are successfully installed in the virtual environment."
+      - cmd: echo '🎉 Commitizen and dependencies installed successfully.'
         silent: true
 
   check:
@@ -133,15 +145,15 @@ tasks:
     status:
       - test "{{.TASK_COMMITIZEN_ENABLED}}" = "false"
     vars:
-      COMMITIZEN_CHECK_COMMAND:
+      TASK_COMMITIZEN_COMMAND:
         sh: echo "{{.TASK_COMMITIZEN_COMMAND}} --config {{.TASK_COMMITIZEN_CONFIG_FULL_PATH}} {{.TASK_COMMITIZEN_CLI_OPTS}} check {{.TASK_COMMITIZEN_CLI_CHECK_OPTS}}"
     cmds:
-      - cmd: echo "🔄 Running commitizen check..."
+      - cmd: echo "🔄 Running Commitizen check"
         silent: true
-      - cmd: echo "{{.COMMITIZEN_CHECK_COMMAND}}"
+      - cmd: echo "{{.TASK_COMMITIZEN_COMMAND}}"
         silent: true
       - cmd: |
-          if {{.COMMITIZEN_CHECK_COMMAND}}; then
+          if {{.TASK_COMMITIZEN_COMMAND}}; then
             echo "🎉 All commits successfully verified with Commitizen!"
           else
             exit_code=$?
@@ -152,6 +164,7 @@ tasks:
               exit $exit_code
             fi
           fi
+      - cmd: echo '🎉 Commitizen check completed.'
         silent: true
 
   bump:
@@ -216,7 +229,7 @@ tasks:
     status:
       - test "{{.TASK_COMMITIZEN_ENABLED}}" = "false"
     cmds:
-      - cmd: echo "🔄 Running commitizen bump..."
+      - cmd: echo "🔄 Running Commitizen version bump"
         silent: true
       - cmd: echo "{{.COMMITIZEN_BUMP_COMMAND}}"
         silent: true
@@ -239,4 +252,36 @@ tasks:
           else
             echo "🎉 Version bump completed successfully!"
           fi
+        silent: true
+      - cmd: echo '🎉 Commitizen version bump process completed.'
+        silent: true
+
+  check-message:
+    desc: Check a specific commit message file using Commitizen (for commit-msg hook).
+    deps: [install]
+    summary: |
+      ℹ️ Description:
+        Runs 'cz check --commit-msg-file' on a specific file provided as an argument.
+        This is intended for use with the git commit-msg hook.
+
+      🔧 Arguments:
+        - COMMIT_MSG_FILE: Path to the commit message file (passed to the task).
+
+      🔄 Execution:
+        Runs Commitizen check on the specified file.
+    vars:
+      TASK_COMMITIZEN_COMMAND: "{{.TASK_COMMITIZEN_COMMAND}} check --commit-msg-file {{.COMMIT_MSG_FILE}}"
+      _RED: '{{.RED | default "\033[0;31m"}}'
+      _GREEN: '{{.GREEN | default "\033[0;32m"}}'
+      _NC: '{{.NC | default "\033[0m"}}'
+    cmds:
+      - cmd: echo "🔄 Checking commit message file {{.COMMIT_MSG_FILE}} with Commitizen"
+        silent: true
+      - cmd: |
+          # Run cz check and capture the exit status
+          if ! {{.TASK_COMMITIZEN_COMMAND}}; then
+            echo -e "{{._RED}}❌ Commitizen check failed. Please fix the message in your editor or use 'git commit --amend'.{{.NC}}"
+            exit 1
+          fi
+      - cmd: echo '🎉 Commit message passed Commitizen checks.'
         silent: true

@@ -47,9 +47,11 @@ tasks:
       - sh: "test -f {{.TASK_HELM_ANSIBLE_REQUIREMENTS_FILE}}"
         msg: "❌ Requirements file not found at {{.TASK_HELM_ANSIBLE_REQUIREMENTS_FILE}}"
     cmds:
+      - cmd: echo "🔄 Starting install dependencies phase"
+        silent: true
       - python$(cut -d '=' -f 2 {{.TASK_HELM_PYTHON_VERSION_FILE}}) -m venv {{.TASK_HELM_VENV_DIR}}
       - "{{.TASK_HELM_VENV_DIR}}/bin/pip install -r {{.TASK_HELM_ANSIBLE_REQUIREMENTS_FILE}}"
-      - cmd: echo "✅ Dependencies installed successfully"
+      - cmd: echo "🎉 Install dependencies phase completed successfully"
         silent: true
 
   install:roles:
@@ -71,9 +73,11 @@ tasks:
       - sh: "test -f {{.TASK_HELM_ANSIBLE_ROLES_REQUIREMENTS}}"
         msg: "❌ Roles requirements file not found at {{.TASK_HELM_ANSIBLE_ROLES_REQUIREMENTS}}"
     cmds:
+      - cmd: echo "🔄 Starting install roles phase"
+        silent: true
       - mkdir -p .config/helm/roles
       - "{{.TASK_HELM_ANSIBLE_GALAXY_CMD}} install -r {{.TASK_HELM_ANSIBLE_ROLES_REQUIREMENTS}} --roles-path .config/helm/roles"
-      - cmd: echo "✅ Ansible roles installed successfully"
+      - cmd: echo "🎉 Install roles phase completed successfully"
         silent: true
 
   install:
@@ -98,6 +102,8 @@ tasks:
       - sh: "test -f {{.TASK_HELM_ANSIBLE_PLAYBOOK_FILE}}"
         msg: "❌ Playbook file not found at {{.TASK_HELM_ANSIBLE_PLAYBOOK_FILE}}"
     cmds:
+      - cmd: echo "🔄 Starting helm installation phase"
+        silent: true
       - defer: { task: cleanup }
       - task: install:roles
       - |
@@ -106,14 +112,18 @@ tasks:
           -c local \
           -e "helm_version={{.TASK_HELM_MAJOR_VERSION}}" \
           {{.TASK_HELM_ANSIBLE_PLAYBOOK_FILE}}
-      - cmd: echo "✅ Helm installed successfully"
+      - cmd: echo "🎉 Helm installation phase completed successfully"
         silent: true
 
   cleanup:
     internal: true
     cmds:
+      - cmd: echo "🔄 Starting cleanup phase"
+        silent: true
       - rm -rf .config/helm/roles
       - rm -rf {{.TASK_HELM_VENV_DIR}}
+      - cmd: echo "🎉 Cleanup phase completed successfully"
+        silent: true
 
   dependency:update:
     desc: |
@@ -132,9 +142,11 @@ tasks:
         msg: ❌ Helm Chart.yaml not found at {{.TASK_HELM_DIR}}/Chart.yaml
     run: once
     cmds:
-      - cmd: echo "🔧 Update Helm dependencies..."
+      - cmd: echo "🔄 Starting dependency update phase"
         silent: true
       - helm dependency update {{.TASK_HELM_DIR}}
+      - cmd: echo "🎉 Dependency update phase completed successfully"
+        silent: true
 
   build:
     desc: |
@@ -161,11 +173,13 @@ tasks:
       - sh: test -f {{.TASK_HELM_DIR}}/Chart.yaml
         msg: "❌ Helm Chart.yaml not found at {{.TASK_HELM_DIR}}/Chart.yaml"
     cmds:
+      - cmd: echo "🔄 Starting build phase"
+        silent: true
       - mkdir -p {{.TASK_HELM_BUILD_DESTINATION}}
       - cmd: echo "🔧 Building Helm chart from {{.TASK_HELM_DIR}} to {{.TASK_HELM_BUILD_DESTINATION}}..."
         silent: true
       - helm package {{.TASK_HELM_DIR}} --destination {{.TASK_HELM_BUILD_DESTINATION}} {{.TASK_HELM_DEPENDENCY_UPDATE}} {{.TASK_HELM_CLI_OPTS}}
-      - cmd: echo "✅ Helm chart built successfully in {{.TASK_HELM_BUILD_DESTINATION}}"
+      - cmd: echo "🎉 Build phase completed successfully"
         silent: true
 
   lint:
@@ -189,6 +203,10 @@ tasks:
       - sh: test -f {{.TASK_HELM_DIR}}/Chart.yaml
         msg: "❌ Helm Chart.yaml not found at {{.TASK_HELM_DIR}}/Chart.yaml"
     cmds:
+      - cmd: echo "🔄 Starting lint phase"
+        silent: true
       - |
         echo "Linting Helm chart in {{.TASK_HELM_DIR}}"
         helm lint "{{.TASK_HELM_DIR}}"
+      - cmd: echo "🎉 Lint phase completed successfully"
+        silent: true

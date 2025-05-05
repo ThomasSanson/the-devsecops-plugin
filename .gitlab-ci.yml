@@ -37,6 +37,7 @@ variables:
   TASK_DEV_INIT_GIT_SERVER_HOST: $CI_SERVER_HOST
   TASK_DEV_INIT_GIT_USER_NAME: $GITLAB_USER_LOGIN
   TASK_DEV_INIT_GIT_USER_EMAIL: $GITLAB_USER_EMAIL
+  TASK_CODECEPTJS_CI: "true"
 
 services:
   # kics-scan ignore-line
@@ -76,7 +77,7 @@ plan:
 
 code:
   stage: code
-  retry: 2
+  retry: 1
   needs: []  # Allows parallel execution
   script:
     - task code
@@ -106,7 +107,7 @@ test:
 
 release:
   stage: release
-  needs: []  # Allows parallel execution
+  needs: ["code", "build", "test"]
   variables:
     # Variables for commitizen bump (likely used within 'task release')
     TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH: $CI_COMMIT_BRANCH
@@ -128,24 +129,26 @@ release:
 
 deploy:
   stage: deploy
-  needs: []  # Allows parallel execution
+  needs: []
+  variables:
+    TASK_K3D_CLUSTER_NAME: ${CI_COMMIT_SHORT_SHA}-release
   script:
     - task deploy
 
 operate:
   stage: operate
-  needs: []  # Allows parallel execution
+  needs: ["deploy"]
   script:
     - task operate
 
 monitor:
   stage: monitor
-  needs: []  # Allows parallel execution
+  needs: ["deploy"]
   script:
     - task monitor
 
 feedback:
   stage: feedback
-  needs: []  # Allows parallel execution
+  needs: ["deploy"]
   script:
     - task feedback

@@ -9,3 +9,9 @@ tasks:
     desc: Run all generic plan tasks
     status:
       - test "{{.TASK_DEVSECOPS_PLAN_ENABLED}}" = "false"
+    cmds:
+      - cmd: echo "🔄 Starting plan phase"
+        silent: true
+      - task: :project:plan
+      - cmd: echo "🎉 Plan phase completed successfully"
+        silent: true

@@ -10,24 +10,24 @@ tasks:
     status:
       - test "{{.TASK_DEVSECOPS_DEPLOY_ENABLED}}" = "false"
     cmds:
-      - task: check-testing-environment
+      - cmd: echo "🔄 Starting deploy phase"
+        silent: true
+      - task: :devsecops:test:check-testing-environment
       - task: bootstrap
+      - task: :project:deploy
+      - cmd: echo "🎉 Deploy phase completed successfully"
+        silent: true
 
   bootstrap:
     desc: |
       ℹ️ Description:
         Prepares the infrastructure with required components
     cmds:
+      - cmd: echo "🔄 Starting deploy bootstrap"
+        silent: true
       - task: :helm:dependency:update
       - task: :helm:build
       - task: :sealed-secrets:install
       - task: :kubeseal:seal
-
-  check-testing-environment:
-    internal: true
-    desc: Check if any of the KUBECONFIG variables contain "testing" and run TDD tests if so
-    status:
-      - test -v ENV && test -n "$ENV"
-    cmds:
-      - task: :test:infra:kube:dependency
-      - task: :test:infra:kube:create
+      - cmd: echo "🎉 Deploy bootstrap completed successfully"
+        silent: true

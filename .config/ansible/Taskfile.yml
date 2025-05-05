@@ -10,7 +10,7 @@ vars:
   TASK_ANSIBLE_CLI_CHECK_OPTS: '{{.TASK_ANSIBLE_CLI_CHECK_OPTS | default "--check"}}'
   TASK_ANSIBLE_PYTHON_VERSION_FILE: '{{.TASK_ANSIBLE_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
   TASK_ANSIBLE_REQUIREMENTS_FILE: '{{.TASK_ANSIBLE_REQUIREMENTS_FILE | default ".config/ansible/requirements.txt"}}'
-  TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE: '{{.TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE | default "tests/infra/kube/requirements.yml"}}'
+  TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE: '{{.TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE | default "tests/infra/kube/ansible/requirements.yml"}}'
   TASK_ANSIBLE_PLAYBOOK_DIR: '{{.TASK_ANSIBLE_PLAYBOOK_DIR | default ""}}'
 
 tasks:
@@ -38,11 +38,15 @@ tasks:
       📝 Note:
         This task should be executed to verify ansible installation and configuration.
     cmds:
+      - cmd: echo "🔄 Starting default task"
+        silent: true
       - |
         source {{.TASK_ANSIBLE_VIRTUALENV}}/bin/activate && \
         {{.TASK_ANSIBLE_COMMAND}} --version && \
         echo "Ansible Configuration:" && \
         echo "- Config File: {{.TASK_ANSIBLE_CONFIG_FULL_PATH}}"
+      - cmd: echo '🎉 Default task completed successfully.'
+        silent: true
 
   install:
     desc: Set up Ansible in a virtual environment.
@@ -87,9 +91,11 @@ tasks:
       - |
         {{.TASK_ANSIBLE_VIRTUALENV}}/bin/ansible --version | grep -q $(awk -F '==' '/ansible-core==/{print $2}' {{.TASK_ANSIBLE_REQUIREMENTS_FILE}})
     cmds:
+      - cmd: echo "🔄 Setting up the virtual environment"
+        silent: true
       - python$(cut -d '=' -f 2 {{.TASK_ANSIBLE_PYTHON_VERSION_FILE}}) -m venv {{.TASK_ANSIBLE_VIRTUALENV}}
       - "{{.TASK_ANSIBLE_VIRTUALENV}}/bin/pip install -r {{.TASK_ANSIBLE_REQUIREMENTS_FILE}}"
-      - cmd: echo "✅ Ansible and dependencies are successfully installed in the virtual environment."
+      - cmd: echo '🎉 Ansible and dependencies installed successfully.'
         silent: true
 
   galaxy:collection:install:
@@ -139,11 +145,11 @@ tasks:
             } \
         }'
     cmds:
-      - cmd: echo "📦 Installing collections..."
+      - cmd: echo "🔄 Installing Ansible collections"
         silent: true
       - |
         {{.TASK_ANSIBLE_VIRTUALENV}}/bin/ansible-galaxy collection install -r {{.TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE}}
-      - cmd: echo "✅ Ansible collections successfully installed."
+      - cmd: echo '🎉 Collections installed successfully.'
         silent: true
 
   syntax-check:
@@ -169,6 +175,8 @@ tasks:
       - sh: test -d {{.TASK_ANSIBLE_PLAYBOOK_DIR}}
         msg: "❌ Playbook directory '{{.TASK_ANSIBLE_PLAYBOOK_DIR}}' not found or not specified via TASK_ANSIBLE_PLAYBOOK_DIR."
     cmds:
+      - cmd: echo "🔄 Checking playbook syntax"
+        silent: true
       - |
         playbook_dir="{{.TASK_ANSIBLE_PLAYBOOK_DIR}}"
         echo "Checking syntax in directory: $playbook_dir"
@@ -179,5 +187,5 @@ tasks:
             {{.TASK_ANSIBLE_COMMAND}}-playbook --inventory localhost, --connection local --syntax-check "$playbook" # DevSkim: ignore DS162092
           fi
         done
-      - cmd: echo "✅ Syntax check complete."
+      - cmd: echo '🎉 Syntax check completed successfully.'
         silent: true

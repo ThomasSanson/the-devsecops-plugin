@@ -1,23 +1,22 @@
-/* global inject, Given, When, Then */
-const { I } = inject()
+const { I } = inject() // eslint-disable-line no-undef
 
-Given('I am on the Superset login page', () => {
+Given('I am on the Superset login page', () => { // eslint-disable-line no-undef
   I.amOnPage('/login')
 })
 
-When('I attempt to log in with admin credentials', () => {
+When('I attempt to log in with admin credentials', () => { // eslint-disable-line no-undef
   I.waitForElement('form', 10)
   I.fillField('username', 'admin')
   I.fillField('password', 'admin')
   I.click('input[type="submit"]')
 })
 
-Then('I should be successfully logged in', () => {
+Then('I should be successfully logged in', () => { // eslint-disable-line no-undef
   I.waitForElement('.dashboard-grid, .dashboard-header, .navbar-brand', 10)
   I.see('Dashboards')
 })
 
-Then('I should see the dashboard page displayed correctly', () => {
+Then('I should see the dashboard page displayed correctly', () => { // eslint-disable-line no-undef
   I.waitForElement('.dashboard-grid, .dashboard-header, .navbar-brand', 10)
   I.waitForElement('.ant-empty, .ant-empty-description, .ant-empty-footer, .ant-btn', 10)
 

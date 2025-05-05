@@ -9,3 +9,9 @@ tasks:
     desc: Run all generic monitor tasks
     status:
       - test "{{.TASK_DEVSECOPS_MONITOR_ENABLED}}" = "false"
+    cmds:
+      - cmd: echo "🔄 Starting monitor phase"
+        silent: true
+      - task: :project:monitor
+      - cmd: echo "🎉 Monitor phase completed successfully"
+        silent: true

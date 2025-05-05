@@ -5,60 +5,84 @@ tasks:
   plan:
     desc: Run project-specific plan tasks
     cmds:
-      - cmd: echo "Running project-specific plan tasks..."
+      - cmd: echo "🚀 Starting project plan phase"
+        silent: true
+      - cmd: echo "✅ Project Plan phase completed successfully"
         silent: true
 
   code:
     desc: Run project-specific code tasks
     cmds:
-      - cmd: echo "Running project-specific code tasks..."
+      - cmd: echo "🚀 Starting project code phase"
+        silent: true
+      - cmd: echo "✅ Project Code phase completed successfully"
         silent: true
 
   build:
     desc: Run project-specific build tasks
     cmds:
-      - cmd: echo "Running project-specific build tasks..."
+      - cmd: echo "🚀 Starting project build phase"
+        silent: true
+      - cmd: echo "✅ Project Build phase completed successfully"
         silent: true
 
   test:
     desc: Run project-specific test tasks
     cmds:
-      - cmd: echo "Running project-specific test tasks..."
+      - cmd: echo "🚀 Starting project test phase"
         silent: true
       - task: test:tdd
+      - cmd: echo "✅ Project Test phase completed successfully"
+        silent: true
 
   test:tdd:
     desc: Run project-specific TDD test tasks
+    deps: [build]
     cmds:
-      - cmd: echo "Running project-specific TDD test tasks..."
+      - cmd: echo "🚀 Starting project TDD test phase"
+        silent: true
+      - task: :deploy
+      - task: :codeceptjs
+      - cmd: echo "✅ Project TDD test phase completed successfully"
         silent: true
 
   release:
     desc: Run project-specific release tasks
     cmds:
-      - cmd: echo "Running project-specific release tasks..."
+      - cmd: echo "🚀 Starting project release phase"
+        silent: true
+      - cmd: echo "✅ Project Release phase completed successfully"
         silent: true
 
   deploy:
     desc: Run project-specific deploy tasks
+    deps: [build]
     cmds:
-      - cmd: echo "Running project-specific deploy tasks..."
+      - cmd: echo "🚀 Starting project deploy phase"
+        silent: true
+      - cmd: echo "✅ Project Deploy phase completed successfully"
         silent: true
 
   operate:
     desc: Run project-specific operate tasks
     cmds:
-      - cmd: echo "Running project-specific operate tasks..."
+      - cmd: echo "🚀 Starting project operate phase"
+        silent: true
+      - cmd: echo "✅ Project Operate phase completed successfully"
         silent: true
 
   monitor:
     desc: Run project-specific monitor tasks
     cmds:
-      - cmd: echo "Running project-specific monitor tasks..."
+      - cmd: echo "🚀 Starting project monitor phase"
+        silent: true
+      - cmd: echo "✅ Project Monitor phase completed successfully"
         silent: true
 
   feedback:
     desc: Run project-specific feedback tasks
     cmds:
-      - cmd: echo "Running project-specific feedback tasks..."
+      - cmd: echo "🚀 Starting project feedback phase"
+        silent: true
+      - cmd: echo "✅ Project Feedback phase completed successfully"
         silent: true
