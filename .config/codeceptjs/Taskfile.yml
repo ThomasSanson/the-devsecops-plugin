@@ -5,7 +5,7 @@ vars:
   TASK_CODECEPTJS_ENABLED: '{{.TASK_CODECEPTJS_ENABLED | default "true"}}'
   TASK_CODECEPTJS_CI: '{{.TASK_CODECEPTJS_CI | default "false"}}'
   TASK_CODECEPTJS_DIR: '{{.TASK_CODECEPTJS_DIR | default ".config/codeceptjs"}}'
-  TASK_CODECEPTJS_COMMAND: '{{.TASK_CODECEPTJS_COMMAND | default "npx --prefix .config/codeceptjs codeceptjs"}}'
+  TASK_CODECEPTJS_COMMAND: '{{.TASK_CODECEPTJS_COMMAND | default "DONT_FAIL_ON_EMPTY_RUN=true npx --prefix .config/codeceptjs codeceptjs"}}'
   TASK_CODECEPTJS_CONFIG: '{{.TASK_CODECEPTJS_CONFIG | default ".config/codeceptjs/codecept.conf.js"}}'
   TASK_CODECEPTJS_GREP: '{{.TASK_CODECEPTJS_GREP | default ""}}'
   TASK_CODECEPTJS_DEBUG: '{{.TASK_CODECEPTJS_DEBUG | default ""}}'
