@@ -17,6 +17,7 @@ vars:
   TASK_K3D_PYTHON_VERSION_FILE: '{{.TASK_K3D_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
   TASK_K3D_VENV_DIR: '{{.TASK_K3D_VENV_DIR | default "./venv/k3d"}}'
   TASK_K3D_VERSION: '{{.TASK_K3D_VERSION | default "v5.8.3"}}'
+  TASK_K3D_FIX_DNS: '{{.TASK_K3D_FIX_DNS | default "0"}}'
 
 env:
   LANG: "C.UTF-8"
@@ -208,7 +209,7 @@ tasks:
     cmds:
       - cmd: echo "🔄 Starting create cluster phase"
         silent: true
-      - k3d cluster create {{.TASK_K3D_CLUSTER_NAME}} --kubeconfig-update-default=false --kubeconfig-switch-context=false --agents {{.TASK_K3D_CLUSTER_AGENTS}} --timeout 360s {{.TASK_K3D_PORTS_MAPPING}}
+      - K3D_FIX_DNS={{.TASK_K3D_FIX_DNS}} k3d cluster create {{.TASK_K3D_CLUSTER_NAME}} --kubeconfig-update-default=false --kubeconfig-switch-context=false --agents {{.TASK_K3D_CLUSTER_AGENTS}} --timeout 360s {{.TASK_K3D_PORTS_MAPPING}}
       - k3d kubeconfig get {{.TASK_K3D_CLUSTER_NAME}} > {{.TASK_K3D_KUBECONFIG_FILE}}
       - cmd: echo "🎉 Create cluster phase completed successfully"
         silent: true
