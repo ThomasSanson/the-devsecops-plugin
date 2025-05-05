@@ -47,7 +47,7 @@ tasks:
             --create-namespace \
             --set sealed-secrets.enabled=true \
             --wait \
-            --timeout 5m
+            --timeout 10m
       - cmd: |
           echo "✅ Verifying sealed-secrets deployment..."
           kubectl --namespace {{.TASK_SEALED_SECRETS_NAMESPACE}} \
