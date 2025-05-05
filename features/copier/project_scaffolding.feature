@@ -54,6 +54,7 @@ Feature: Project Scaffolding
   Scenario: Verify step definitions structure and content
     Then the "tests/e2e/codeceptjs/step_definitions/entrypoint.js" file should exist
     And the "tests/e2e/codeceptjs/step_definitions/authentication.js" file should NOT exist
+    And the "tests/e2e/codeceptjs/step_definitions/copier.js" file should NOT exist
     And the content of the file "tests/e2e/codeceptjs/step_definitions/entrypoint.js" should be exactly:
       """
       // Load step definitions from specific files
