@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 8.1.0 (2025-05-07)
+
+### Feat
+
+- **Taskfile.yml**: add TASK_K3D_FIX_DNS variable to control DNS fix option during cluster creation
+
 ## 8.0.0 (2025-05-05)
 
 ### Feat
