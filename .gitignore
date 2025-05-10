@@ -5,12 +5,14 @@
 .task
 .vscode
 *.log
+*.rej
 *.tar
 *.tgz
+**/node_modules
 *megalinter*.txt
 /*.sh
 megalinter-reports
-**/node_modules
+project/public/helm/index.yaml
 tests/e2e/codeceptjs/output
 tests/e2e/codeceptjs/screenshots/diff
 tmp
