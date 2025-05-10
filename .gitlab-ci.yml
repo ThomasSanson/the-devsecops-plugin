@@ -114,7 +114,7 @@ test:
   parallel:
     matrix:
       - COMMAND: 'time TASK_CODECEPTJS_GREP="@copier --invert" task test'
-      - COMMAND: 'time TASK_CODECEPTJS_GREP="@copier" task codeceptjs'
+      - COMMAND: 'time task project:test:copier'
   script:
     - echo "$COMMAND"
     - eval $COMMAND
