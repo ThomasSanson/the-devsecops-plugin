@@ -6,6 +6,8 @@ vars:
   TASK_DEVSECOPS_TEST_ANSIBLE_VIRTUALENV: '{{.TASK_DEVSECOPS_TEST_ANSIBLE_VIRTUALENV | default "./venv/ansible"}}'
   TASK_DEVSECOPS_TEST_KUBECONFIG_DIR: '{{.TASK_DEVSECOPS_TEST_KUBECONFIG_DIR | default "iac/environment/testing"}}'
   TASK_DEVSECOPS_TEST_KUBECONFIG_FILE: '{{.TASK_DEVSECOPS_TEST_KUBECONFIG_DIR}}/kubeconfig.yaml'
+  TASK_DEVSECOPS_TEST_DESTROY_ENABLED: '{{.TASK_DEVSECOPS_TEST_DESTROY_ENABLED | default "true"}}'
+  TASK_DEVSECOPS_TEST_CLEANUP_ENABLED: '{{.TASK_DEVSECOPS_TEST_CLEANUP_ENABLED | default "true"}}'
 
 tasks:
   default:
@@ -29,31 +31,54 @@ tasks:
     cmds:
       - cmd: echo "🔄 Starting tdd phase"
         silent: true
-      - task: dependency
-      - task: syntax
-      - task: create
-      - task: prepare
+      - task: bootstrap:infrastructure
+        vars:
+          TASK_DEVSECOPS_TEST_DESTROY_ENABLED: 'false'
+          TASK_DEVSECOPS_TEST_CLEANUP_ENABLED: 'false'
       - task: :project:test:tdd
       - task: verify
       - cmd: echo "🎉 Tdd phase completed successfully"
         silent: true
 
-  reset:
-    desc: Reset infra
-    status:
-      - test "{{.TASK_DEVSECOPS_TEST_ENABLED}}" = "false"
+  bootstrap:infrastructure:
+    desc: |
+      ℹ️ Description:
+        Bootstraps the test infrastructure by running the preparation tasks
+        in the correct order
     cmds:
-      - cmd: echo "🔄 Starting reset phase"
+      - cmd: echo "🔄 Starting infrastructure bootstrap phase"
+        silent: true
+      - task: dependency
+      - task: destroy
+        vars:
+          TASK_DEVSECOPS_TEST_DESTROY_ENABLED: '{{.TASK_DEVSECOPS_TEST_DESTROY_ENABLED}}'
+      - task: cleanup
+        vars:
+          TASK_DEVSECOPS_TEST_CLEANUP_ENABLED: '{{.TASK_DEVSECOPS_TEST_CLEANUP_ENABLED}}'
+      - task: syntax
+      - task: create
+      - task: prepare
+      - cmd: echo "🎉 Infrastructure bootstrap phase completed successfully"
+        silent: true
+
+  teardown:infrastructure:
+    desc: |
+      ℹ️ Description:
+        Tears down and cleans up the test infrastructure
+    cmds:
+      - cmd: echo "🔄 Starting infrastructure teardown phase"
         silent: true
       - task: destroy
       - task: cleanup
-      - cmd: echo "🎉 Reset phase completed successfully"
+      - cmd: echo "🎉 Infrastructure teardown phase completed successfully"
         silent: true
 
   destroy:
     desc: |
       ℹ️ Description:
         Destroys the test infrastructure
+    status:
+      - test "{{.TASK_DEVSECOPS_TEST_DESTROY_ENABLED}}" = "false"
     cmds:
       - cmd: echo "🔄 Starting destroy phase"
         silent: true
@@ -190,35 +215,6 @@ tasks:
       - cmd: echo "🎉 Prepare phase completed successfully"
         silent: true
 
-  bootstrap:infrastructure:
-    desc: |
-      ℹ️ Description:
-        Bootstraps the test infrastructure by running the preparation tasks
-        in the correct order
-    cmds:
-      - cmd: echo "🔄 Starting infrastructure bootstrap phase"
-        silent: true
-      - task: dependency
-      - task: destroy
-      - task: cleanup
-      - task: syntax
-      - task: create
-      - task: prepare
-      - cmd: echo "🎉 Infrastructure bootstrap phase completed successfully"
-        silent: true
-        
-  teardown:infrastructure:
-    desc: |
-      ℹ️ Description:
-        Tears down and cleans up the test infrastructure
-    cmds:
-      - cmd: echo "🔄 Starting infrastructure teardown phase"
-        silent: true
-      - task: destroy
-      - task: cleanup
-      - cmd: echo "🎉 Infrastructure teardown phase completed successfully"
-        silent: true
-
   check-testing-environment:
     internal: true
     desc: Check if any of the KUBECONFIG variables contain "testing" and run TDD tests if so
@@ -292,7 +288,7 @@ tasks:
         done
       - cmd: echo "🎉 Ansible verification completed successfully"
         silent: true
-        
+
   validate:resilience:
     desc: |
       ℹ️ Description:
