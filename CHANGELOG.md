@@ -2,6 +2,33 @@
 
 # Changelog
 
+## 9.0.0 (2025-05-10)
+
+### Feat
+
+- **Taskfile**: add copier test task to enhance project testing capabilities and ensure copier functionality
+- **Taskfile**: add TASK_CODECEPTJS_GREP variable to CodeceptJS task for better test filtering options
+- **ci**: add parallel execution for test jobs with different grep commands to enhance testing efficiency
+- **project_scaffolding**: add tags for better categorization of the feature in the project scaffolding process
+- **admin_authentication**: add tags for authentication, admin, login, and dashboard to enhance feature categorization and discoverability
+- **Taskfile.test.yml**: enhance test infrastructure management with new destroy and cleanup options and restructure tasks for better clarity and flow
+- **Taskfile.test.yml**: restructure test tasks to include infrastructure bootstrap and teardown phases for improved organization and clarity
+- **ci**: add GitLab CI configuration for automated build, test, and deployment processes to streamline development workflow
+- **ci**: add artifacts for build and pages jobs to ensure necessary files are available for subsequent stages
+- **helm**: update build destination path and rename build task to package for clarity
+- **docker**: add BuildKit support with caching options and save functionality for Docker images to enhance build performance and flexibility
+- **index.html**: add initial HTML page for the Helm repository to provide documentation and usage instructions for users
+
+### Fix
+
+- **ci**: update test command to use project:test:copier for clarity and consistency in CI pipeline
+- **copier.js**: update command execution to include TASK_CODECEPTJS_GREP variable for proper test execution in DevSecOps task
+- **Taskfile.yml**: update task from reset to teardown:infrastructure for clarity in development environment reset process
+- **Taskfile.yml**: increase timeout from 15m to 30m for project deployment to ensure sufficient time for completion
+- **Taskfile.yml**: update TASK_DOCKER_CE_IMAGE_NAME to point to the correct Docker image path for the DevSecOps plugin
+- **Taskfile.deploy.yml**: replace helm build task with helm package task to ensure proper packaging of Helm charts during deployment
+- **Taskfile.build.yml**: change helm build task to helm package task to ensure correct packaging process during build phase
+
 ## 8.1.0 (2025-05-07)
 
 ### Feat
