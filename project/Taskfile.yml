@@ -57,6 +57,8 @@ tasks:
       - task: :deploy
       - task: operate:kube:port-forward
       - task: :codeceptjs
+        vars:
+          TASK_CODECEPTJS_GREP: "{{.TASK_CODECEPTJS_GREP}}"
       - cmd: echo "✅ Project TDD test phase completed successfully"
         silent: true
 
