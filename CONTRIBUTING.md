@@ -21,7 +21,7 @@ Other dependencies will be automatically installed by the development tasks (via
 ### 1. Clone the Repository
 
 ```bash
-git clone https://your-repo.git
+git clone https://gitlab.com/digital-commons/devsecops/tools/the-devsecops-plugin.git
 cd the-devsecops-plugin
 ```
 
@@ -180,28 +180,28 @@ Before contributing, familiarize yourself with the project structure:
 The DevSecOps Plugin implements a complete DevSecOps lifecycle through distinct stages:
 
 1. 🎯 **Plan**: Initial planning and requirements
-   - Automated preparation tasks
-   - Issue tracking integration
+  - Automated preparation tasks
+  - Issue tracking integration
 
 2. 💻 **Code**: Development with integrated security
-   - Commitlint validation
-   - MegaLinter checks
-   - Code quality analysis
+  - Commitlint validation
+  - MegaLinter checks
+  - Code quality analysis
 
 3. 🛠️ **Build**: Secure building process
-   - Docker image builds
-   - Container security scanning
-   - Dependency verification
+  - Docker image builds
+  - Container security scanning
+  - Dependency verification
 
 4. 🧭 **Test**: Comprehensive testing approach
-   - Unit tests
-   - Integration tests
-   - Security testing
+  - Unit tests
+  - Integration tests
+  - Security testing
 
 5. 💼 **Release**: Secure release management
-   - Version bumping
-   - Changelog generation
-   - Release artifact signing
+  - Version bumping
+  - Changelog generation
+  - Release artifact signing
 
 6. 🚀 **Deploy**: Automated deployment
 7. 🔄 **Operate**: Operational management
@@ -252,7 +252,7 @@ This project follows **Semantic Versioning (SemVer)** principles. Version number
 If you have questions or need help contributing:
 
 1. 📖 Check the existing documentation in the `docs/` folder
-2. 💬 [Create an issue ](https://your-repo/-/issues) describing your problem or question
+2. 💬 [Create an issue ](https://gitlab.com/digital-commons/devsecops/tools/the-devsecops-plugin/-/issues) describing your problem or question
 
 ## 👊 Continuous Improvement
 
