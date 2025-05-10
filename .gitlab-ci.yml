@@ -97,7 +97,7 @@ build:
   stage: build
   needs: []  # Allows parallel execution
   tags:
-    - saas-linux-large-amd64
+    - saas-linux-medium-amd64
   script:
     - task build
   artifacts:
