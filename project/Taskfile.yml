@@ -113,7 +113,7 @@ tasks:
             --create-namespace \
             --values iac/environment/{{.ENV | default "testing"}}/superset-values.yaml \
             --wait \
-            --timeout 15m \
+            --timeout 30m \
             --debug
       - cmd: echo "✅ Project Deploy phase completed successfully"
         silent: true
