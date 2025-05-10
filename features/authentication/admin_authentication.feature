@@ -1,3 +1,4 @@
+@authentication @admin @login @dashboard
 Feature: Admin Authentication
   As an admin user
   I want to log in successfully
