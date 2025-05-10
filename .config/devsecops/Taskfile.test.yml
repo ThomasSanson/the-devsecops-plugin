@@ -15,17 +15,10 @@ tasks:
     cmds:
       - cmd: echo "🔄 Starting test phase"
         silent: true
-      - task: dependency
-      - task: destroy
-      - task: cleanup
-      - task: syntax
-      - task: create
-      - task: prepare
+      - task: bootstrap:infrastructure
       - task: :project:test
-      - task: side_effect
-      - task: verify
-      - task: destroy
-      - task: cleanup
+      - task: validate:resilience
+      - task: teardown:infrastructure
       - cmd: echo "🎉 Test phase completed successfully"
         silent: true
 
@@ -197,6 +190,35 @@ tasks:
       - cmd: echo "🎉 Prepare phase completed successfully"
         silent: true
 
+  bootstrap:infrastructure:
+    desc: |
+      ℹ️ Description:
+        Bootstraps the test infrastructure by running the preparation tasks
+        in the correct order
+    cmds:
+      - cmd: echo "🔄 Starting infrastructure bootstrap phase"
+        silent: true
+      - task: dependency
+      - task: destroy
+      - task: cleanup
+      - task: syntax
+      - task: create
+      - task: prepare
+      - cmd: echo "🎉 Infrastructure bootstrap phase completed successfully"
+        silent: true
+        
+  teardown:infrastructure:
+    desc: |
+      ℹ️ Description:
+        Tears down and cleans up the test infrastructure
+    cmds:
+      - cmd: echo "🔄 Starting infrastructure teardown phase"
+        silent: true
+      - task: destroy
+      - task: cleanup
+      - cmd: echo "🎉 Infrastructure teardown phase completed successfully"
+        silent: true
+
   check-testing-environment:
     internal: true
     desc: Check if any of the KUBECONFIG variables contain "testing" and run TDD tests if so
@@ -269,4 +291,17 @@ tasks:
           {{.TASK_DEVSECOPS_TEST_ANSIBLE_VIRTUALENV}}/bin/ansible-playbook "$playbook"
         done
       - cmd: echo "🎉 Ansible verification completed successfully"
+        silent: true
+        
+  validate:resilience:
+    desc: |
+      ℹ️ Description:
+        Tests and validates infrastructure resilience by simulating disruptions
+        and verifying recovery mechanisms
+    cmds:
+      - cmd: echo "🔄 Starting resilience validation phase"
+        silent: true
+      - task: side_effect
+      - task: verify
+      - cmd: echo "🎉 Resilience validation phase completed successfully"
         silent: true
