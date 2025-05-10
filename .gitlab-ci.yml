@@ -27,6 +27,14 @@ variables:
   # Kubernetes executor doesn't run entrypoints
   # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/4125
   DOCKER_TLS_VERIFY: 1
+
+  # Docker BuildKit settings
+  DOCKER_BUILDKIT: "1"  # Enable Docker BuildKit at the Docker engine level
+  TASK_DOCKER_CE_BUILDKIT_ENABLED: "true"  # Enable BuildKit in our Taskfile
+  TASK_DOCKER_CE_BUILDKIT_CACHE_TYPE: "registry"  # Use registry-based caching
+  TASK_DOCKER_CE_AUTH_ENABLED: "true"  # Enable registry authentication
+  TASK_DOCKER_CE_PUSH: "true"  # Enable pushing to registry including cache images
+
   DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   DOCKER_DRIVER: overlay2
   CZ_ALLOW_PUSH: "true"
@@ -38,6 +46,9 @@ variables:
   TASK_DEV_INIT_GIT_USER_NAME: $GITLAB_USER_LOGIN
   TASK_DEV_INIT_GIT_USER_EMAIL: $GITLAB_USER_EMAIL
   TASK_CODECEPTJS_CI: "true"
+  # Variables for Helm repository
+  TASK_HELM_REPO_URL: "${CI_PAGES_URL}/helm/"  # Set the Helm repository URL using GitLab Pages
+  TASK_PAGES_PUBLISH_DIR: "project/public"
 
 services:
   # kics-scan ignore-line
@@ -87,6 +98,10 @@ build:
   needs: []  # Allows parallel execution
   script:
     - task build
+  artifacts:
+    paths:
+      - project/public
+    expire_in: 1 week
 
 test:
   stage: test
@@ -130,11 +145,25 @@ release:
 
 deploy:
   stage: deploy
-  needs: []
+  needs:
+    - job: build
+      artifacts: true
   variables:
     TASK_K3D_CLUSTER_NAME: ${CI_COMMIT_SHORT_SHA}-release
   script:
     - task deploy
+
+pages:
+  stage: deploy
+  needs:
+    - job: build
+      artifacts: true
+  script:
+    - echo "Publishing to GitLab Pages"
+  artifacts:
+    paths:
+      - $TASK_PAGES_PUBLISH_DIR
+  publish: $TASK_PAGES_PUBLISH_DIR
 
 operate:
   stage: operate
