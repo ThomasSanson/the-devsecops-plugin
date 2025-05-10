@@ -2,7 +2,7 @@
 version: "3"
 
 vars:
-  TASK_DOCKER_CE_IMAGE_NAME: "registry.gitlab.com/digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin"
+  TASK_DOCKER_CE_IMAGE_NAME: "registry.gitlab.com/digital-commons/devsecops/tools/the-devsecops-plugin"
   TASK_DOCKER_CE_DOCKERFILE: ".config/devcontainer/debian/Dockerfile"
 
 tasks:
