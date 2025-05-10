@@ -14,7 +14,7 @@ vars:
   TASK_HELM_MAJOR_VERSION: '{{.TASK_HELM_MAJOR_VERSION | default "v3.17.1"}}'
   TASK_HELM_DIR: '{{.TASK_HELM_DIR | default "iac/helm"}}'
   TASK_HELM_CLI_OPTS: '{{.TASK_HELM_CLI_OPTS | default ""}}'
-  TASK_HELM_BUILD_DESTINATION: '{{.TASK_HELM_BUILD_DESTINATION | default "tmp/build/helm"}}'
+  TASK_HELM_BUILD_DESTINATION: '{{.TASK_HELM_BUILD_DESTINATION | default ".cache/helm"}}'
   TASK_HELM_DEPENDENCY_UPDATE: '{{.TASK_HELM_DEPENDENCY_UPDATE | default "--dependency-update"}}'
 
 env:
@@ -122,6 +122,7 @@ tasks:
         silent: true
       - rm -rf .config/helm/roles
       - rm -rf {{.TASK_HELM_VENV_DIR}}
+      - rm -rf {{.TASK_HELM_BUILD_DESTINATION}} || true
       - cmd: echo "🎉 Cleanup phase completed successfully"
         silent: true
 
@@ -148,15 +149,15 @@ tasks:
       - cmd: echo "🎉 Dependency update phase completed successfully"
         silent: true
 
-  build:
+  package:
     desc: |
       ℹ️ Description:
-        Universal Helm chart build task that packages the chart into a versioned archive
+        Universal Helm chart package task that converts the chart into a versioned archive
 
       🔧 Variables:
         - TASK_HELM_DIR: Path to Helm charts directory
         - TASK_HELM_CLI_OPTS: Additional Helm CLI options (can be overridden with TASK_HELM_CLI_OPTS)
-        - TASK_HELM_BUILD_DESTINATION: Destination directory for the built chart (default: tmp/build/helm)
+        - TASK_HELM_BUILD_DESTINATION: Destination directory for the built chart (default: .cache/helm)
         - TASK_HELM_DEPENDENCY_UPDATE: Option to update dependencies (default: --dependency-update)
 
       🔐 Preconditions:
@@ -164,7 +165,7 @@ tasks:
         - Chart.yaml must exist in the specified directory
 
       🔄 Execution:
-        - Creates build directory if it doesn't exist
+        - Creates package directory if it doesn't exist
         - Packages the Helm chart with dependency update
     deps: [install]
     preconditions:
@@ -173,7 +174,7 @@ tasks:
       - sh: test -f {{.TASK_HELM_DIR}}/Chart.yaml
         msg: "❌ Helm Chart.yaml not found at {{.TASK_HELM_DIR}}/Chart.yaml"
     cmds:
-      - cmd: echo "🔄 Starting build phase"
+      - cmd: echo "🔄 Starting package phase"
         silent: true
       - mkdir -p {{.TASK_HELM_BUILD_DESTINATION}}
       - cmd: echo "🔧 Building Helm chart from {{.TASK_HELM_DIR}} to {{.TASK_HELM_BUILD_DESTINATION}}..."
@@ -209,4 +210,97 @@ tasks:
         echo "Linting Helm chart in {{.TASK_HELM_DIR}}"
         helm lint "{{.TASK_HELM_DIR}}"
       - cmd: echo "🎉 Lint phase completed successfully"
+        silent: true
+
+  charts:sync:
+    desc: |
+      ℹ️ Description:
+        Synchronizes remote Helm repository charts and index locally
+
+      🔧 Variables:
+        - TASK_HELM_BUILD_DESTINATION: Directory where packaged charts are stored
+        - TASK_HELM_REPO_URL: Base URL for the Helm repository (default: "")
+
+      🔐 Preconditions:
+        - Helm must be installed
+    deps: [install]
+    preconditions:
+      - sh: command -v helm >/dev/null 2>&1
+        msg: "❌ Helm is not installed. Please run 'task helm:install' first."
+    cmds:
+      - cmd: echo "🔄 Starting charts sync phase"
+        silent: true
+      - |
+        # Ensure the destination directory exists
+        mkdir -p {{.TASK_HELM_BUILD_DESTINATION}}
+
+        if [ -n "{{.TASK_HELM_REPO_URL}}" ]; then
+          echo "🔧 Downloading remote index.yaml from {{.TASK_HELM_REPO_URL}}..."
+          curl -sfL "{{.TASK_HELM_REPO_URL}}/index.yaml" -o {{.TASK_HELM_BUILD_DESTINATION}}/index.yaml || echo "No remote index found"
+          if [ -f "{{.TASK_HELM_BUILD_DESTINATION}}/index.yaml" ]; then
+            grep 'https.*\.tgz' {{.TASK_HELM_BUILD_DESTINATION}}/index.yaml | sed 's/.*- //;s/^[ ]*//' | while read url; do
+              fname=$(basename "$url")
+              if [ ! -f "{{.TASK_HELM_BUILD_DESTINATION}}/$fname" ]; then
+                echo "  → Downloading $fname"
+                curl -sfL "$url" -o "{{.TASK_HELM_BUILD_DESTINATION}}/$fname"
+              fi
+            done
+          fi
+        else
+          echo "⚠️  TASK_HELM_REPO_URL is not set, skipping remote chart synchronization."
+        fi
+      - cmd: echo "🎉 Charts sync phase completed successfully"
+        silent: true
+
+  repository:index:
+    desc: |
+      ℹ️ Description:
+        Creates or updates a Helm repository index file for charts
+
+      🔧 Variables:
+        - TASK_HELM_BUILD_DESTINATION: Directory where packaged charts are stored
+        - TASK_HELM_REPO_URL: Base URL for the Helm repository (default: "")
+
+      🔐 Preconditions:
+        - Helm must be installed
+        - Build destination must exist
+    deps: [install]
+    preconditions:
+      - sh: command -v helm >/dev/null 2>&1
+        msg: "❌ Helm is not installed. Please run 'task helm:install' first."
+      - sh: test -d {{.TASK_HELM_BUILD_DESTINATION}}
+        msg: "❌ Build destination not found at {{.TASK_HELM_BUILD_DESTINATION}}"
+    cmds:
+      - cmd: echo "🔄 Starting repository index creation"
+        silent: true
+      - task: charts:sync
+        vars:
+          TASK_HELM_BUILD_DESTINATION: '{{.TASK_HELM_BUILD_DESTINATION}}'
+      - |
+        # Check if any .tgz files are present in the directory
+        if [ $(find {{.TASK_HELM_BUILD_DESTINATION}} -name "*.tgz" | wc -l) -eq 0 ]; then
+          echo "⚠️ No Helm package (.tgz) found in {{.TASK_HELM_BUILD_DESTINATION}}"
+        else
+          echo "✅ Helm packages found: $(find {{.TASK_HELM_BUILD_DESTINATION}} -name "*.tgz" | wc -l) file(s)"
+        fi
+
+        # Create or update the index
+        if [ -n "{{.TASK_HELM_REPO_URL}}" ]; then
+          if [ -f "{{.TASK_HELM_BUILD_DESTINATION}}/index.yaml" ]; then
+            echo "🛠️ Creating a new index with local charts and merging with the existing index..."
+            # Backup the existing index
+            cp {{.TASK_HELM_BUILD_DESTINATION}}/index.yaml {{.TASK_HELM_BUILD_DESTINATION}}/index.yaml.bak
+            # Create a new index with all present charts
+            helm repo index {{.TASK_HELM_BUILD_DESTINATION}} --url "{{.TASK_HELM_REPO_URL}}" --merge {{.TASK_HELM_BUILD_DESTINATION}}/index.yaml.bak
+            # Remove the backup
+            rm {{.TASK_HELM_BUILD_DESTINATION}}/index.yaml.bak
+          else
+            echo "🆕 Creating a new index with local charts..."
+            helm repo index {{.TASK_HELM_BUILD_DESTINATION}} --url "{{.TASK_HELM_REPO_URL}}"
+          fi
+        else
+          echo "🔧 Creating a Helm index in {{.TASK_HELM_BUILD_DESTINATION}} without URL..."
+          helm repo index {{.TASK_HELM_BUILD_DESTINATION}}
+        fi
+      - cmd: echo "🎉 Repository index creation completed successfully"
         silent: true
