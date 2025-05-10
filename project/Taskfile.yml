@@ -61,6 +61,17 @@ tasks:
       - cmd: echo "✅ Project TDD test phase completed successfully"
         silent: true
 
+  test:copier:
+    desc: Run project-specific copier test tasks
+    cmds:
+      - cmd: echo "🚀 Starting project copier test phase"
+        silent: true
+      - task: :codeceptjs
+        vars:
+          TASK_CODECEPTJS_GREP: "@copier"
+      - cmd: echo "✅ Project copier test phase completed successfully"
+        silent: true
+
   release:
     desc: Run project-specific release tasks
     deps:
