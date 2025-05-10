@@ -1,3 +1,4 @@
+@copier @scaffolding @project-setup @template
 Feature: Project Scaffolding
   As a DevSecOps engineer
   I want to generate a project from a Copier template

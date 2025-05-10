@@ -2,7 +2,7 @@
 version: "3"
 
 vars:
-  TASK_DOCKER_CE_IMAGE_NAME: "registry.gitlab.com/digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin"
+  TASK_DOCKER_CE_IMAGE_NAME: "registry.gitlab.com/digital-commons/devsecops/tools/the-devsecops-plugin"
   TASK_DOCKER_CE_DOCKERFILE: ".config/devcontainer/debian/Dockerfile"
 
 tasks:
@@ -50,14 +50,26 @@ tasks:
 
   test:tdd:
     desc: Run project-specific TDD test tasks
-    deps: [build]
     cmds:
       - cmd: echo "🚀 Starting project TDD test phase"
         silent: true
       - task: :deploy
       - task: operate:kube:port-forward
       - task: :codeceptjs
+        vars:
+          TASK_CODECEPTJS_GREP: "{{.TASK_CODECEPTJS_GREP}}"
       - cmd: echo "✅ Project TDD test phase completed successfully"
+        silent: true
+
+  test:copier:
+    desc: Run project-specific copier test tasks
+    cmds:
+      - cmd: echo "🚀 Starting project copier test phase"
+        silent: true
+      - task: :codeceptjs
+        vars:
+          TASK_CODECEPTJS_GREP: "@copier"
+      - cmd: echo "✅ Project copier test phase completed successfully"
         silent: true
 
   release:
@@ -93,7 +105,6 @@ tasks:
 
   deploy:
     desc: Run project-specific deploy tasks
-    deps: [build]
     cmds:
       - cmd: echo "🚀 Starting project deploy phase"
         silent: true
@@ -113,7 +124,7 @@ tasks:
             --create-namespace \
             --values iac/environment/{{.ENV | default "testing"}}/superset-values.yaml \
             --wait \
-            --timeout 15m \
+            --timeout 30m \
             --debug
       - cmd: echo "✅ Project Deploy phase completed successfully"
         silent: true

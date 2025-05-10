@@ -43,16 +43,30 @@ vars:
       fi
   TASK_DOCKER_CE_BUILD_RUN: '{{.TASK_DOCKER_CE_BUILD_RUN | default "always"}}'
 
+  # BuildKit settings
+  TASK_DOCKER_CE_BUILDKIT_ENABLED: '{{.TASK_DOCKER_CE_BUILDKIT_ENABLED | default "true"}}'
+  TASK_DOCKER_CE_BUILDKIT_CACHE_TYPE: '{{.TASK_DOCKER_CE_BUILDKIT_CACHE_TYPE | default "inline"}}' # Options: inline, local, registry, none
+  TASK_DOCKER_CE_BUILDKIT_CACHE_PATH: '{{.TASK_DOCKER_CE_BUILDKIT_CACHE_PATH | default ".cache/docker/buildkit"}}'
+  TASK_DOCKER_CE_BUILDKIT_CACHE_MAX_DAYS: '{{.TASK_DOCKER_CE_BUILDKIT_CACHE_MAX_DAYS | default "7"}}'
+  TASK_DOCKER_CE_BUILDKIT_PLATFORM: '{{.TASK_DOCKER_CE_BUILDKIT_PLATFORM | default ""}}'
+
   # Labels (optional)
   TASK_DOCKER_CE_CUSTOM_LABELS: '{{.TASK_DOCKER_CE_CUSTOM_LABELS | default ""}}'
   TASK_DOCKER_CE_BASE_LABELS: >
     --label org.opencontainers.image.source={{.REPO_URL | default "local"}}
+
+  # Save settings
+  TASK_DOCKER_CE_SAVE_DIR: '{{.TASK_DOCKER_CE_SAVE_DIR | default ".cache/docker/images"}}'
+  TASK_DOCKER_CE_SAVE_ENABLED: '{{.TASK_DOCKER_CE_SAVE_ENABLED | default "false"}}'
+  TASK_DOCKER_CE_SAVE_COMPRESS: '{{.TASK_DOCKER_CE_SAVE_COMPRESS | default "1"}}'
+  TASK_DOCKER_CE_SAVE_RUN: '{{.TASK_DOCKER_CE_SAVE_RUN | default "always"}}'
 
 env:
   LANG: "C.UTF-8"
   LC_ALL: "C.UTF-8"
   LANGUAGE: "C.UTF-8"
   ANSIBLE_ROLES_PATH: ".config/docker-ce/roles"
+  DOCKER_BUILDKIT: "{{.TASK_DOCKER_CE_BUILDKIT_ENABLED}}"
 
 tasks:
   install:dependencies:
@@ -239,6 +253,86 @@ tasks:
         echo "Building Docker image..."
         DOCKER_ARGS=""
 
+        # Setup BuildKit cache options if enabled
+        if [ "{{.TASK_DOCKER_CE_BUILDKIT_ENABLED}}" = "true" ]; then
+          echo "🔧 BuildKit is enabled"
+
+          # Configure cache based on the specified type
+          case "{{.TASK_DOCKER_CE_BUILDKIT_CACHE_TYPE}}" in
+            "local")
+              # Verify if local cache is supported by checking Docker info
+              if docker info --format '{{.Driver}}' | grep -q 'containerd\|moby'; then
+                mkdir -p "{{.TASK_DOCKER_CE_BUILDKIT_CACHE_PATH}}"
+                echo "📦 Using BuildKit local cache directory: {{.TASK_DOCKER_CE_BUILDKIT_CACHE_PATH}}"
+
+                # Clean old cache files if max days is set
+                if [ -n "{{.TASK_DOCKER_CE_BUILDKIT_CACHE_MAX_DAYS}}" ] && [ "{{.TASK_DOCKER_CE_BUILDKIT_CACHE_MAX_DAYS}}" != "0" ]; then
+                  echo "🧹 Cleaning cache files older than {{.TASK_DOCKER_CE_BUILDKIT_CACHE_MAX_DAYS}} days"
+                  find "{{.TASK_DOCKER_CE_BUILDKIT_CACHE_PATH}}" -type f -mtime +{{.TASK_DOCKER_CE_BUILDKIT_CACHE_MAX_DAYS}} -delete 2>/dev/null || true
+                fi
+
+                # Add cache options
+                DOCKER_ARGS="$DOCKER_ARGS --cache-from type=local,src={{.TASK_DOCKER_CE_BUILDKIT_CACHE_PATH}} --cache-to type=local,dest={{.TASK_DOCKER_CE_BUILDKIT_CACHE_PATH}},mode=max"
+              else
+                echo "⚠️ Local cache not supported with current Docker driver. Falling back to inline cache."
+                DOCKER_ARGS="$DOCKER_ARGS --build-arg BUILDKIT_INLINE_CACHE=1"
+              fi
+              ;;
+
+            "inline")
+              echo "📦 Using BuildKit inline cache"
+              DOCKER_ARGS="$DOCKER_ARGS --build-arg BUILDKIT_INLINE_CACHE=1"
+              ;;
+
+            "registry")
+              echo "📦 Using BuildKit registry cache"
+              if [ -n "{{.TASK_DOCKER_CE_REGISTRY_URL}}" ]; then
+                # Prepare the complete cache image name
+                CACHE_IMAGE="{{.TASK_DOCKER_CE_IMAGE_NAME}}"
+
+                # If in GitLab CI, use CI variables to build the cache image name
+                if [ -n "${CI_REGISTRY_IMAGE}" ]; then
+                  # Use GitLab CI registry image as cache
+                  CACHE_IMAGE="${CI_REGISTRY_IMAGE}/cache/$(basename {{.TASK_DOCKER_CE_IMAGE_NAME}})"
+                  echo "🔧 GitLab CI detected, using registry cache: $CACHE_IMAGE"
+                elif [[ "{{.TASK_DOCKER_CE_REGISTRY_URL}}" != */ ]]; then
+                  # Add a slash if needed at the end of the registry URL
+                  CACHE_IMAGE="{{.TASK_DOCKER_CE_REGISTRY_URL}}/$CACHE_IMAGE"
+                else
+                  CACHE_IMAGE="{{.TASK_DOCKER_CE_REGISTRY_URL}}$CACHE_IMAGE"
+                fi
+
+                # Try to download existing cache image
+                echo "📥 Attempting to retrieve cache from $CACHE_IMAGE:cache"
+                docker pull "$CACHE_IMAGE:cache" || echo "⚠️ No existing cache found, building a new cache"
+
+                # Configure cache arguments
+                DOCKER_ARGS="$DOCKER_ARGS --cache-from $CACHE_IMAGE:cache --build-arg BUILDKIT_INLINE_CACHE=1"
+
+                # Store the cache image name for later use in push
+                export DOCKER_CACHE_IMAGE="$CACHE_IMAGE"
+              else
+                echo "⚠️ Registry URL not configured. Falling back to inline cache."
+                DOCKER_ARGS="$DOCKER_ARGS --build-arg BUILDKIT_INLINE_CACHE=1"
+              fi
+              ;;
+
+            "none")
+              echo "📦 BuildKit cache disabled"
+              ;;
+
+            *)
+              echo "⚠️ Unknown cache type '{{.TASK_DOCKER_CE_BUILDKIT_CACHE_TYPE}}', using inline cache"
+              DOCKER_ARGS="$DOCKER_ARGS --build-arg BUILDKIT_INLINE_CACHE=1"
+              ;;
+          esac
+
+          # Add platform if specified
+          if [ -n "{{.TASK_DOCKER_CE_BUILDKIT_PLATFORM}}" ]; then
+            DOCKER_ARGS="$DOCKER_ARGS --platform={{.TASK_DOCKER_CE_BUILDKIT_PLATFORM}}"
+          fi
+        fi
+
         if [ -n "{{.TASK_DOCKER_CE_CUSTOM_LABELS}}" ]; then
           DOCKER_ARGS="$DOCKER_ARGS {{.TASK_DOCKER_CE_BASE_LABELS}} {{.TASK_DOCKER_CE_CUSTOM_LABELS}}"
         fi
@@ -248,7 +342,56 @@ tasks:
           -f {{.TASK_DOCKER_CE_DOCKERFILE}} \
           $DOCKER_ARGS \
           {{.TASK_DOCKER_CE_CONTEXT}}
+      - task: save
+        vars:
+          TASK_DOCKER_CE_IMAGE_NAME: "{{.TASK_DOCKER_CE_IMAGE_NAME}}"
+          TASK_DOCKER_CE_IMAGE_TAG: "{{.TASK_DOCKER_CE_IMAGE_TAG}}"
+          TASK_DOCKER_CE_SAVE_DIR: "{{.TASK_DOCKER_CE_SAVE_DIR}}"
+          TASK_DOCKER_CE_SAVE_ENABLED: "{{.TASK_DOCKER_CE_SAVE_ENABLED}}"
+          TASK_DOCKER_CE_SAVE_COMPRESS: "{{.TASK_DOCKER_CE_SAVE_COMPRESS}}"
+          TASK_DOCKER_CE_SAVE_RUN: "{{.TASK_DOCKER_CE_SAVE_RUN}}"
       - cmd: echo "🎉 Build phase completed successfully"
+        silent: true
+
+  save:
+    desc: |
+      ℹ️ Description:
+        Save a Docker image to a local cache directory
+
+      🔧 Variables:
+        - TASK_DOCKER_CE_IMAGE_NAME: Name of the image to save
+        - TASK_DOCKER_CE_IMAGE_TAG: Tag of the image to save
+        - TASK_DOCKER_CE_SAVE_DIR: Directory to store saved images
+        - TASK_DOCKER_CE_SAVE_ENABLED: Enable image saving
+        - TASK_DOCKER_CE_SAVE_COMPRESS: Compression level for saved images
+    run: "{{.TASK_DOCKER_CE_SAVE_RUN}}"
+    vars:
+      IMAGE_NAME_SAFE:
+        sh: echo "{{.TASK_DOCKER_CE_IMAGE_NAME}}" | tr '/:' '__'
+    status:
+      - test "{{.TASK_DOCKER_CE_SAVE_ENABLED}}" = "false"
+    cmds:
+      - cmd: echo "🔄 Starting save phase"
+        silent: true
+      - |
+        echo "Saving Docker image to {{.TASK_DOCKER_CE_SAVE_DIR}}..."
+        mkdir -p {{.TASK_DOCKER_CE_SAVE_DIR}}
+
+        # Generate a safe filename
+        ARCHIVE_PATH="{{.TASK_DOCKER_CE_SAVE_DIR}}/{{.IMAGE_NAME_SAFE}}_{{.TASK_DOCKER_CE_IMAGE_TAG}}.tar.gz"
+
+        # Save the image to cache
+        echo "Saving image {{.TASK_DOCKER_CE_IMAGE_NAME}}:{{.TASK_DOCKER_CE_IMAGE_TAG}} to ${ARCHIVE_PATH}..."
+        docker save {{.TASK_DOCKER_CE_IMAGE_NAME}}:{{.TASK_DOCKER_CE_IMAGE_TAG}} | gzip -{{.TASK_DOCKER_CE_SAVE_COMPRESS}} > "${ARCHIVE_PATH}"
+
+        if [ $? -eq 0 ]; then
+          echo "✅ Image successfully saved to ${ARCHIVE_PATH}"
+          echo "Image archive size: $(du -h "${ARCHIVE_PATH}" | cut -f1)"
+        else
+          echo "❌ Failed to save image"
+          exit 1
+        fi
+      - cmd: echo "🎉 Save phase completed successfully"
         silent: true
 
   push:
@@ -262,6 +405,7 @@ tasks:
         - TASK_DOCKER_CE_REGISTRY_URL: Registry URL
         - TASK_DOCKER_CE_REGISTRY_USERNAME: Registry username
         - TASK_DOCKER_CE_REGISTRY_PASSWORD: Registry password
+        - TASK_DOCKER_CE_BUILDKIT_CACHE_TYPE: BuildKit cache type to use
     status:
       - test "{{.TASK_DOCKER_CE_ENABLED}}" = "false"
     cmds:
@@ -270,20 +414,33 @@ tasks:
       - |
         if [ "{{.TASK_DOCKER_CE_PUSH}}" = "true" ]; then
           if [ "{{.TASK_DOCKER_CE_AUTH_ENABLED}}" = "true" ]; then
-            echo "Logging in to Docker registry..."
+            echo "🔑 Logging in to Docker registry..."
             echo "{{.TASK_DOCKER_CE_REGISTRY_PASSWORD}}" | docker login {{.TASK_DOCKER_CE_REGISTRY_URL}} \
               --username {{.TASK_DOCKER_CE_REGISTRY_USERNAME}} \
               --password-stdin
           fi
 
-          echo "Pushing Docker image..."
+          echo "📤 Pushing Docker image {{.TASK_DOCKER_CE_IMAGE_NAME}}:{{.TASK_DOCKER_CE_IMAGE_TAG}}..."
           docker push {{.TASK_DOCKER_CE_IMAGE_NAME}}:{{.TASK_DOCKER_CE_IMAGE_TAG}}
+
+          # If using registry cache, also push the cache image
+          if [ "{{.TASK_DOCKER_CE_BUILDKIT_CACHE_TYPE}}" = "registry" ] && [ -n "${DOCKER_CACHE_IMAGE}" ]; then
+            echo "📦 Creating and pushing cache image ${DOCKER_CACHE_IMAGE}:cache"
+
+            # Tag the current image as cache image
+            docker tag {{.TASK_DOCKER_CE_IMAGE_NAME}}:{{.TASK_DOCKER_CE_IMAGE_TAG}} "${DOCKER_CACHE_IMAGE}:cache"
+
+            # Push the cache image to the registry
+            docker push "${DOCKER_CACHE_IMAGE}:cache"
+
+            echo "✅ Cache successfully pushed to ${DOCKER_CACHE_IMAGE}:cache"
+          fi
 
           if [ "{{.TASK_DOCKER_CE_AUTH_ENABLED}}" = "true" ]; then
             docker logout {{.TASK_DOCKER_CE_REGISTRY_URL}}
           fi
         else
-          echo "Skipping push (TASK_DOCKER_CE_PUSH is not true)"
+          echo "⏩ Skipping push (TASK_DOCKER_CE_PUSH is not true)"
         fi
       - cmd: echo "🎉 Push phase completed successfully"
         silent: true

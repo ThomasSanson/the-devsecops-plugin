@@ -26,7 +26,7 @@ tasks:
       - cmd: echo "🔄 Starting deploy bootstrap"
         silent: true
       - task: :helm:dependency:update
-      - task: :helm:build
+      - task: :helm:package
       - task: :sealed-secrets:install
       - task: :kubeseal:seal
       - cmd: echo "🎉 Deploy bootstrap completed successfully"

@@ -228,7 +228,7 @@ Given('a project has been generated with the DevSecOps plugin', function () { //
 })
 
 When('I execute the DevSecOps test task', function () { // eslint-disable-line no-undef
-  executeCommand('task test', getProjectRoot())
+  executeCommand('TASK_CODECEPTJS_GREP="" task test', getProjectRoot())
 })
 
 Then('the DevSecOps test task should complete successfully', function () { // eslint-disable-line no-undef

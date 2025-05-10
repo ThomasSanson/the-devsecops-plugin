@@ -63,7 +63,7 @@ tasks:
     cmds:
       - cmd: echo "🔄 Starting development environment reset"
         silent: true
-      - task: :devsecops:test:reset
+      - task: :devsecops:test:teardown:infrastructure
       - cmd: echo "🎉 Development environment reset completed successfully"
         silent: true
 

@@ -96,8 +96,6 @@ code:
 build:
   stage: build
   needs: []  # Allows parallel execution
-  tags:
-    - saas-linux-medium-amd64
   script:
     - task build
   artifacts:
@@ -109,15 +107,8 @@ test:
   stage: test
   retry: 1
   needs: []  # Allows parallel execution
-  tags:
-    - saas-linux-medium-amd64
-  parallel:
-    matrix:
-      - COMMAND: 'time TASK_CODECEPTJS_GREP="@copier --invert" task test'
-      - COMMAND: 'time task project:test:copier'
   script:
-    - echo "$COMMAND"
-    - eval $COMMAND
+    - task test
   artifacts:
     exclude:
       - $CI_PROJECT_DIR/.config/**/node_modules/**/*
