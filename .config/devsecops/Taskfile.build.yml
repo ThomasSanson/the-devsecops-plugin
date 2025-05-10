@@ -13,6 +13,6 @@ tasks:
       - cmd: echo "🔄 Starting build phase"
         silent: true
       - task: :project:build
-      - task: :helm:build
+      - task: :helm:package
       - cmd: echo "🎉 Build phase completed successfully"
         silent: true
