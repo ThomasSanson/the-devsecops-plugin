@@ -1,369 +1,273 @@
-# Contributing to The DevSecOps Plugin
+# 👋 Contributing Guide
 
-Thank you for considering contributing to The DevSecOps Plugin. This document provides comprehensive guidelines for making contributions.
+We're thrilled that you're interested in contributing to this project! 🎉 This document outlines the contribution process and conventions to follow when participating in the development of this repository using the DevSecOps Plugin.
 
-## Table of Contents
+## 🔧️ Prerequisites
 
-- [Development Environment](#development-environment)
-  - [DevContainer Environment (Recommended)](#devcontainer-environment-recommended)
-  - [Manual Setup](#manual-setup)
-- [GitLab Workflow](#gitlab-workflow)
-  - [Issue Creation](#issue-creation)
-- [Development Standards](#development-standards)
-  - [Code Organisation](#code-organisation)
-  - [Naming Conventions](#naming-conventions)
-  - [Language Standards](#language-standards)
-  - [Task Management](#task-management)
-  - [Code Quality Standards](#code-quality-standards)
-  - [Security Practices](#security-practices)
-- [Testing Requirements](#testing-requirements)
-- [Documentation Guidelines](#documentation-guidelines)
-  - [Code Documentation](#code-documentation)
-  - [User Documentation](#user-documentation)
-  - [Documentation Requirements](#documentation-requirements)
-- [Communication Standards](#communication-standards)
-- [Version Control Practices](#version-control-practices)
-- [Continuous Integration](#continuous-integration)
-- [Review Process](#review-process)
-- [Licensing](#licensing)
+Before contributing, make sure you have:
 
-## Development Environment
+- 👤 A GitLab or GitHub account
+- 📚 Basic knowledge of Git
+- `task` ([Task](https://taskfile.dev/)) - *task runner*
+- 🐳 Docker (or Podman)
 
-### DevContainer Environment (Recommended)
+Other dependencies will be automatically installed by the development tasks (via `task dev:setup-environment`), including:
+- Development tools
+- Required CLI utilities
+- Project-specific dependencies
 
-The DevContainer configuration ensures a standardised development environment with all necessary tools and dependencies pre-configured.
+## 🚀 Contribution Process
 
-#### System Requirements
-
-- CPU: 4 cores minimum (8 cores recommended)
-- RAM: 8GB minimum (16GB recommended)
-- Storage: 20GB minimum free space
-- Docker Desktop 4.x or newer
-- Visual Studio Code with Remote Containers extension
-
-#### Setup Process
-
-1. Clone the repository:
+### 1. Clone the Repository
 
 ```bash
-git clone git@gitlab.gitlab.com:digital-commons/devsecops/tools/work-in-progress/proof-of-concept/the-devsecops-plugin.git
+git clone https://your-repo.git
+cd the-devsecops-plugin
 ```
 
-2. Open in Visual Studio Code:
+### 2. Create a Branch for Your Changes
 
 ```bash
-code the-devsecops-plugin
+git checkout -b your-branch-name
 ```
 
-3. When prompted, select 'Reopen in Container', or:
+Branch naming conventions:
+- `feature/feature-name` : ✨ for new features
+- `fix/fix-name` : 🐛 for bug fixes
+- `docs/doc-name` : 📖 for documentation changes
+- `ci/ci-change` : ⚙️ for CI/CD pipeline modifications
+- `refactor/refactor-name` : ♻️ for code refactoring
 
-- Press F1
-- Type 'Reopen in Container'
-- Select 'Remote-Containers: Reopen in Container'
+### 3. Set Up Development Environment
 
-#### Troubleshooting DevContainer
-
-Common issues and solutions:
-
-1. Container fails to build:
-
-```bash
-docker system prune -af
-docker volume prune -f
-```
-
-2. Port conflicts:
-
-- Check `.devcontainer/devcontainer.json` for port mappings
-- Modify if ports are already in use
-
-3. Performance issues:
-
-- Increase Docker Desktop resources
-- Ensure antivirus excludes Docker directories
-
-### Manual Setup
-
-Whilst DevContainer is recommended, manual setup is possible:
-
-1. Install dependencies:
-
-```bash
-python3 -m venv ~/workspace/venv
-source ~/workspace/venv/bin/activate
-pip install copier
-```
-
-2. Configure environment:
+To initialize the development environment:
 
 ```bash
 task dev:setup-environment
 ```
 
-## GitLab Workflow
+or
 
-### Issue Creation
-
-#### Issue Template
-
-````markdown
-# [type] Descriptive Title
-
-## What?
-
-[Precise problem statement in 2-3 sentences]
-
-## Why?
-
-[Clear justification in 1-2 sentences]
-
-## How to reproduce?
-
-```gherkin
-Feature: [Feature Name]
-  As a [specific role]
-  I want [clear objective]
-  So that [measurable benefit]
-
-  Background:
-    Given [precise context]
-    And [additional context if needed]
-
-  Scenario: [Specific scenario name]
-    Given [initial state]
-    When [action performed]
-    Then [expected outcome]
-    And [additional outcomes if any]
+```bash
+task dev:up
 ```
 
-## Definition of Done
+This command will install all necessary dependencies and configure the local environment for development.
 
-- [ ] Implementation complete
-- [ ] Tests added/updated
-- [ ] Documentation updated
-- [ ] CI/CD pipeline passes
-- [ ] Code review completed
-- [ ] Security scan passed
+### 4. Local Development
+
+To run the complete DevSecOps pipeline locally (⏳ *this may take some time the first time*):
+
+```bash
+task devsecops
+```
+
+To run specific stages of the DevSecOps pipeline:
+
+```bash
+task plan       # Initial planning
+task code       # Development and checks
+task build      # Build with security checks
+task test       # Run tests
+# ... other stages
+```
+
+### 📝 5. Code Conventions
+
+#### Commit Structure
+
+This project uses **Commitizen** to standardize commit messages. Your commit messages **must** follow the [Conventional Commits](https://www.conventionalcommits.org/) format:
+
+```text
+<type>(<scope>): <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+**Commit Types:**
+- `feat` : ✨ New feature
+- `fix` : 🐛 Bug fix
+- `docs` : 📖 Documentation change
+- `style` : 🎨 Changes that do not affect code meaning (whitespace, formatting, etc.)
+- `refactor` : ♻️ Code change that neither fixes a bug nor adds a feature
+- `perf` : ⚡ Performance improvement
+- `test` : ✅ Adding or correcting tests
+- `build` : 📦 Changes affecting the build system or external dependencies
+- `ci` : ⚙️ Changes to CI/CD files and scripts
+- `chore` : 🧹 Other changes that don't modify src or test files
+- `revert` : ⏪ Reverting a previous commit
+
+To help follow these conventions, use the following command to commit your changes:
+
+```bash
+task commitizen
+```
+
+#### Code Style
+
+- **General**: Follow the linting rules configured in MegaLinter
+- **JavaScript/TypeScript**: Follow ESLint and Prettier conventions
+- **Python**: Follow [PEP 8](https://www.python.org/dev/peps/pep-0008/) guidelines
+- **YAML**: Use 2 spaces for indentation
+- **Bash**: Follow [Shell Style Guide](https://google.github.io/styleguide/shellguide.html)
+
+### ✅ 6. Tests
+
+Before submitting your changes, run the complete test suite. These tests follow Test-Driven Development (TDD) principles as outlined in the DevSecOps guidelines.
+
+```bash
+# Runs the complete test suite
+task test
+
+# Runs specific test types
+task test:tdd      # TDD tests only
+```
+
+Ensure that **all tests pass** before submitting your merge request.
+
+> ⚠️ **IMPORTANT**: Following TDD principles is mandatory. Always write tests before implementing features.
+
+### 📤 7. Submitting Changes
+
+Once your changes are complete and tested:
+
+```bash
+git add .
+task commitizen
+git push -u origin your-branch-name
+```
+
+Then create a **Merge Request** (GitLab) or **Pull Request** (GitHub) on the repository platform.
+
+### 👀 8. Code Review
+
+Your merge/pull request will be reviewed by the project maintainers. Additional changes may be requested before acceptance. The code review process ensures:
+
+- Code quality and standards are maintained
+- Security best practices are followed
+- Tests are properly implemented
+- DevSecOps principles are respected
+
+## ✨ DevSecOps Principles
+
+When working with this repository, adhere to the following DevSecOps principles:
+
+- 🔐 **Security First**: Integrate security at every step of the development cycle
+- 🔄 **Automation**: Automate testing, deployment, and security checks when possible
+- 💡 **Shift Left**: Find and fix issues as early as possible in the development process
+- 📈 **Continuous Improvement**: Regularly review and improve the DevSecOps pipeline
+- 📛 **Infrastructure as Code**: Manage all infrastructure through version-controlled code
+
+## 🛠️ Project Architecture
+
+Before contributing, familiarize yourself with the project structure:
+
+- `.config/` : Tool-specific configurations
+  - `devsecops/` : DevSecOps plugin configuration
+  - `commitizen/` : Commit message standardization
+  - `megalinter/` : Code quality and security scanning
+  - `docker-ce/` : Docker configuration
+  - And others...
+- `.devcontainer/` : Development container configuration
+- `docs/` : Additional documentation
+  - `guidelines/` : DevSecOps guidelines and best practices
+- `src/` : Source code
+
+### DevSecOps Pipeline Structure
+
+The DevSecOps Plugin implements a complete DevSecOps lifecycle through distinct stages:
+
+1. 🎯 **Plan**: Initial planning and requirements
+   - Automated preparation tasks
+   - Issue tracking integration
+
+2. 💻 **Code**: Development with integrated security
+   - Commitlint validation
+   - MegaLinter checks
+   - Code quality analysis
+
+3. 🛠️ **Build**: Secure building process
+   - Docker image builds
+   - Container security scanning
+   - Dependency verification
+
+4. 🧭 **Test**: Comprehensive testing approach
+   - Unit tests
+   - Integration tests
+   - Security testing
+
+5. 💼 **Release**: Secure release management
+   - Version bumping
+   - Changelog generation
+   - Release artifact signing
+
+6. 🚀 **Deploy**: Automated deployment
+7. 🔄 **Operate**: Operational management
+8. 📊 **Monitor**: Continuous monitoring
+
+### Test-Driven Development Approach
+
+This project follows Test-Driven Development (TDD) principles, as outlined in the DevSecOps guidelines. The approach can be summarized as:
+
+```
+🔴 1. Write a Failing Test First
+    commit type: test(scope): add failing test for new feature
+
+🟢 2. Write Minimal Code to Pass
+    commit type: feat(scope): implement minimal solution to pass test
+
+🔵 3. Refactor While Keeping Tests Green
+    commit type: refactor(scope): improve implementation while maintaining test
+```
+
+For writing tests, we use standard testing frameworks appropriate for each language:
+
+- JavaScript/TypeScript: Jest, Mocha, etc.
+- Python: pytest, unittest
+- Shell: bats or shunit2
+
+The test directory structure follows a standard organization:
+
+```
+tests/
+├── unit/         # Unit tests
+├── integration/  # Integration tests
+└── e2e/          # End-to-end tests
+```
+
+When developing new features or fixing bugs, always follow the TDD cycle:
+
+1. Write a failing test that demonstrates the expected behavior
+2. Implement the minimal code needed to make the test pass
+3. Refactor the code as needed while ensuring tests continue to pass
+
+## 🔗️ Versioning
+
+This project follows **Semantic Versioning (SemVer)** principles. Version numbers are managed automatically through Commitizen.
+
+## ❓ Questions and Support
+
+If you have questions or need help contributing:
+
+1. 📖 Check the existing documentation in the `docs/` folder
+2. 💬 [Create an issue ](https://your-repo/-/issues) describing your problem or question
+
+## 👊 Continuous Improvement
+
+We value continuous improvement and feedback. If you have suggestions for making the DevSecOps Plugin better, please share them through issues or merge requests.
+
+## 📖 Additional Resources
+
+- [Task Documentation](https://taskfile.dev)
+- [Conventional Commits](https://www.conventionalcommits.org/)
+- [MegaLinter Documentation](https://megalinter.io/)
+- [DevSecOps Guidelines](docs/guidelines/DevSecOps.md)
+
+## ©️ License
+
+By contributing to this project, you agree that your contributions will be covered by the [European Union Public License (EUPL)](LICENSE).
 
 ---
-
-**Breaking change?** ⚠️
-[Yes/No - If yes, detail impact and migration path]
-
-**Additional context:**
-
-- Version: [x.y.z]
-- Environment: [details]
-- Dependencies: [list]
-````
-
-#### Issue Types
-
-Choose the appropriate type:
-
-- `fix`: Bug corrections (e.g., [fix] Resolve task timeout in CI pipeline)
-- `feat`: New features (e.g., [feat] Add automatic dependency scanning)
-- `docs`: Documentation changes (e.g., [docs] Update installation guide)
-- `style`: Code style changes (e.g., [style] Format according to new rules)
-- `refactor`: Code restructuring (e.g., [refactor] Optimise task execution logic)
-- `perf`: Performance improvements (e.g., [perf] Reduce pipeline execution time)
-- `test`: Test-related changes (e.g., [test] Add integration tests for API)
-- `build`: Build system changes (e.g., [build] Update Docker configuration)
-- `ci`: CI/CD modifications (e.g., [ci] Add new deployment stage)
-- `chore`: Maintenance tasks (e.g., [chore] Update dependencies)
-
-### Merge Request
-
-#### Creation Process
-
-1. Fork the project in GitLab
-2. Create a feature branch
-3. Implement changes
-4. Submit Merge Request
-
-#### Template
-
-```markdown
-# Description
-
-[Detailed description of changes]
-
-## Related Issues
-
-- Closes #[issue-number]
-
-## Type of Change
-
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Breaking change
-- [ ] Documentation update
-
-## Testing Performed
-
-- [ ] Unit tests
-- [ ] Integration tests
-- [ ] Manual testing
-
-## Checklist
-
-- [ ] My code follows the project's style
-- [ ] I have updated the documentation
-- [ ] I have added tests
-- [ ] All tests pass
-- [ ] I have added necessary documentation
-- [ ] My branch is up to date with main
-
-## Additional Notes
-
-[Any additional information]
-```
-
-### Review Requirements
-
-1. Automated checks:
-
-- Pipeline must pass
-- Code quality gates met
-- Security scans passed
-- Test coverage maintained/improved
-
-2. Manual review requirements:
-
-- Two approvals minimum
-- No unresolved discussions
-- Up-to-date with base branch
-
-## Development Standards
-
-### Code Organisation
-
-- Each technology or tool must have its dedicated directory within `.config/`
-- All operations must be abstracted through Taskfile.yml
-- Pipeline configurations should only call tasks with appropriate parameters
-- Avoid direct code execution in CI pipelines
-
-### Naming Conventions
-
-- Use UPPERCASE for Taskfile variables
-- Follow the pattern: `TASK_TOOLNAME_PARAMETER: '{{.OVERRIDE_TASK_TOOLNAME_PARAMETER | default "default_value"}}'`
-- Keep variable names descriptive and consistent
-- Use snake_case for task names and parameters
-
-### Language Standards
-
-- Use formal British English for all documentation and comments
-- Maintain consistent spelling across the project (e.g., 'organisation' not 'organization')
-- Write clear, concise commit messages following Conventional Commits specification
-
-### Task Management
-
-- Each tool or component should have its own Taskfile in its `.config` directory
-- Tasks should be modular and follow the single responsibility principle
-- Use meaningful default values for task parameters
-- Document all task parameters and their purposes
-
-### Code Quality Standards
-
-- Follow language-specific style guides
-- Maintain consistent code formatting
-- Use meaningful variable and function names
-- Keep functions focused and maintainable
-- Document complex logic and important decisions
-
-### Security Practices
-
-- Never commit sensitive information (API keys, credentials)
-- Use environment variables for sensitive configuration
-- Follow the principle of least privilege
-- Regularly update dependencies
-- Run security scans before merging
-
-## Testing Requirements
-
-1. Unit tests:
-
-- One test file per module
-- Mock external dependencies
-- > 85% coverage
-
-2. Integration tests:
-
-- Test major workflows
-- Include edge cases
-- Mock external services
-
-3. Performance tests:
-
-- Response time limits
-- Resource usage bounds
-- Scalability verification
-
-## Documentation Guidelines
-
-### Code Documentation
-
-- Clear function signatures
-- Purpose descriptions
-- Usage examples
-- Parameter explanations
-
-### User Documentation
-
-- Step-by-step guides
-- Clear prerequisites
-- Troubleshooting sections
-- Version compatibility
-
-### Documentation Requirements
-
-- Maintain comprehensive README files for each component
-- Document all configuration options
-- Include usage examples
-- Keep documentation up-to-date with code changes
-- Provide clear error messages and troubleshooting guides
-
-## Communication Standards
-
-### Issue Discussions
-
-- Be constructive and respectful
-- Provide context and examples
-- Reference relevant documentation
-- Use proper formatting
-- Stay on topic
-
-### MR Reviews
-
-- Review thoroughly
-- Provide specific feedback
-- Suggest improvements
-- Acknowledge good practices
-- Respond promptly
-
-## Version Control Practices
-
-- Follow GitFlow branching strategy
-- Use meaningful branch names (feature/, bugfix/, etc.)
-- Create atomic commits with clear messages
-- Reference issues in commit messages and merge requests
-- Keep changes focused and reviewable
-
-## Continuous Integration
-
-- All CI/CD operations must use task abstractions
-- Configure appropriate timeouts for CI jobs
-- Maintain consistent pipeline structure across projects
-- Document CI/CD variables and their purposes
-
-## Review Process
-
-- Code reviews are mandatory for all changes
-- Use merge request templates
-- Address all review comments
-- Ensure CI passes before merging
-- Verify documentation updates
-
-## Licensing
-
-By contributing to this project, you agree that your contributions will be licensed under the MIT License.
+🙏 Thank you for contributing to the DevSecOps Plugin!
