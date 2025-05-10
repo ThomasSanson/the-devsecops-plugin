@@ -1,0 +1,184 @@
+---
+image: registry.gitlab.com/digital-commons/devsecops/tools/the-devsecops-plugin:8.1.0
+
+variables:
+  TERM: xterm
+  GIT_STRATEGY: clone
+  GIT_DEPTH: 0
+  # When using dind service, you must instruct Docker to talk with
+  # the daemon started inside of the service. The daemon is available
+  # with a network connection instead of the default
+  # /var/run/docker.sock socket.
+  DOCKER_HOST: tcp://docker:2376
+  #
+  # The 'docker' hostname is the alias of the service container as described at
+  # https://docs.gitlab.com/ee/ci/services/#accessing-the-services.
+  # If you're using GitLab Runner 12.7 or earlier with the Kubernetes executor and Kubernetes 1.6 or earlier,
+  # the variable must be set to tcp://localhost:2376 because of how the
+  # Kubernetes executor connects services to the job container
+  # DOCKER_HOST: tcp://localhost:2376
+  #
+  # Specify to Docker where to create the certificates. Docker
+  # creates them automatically on boot, and creates
+  # `/certs/client` to share between the service and job
+  # container, thanks to volume mount from config.toml
+  DOCKER_TLS_CERTDIR: "/certs"
+  # These are usually specified by the entrypoint, however the
+  # Kubernetes executor doesn't run entrypoints
+  # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/4125
+  DOCKER_TLS_VERIFY: 1
+
+  # Docker BuildKit settings
+  DOCKER_BUILDKIT: "1"  # Enable Docker BuildKit at the Docker engine level
+  TASK_DOCKER_CE_BUILDKIT_ENABLED: "true"  # Enable BuildKit in our Taskfile
+  TASK_DOCKER_CE_BUILDKIT_CACHE_TYPE: "registry"  # Use registry-based caching
+  TASK_DOCKER_CE_AUTH_ENABLED: "true"  # Enable registry authentication
+  TASK_DOCKER_CE_PUSH: "true"  # Enable pushing to registry including cache images
+
+  DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  DOCKER_DRIVER: overlay2
+  CZ_ALLOW_PUSH: "true"
+  # Variables for the init Taskfile
+  TASK_DEV_INIT_PROJECT_DIR: $CI_PROJECT_DIR
+  # TASK_DEV_INIT_OWNER: 'developer:developer' # Default is handled in Taskfile
+  TASK_DEV_INIT_DEPLOY_KEY_PATH: $CZ_DEPLOY_KEY
+  TASK_DEV_INIT_GIT_SERVER_HOST: $CI_SERVER_HOST
+  TASK_DEV_INIT_GIT_USER_NAME: $GITLAB_USER_LOGIN
+  TASK_DEV_INIT_GIT_USER_EMAIL: $GITLAB_USER_EMAIL
+  TASK_CODECEPTJS_CI: "true"
+  # Variables for Helm repository
+  TASK_HELM_REPO_URL: "${CI_PAGES_URL}/helm/"  # Set the Helm repository URL using GitLab Pages
+  TASK_PAGES_PUBLISH_DIR: "project/public"
+
+services:
+  # kics-scan ignore-line
+  - name: docker:24.0.5-dind # The rule [ce76b7d0-9e77-464d-b86f-c5c48e03e22d,698ed579-b239-4f8f-a388-baa4bcb13ef8,610e266e-6c12-4bca-9925-1ed0cd29742b] are ignored here because it causes false positives specifically related to the Docker-in-Docker service.
+
+before_script:
+  # Install Taskfile if not present
+  - |
+    if ! command -v task &> /dev/null; then
+      echo "Taskfile not found. Installation in progress..."
+      sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+    else
+      echo "Taskfile already installed."
+    fi
+    task --version
+  # Execute the initialization Taskfile
+  - task dev:init
+  # Source bash profile (might be needed if task install modifies it, keep for safety)
+  - source ~/.bash_profile
+
+stages:
+  - plan
+  - code
+  - build
+  - test
+  - release
+  - deploy
+  - operate
+  - monitor
+  - feedback
+
+plan:
+  stage: plan
+  needs: []  # Allows parallel execution
+  script:
+    - task plan
+
+code:
+  stage: code
+  retry: 1
+  needs: []  # Allows parallel execution
+  script:
+    - task code
+
+build:
+  stage: build
+  needs: []  # Allows parallel execution
+  script:
+    - task build
+  artifacts:
+    paths:
+      - project/public
+    expire_in: 1 week
+
+test:
+  stage: test
+  retry: 1
+  needs: []  # Allows parallel execution
+  script:
+    - task test
+  artifacts:
+    exclude:
+      - $CI_PROJECT_DIR/.config/**/node_modules/**/*
+      - $CI_PROJECT_DIR/.git/**/*
+      - $CI_PROJECT_DIR/tmp/**/*
+      - $CI_PROJECT_DIR/venv/**/*
+    expire_in: 1 week
+    name: "full_repository_${CI_COMMIT_SHORT_SHA}"
+    paths:
+      - $CI_PROJECT_DIR
+    when: always
+
+release:
+  stage: release
+  needs: ["code", "build", "test"]
+  variables:
+    # Variables for commitizen bump (likely used within 'task release')
+    TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH: $CI_COMMIT_BRANCH
+    TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH: $CI_DEFAULT_BRANCH
+    # Variables for push-release task
+    TASK_DEVSECOPS_RELEASE_ALLOW_PUSH: $CZ_ALLOW_PUSH
+    TASK_DEVSECOPS_RELEASE_DEPLOY_KEY: $CZ_DEPLOY_KEY
+    TASK_DEVSECOPS_RELEASE_GIT_SERVER_HOST: $CI_SERVER_SHELL_SSH_HOST
+    TASK_DEVSECOPS_RELEASE_PROJECT_PATH: $CI_PROJECT_PATH
+    # Variables for Docker (likely used within 'task release')
+    TASK_DOCKER_CE_AUTH_ENABLED: "true"
+    TASK_DOCKER_CE_IMAGE_NAME: ${CI_REGISTRY_IMAGE}
+    TASK_DOCKER_CE_PUSH: "true"
+    TASK_DOCKER_CE_REGISTRY_PASSWORD: ${CI_REGISTRY_PASSWORD}
+    TASK_DOCKER_CE_REGISTRY_URL: ${CI_REGISTRY}
+    TASK_DOCKER_CE_REGISTRY_USERNAME: ${CI_REGISTRY_USER}
+  script:
+    - task release
+
+deploy:
+  stage: deploy
+  needs:
+    - job: build
+      artifacts: true
+  variables:
+    TASK_K3D_CLUSTER_NAME: ${CI_COMMIT_SHORT_SHA}-release
+  script:
+    - task deploy
+
+pages:
+  stage: deploy
+  needs:
+    - job: build
+      artifacts: true
+  script:
+    - echo "Publishing to GitLab Pages"
+  artifacts:
+    paths:
+      - $TASK_PAGES_PUBLISH_DIR
+  publish: $TASK_PAGES_PUBLISH_DIR
+
+operate:
+  stage: operate
+  needs: ["deploy"]
+  script:
+    - task operate
+
+monitor:
+  stage: monitor
+  needs: ["deploy"]
+  script:
+    - task monitor
+
+feedback:
+  stage: feedback
+  needs: ["deploy"]
+  script:
+    - task feedback
