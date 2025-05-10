@@ -107,6 +107,8 @@ test:
   stage: test
   retry: 1
   needs: []  # Allows parallel execution
+  tags:
+    - saas-linux-xlarge-amd64
   script:
     - task test
   artifacts:
