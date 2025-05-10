@@ -111,8 +111,13 @@ test:
   needs: []  # Allows parallel execution
   tags:
     - saas-linux-medium-amd64
+  parallel:
+    matrix:
+      - COMMAND: 'time TASK_CODECEPTJS_GREP="@copier --invert" task test'
+      - COMMAND: 'time TASK_CODECEPTJS_GREP="@copier" task codeceptjs'
   script:
-    - task test
+    - echo "$COMMAND"
+    - eval $COMMAND
   artifacts:
     exclude:
       - $CI_PROJECT_DIR/.config/**/node_modules/**/*
