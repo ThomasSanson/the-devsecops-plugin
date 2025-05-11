@@ -2,6 +2,16 @@
 
 # Changelog
 
+## 9.1.0 (2025-05-11)
+
+### Feat
+
+- **copier.yml**: add _skip_if_exists configuration to prevent overwriting existing files during template generation
+
+### Fix
+
+- **copier-answers**: add YAML document start marker to ensure proper parsing of the file
+
 ## 9.0.2 (2025-05-11)
 
 ### Fix
