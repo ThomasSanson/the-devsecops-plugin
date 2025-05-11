@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 9.0.1 (2025-05-11)
+
+### Fix
+
+- **copier.yml**: remove obsolete migration for version 8.0.0 to clean up the configuration and simplify the file
+
 ## 9.0.0 (2025-05-10)
 
 ### Feat
