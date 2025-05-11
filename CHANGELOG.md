@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 9.2.0 (2025-05-11)
+
+### Feat
+
+- add VERSION.jinja file to define the application version
+
 ## 9.1.0 (2025-05-11)
 
 ### Feat
