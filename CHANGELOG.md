@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 9.0.2 (2025-05-11)
+
+### Fix
+
+- **copier.yml**: remove unnecessary _skip_if_exists configuration to simplify template setup
+
 ## 9.0.1 (2025-05-11)
 
 ### Fix
