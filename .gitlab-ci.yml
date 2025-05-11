@@ -133,6 +133,8 @@ test:
 release:
   stage: release
   needs: ["code", "build", "test"]
+  tags:
+    - saas-linux-medium-amd64
   variables:
     # Variables for commitizen bump (likely used within 'task release')
     TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH: $CI_COMMIT_BRANCH
