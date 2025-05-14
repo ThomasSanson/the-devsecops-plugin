@@ -3,7 +3,7 @@ apiVersion: v2
 name: project
 description: A Helm chart for project deployment with required dependencies
 type: application
-version: 9.2.0
+version: 9.3.0
 appVersion: "6.0.0"
 
 dependencies:

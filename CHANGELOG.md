@@ -2,6 +2,13 @@
 
 # Changelog
 
+## 9.3.0 (2025-05-14)
+
+### Feat
+
+- **Taskfile.test.yml**: add helm dependency update task to ensure all dependencies are up to date before installation
+- **Taskfile.yml**: add TASK_K3D_LOAD_IMAGE_RUN_TYPE variable to configure image run type dynamically
+
 ## 9.2.0 (2025-05-11)
 
 ### Feat
