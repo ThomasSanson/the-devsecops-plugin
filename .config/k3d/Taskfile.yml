@@ -18,6 +18,7 @@ vars:
   TASK_K3D_VENV_DIR: '{{.TASK_K3D_VENV_DIR | default "./venv/k3d"}}'
   TASK_K3D_VERSION: '{{.TASK_K3D_VERSION | default "v5.8.3"}}'
   TASK_K3D_FIX_DNS: '{{.TASK_K3D_FIX_DNS | default "0"}}'
+  TASK_K3D_LOAD_IMAGE_RUN_TYPE: '{{.TASK_K3D_LOAD_IMAGE_RUN_TYPE | default "when_changed"}}'
 
 env:
   LANG: "C.UTF-8"
@@ -110,7 +111,7 @@ tasks:
     status:
       # Check if the cluster does NOT exist. Status succeeds (task is up-to-date) if cluster is absent.
       - cluster_name=$(echo {{.TASK_K3D_CLUSTER_NAME}}); ! k3d cluster get "$cluster_name" > /dev/null 2>&1
-    run: once
+    run: "{{.TASK_K3D_LOAD_IMAGE_RUN_TYPE}}"
     preconditions:
       - sh: "command -v k3d >/dev/null 2>&1"
         msg: "❌ k3d is not installed or not available in the system's PATH."
