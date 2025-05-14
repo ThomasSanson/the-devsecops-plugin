@@ -103,6 +103,7 @@ tasks:
       - task: :kubeseal:install
       # Verify helm installation
       - task: :helm:install
+      - task: :helm:dependency:update
       # Install infrastructure test collections
       - task: :ansible:galaxy:collection:install
         vars:
