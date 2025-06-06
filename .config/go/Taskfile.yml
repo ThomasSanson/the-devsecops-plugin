@@ -2,7 +2,7 @@
 version: "3"
 
 vars:
-  TASK_GO_ENABLED: '{{.TASK_GO_ENABLED | default "true"}}'
+  TASK_GO_ENABLED: '{{.TASK_GO_ENABLED | default "false"}}'
   TASK_GO_VENV_DIR: '{{.TASK_GO_VENV_DIR | default "./venv/go"}}'
   TASK_GO_ANSIBLE_CMD: '{{.TASK_GO_ANSIBLE_CMD | default "./venv/go/bin/ansible-playbook"}}'
   TASK_GO_ANSIBLE_GALAXY_CMD: '{{.TASK_GO_ANSIBLE_GALAXY_CMD | default "./venv/go/bin/ansible-galaxy"}}'
