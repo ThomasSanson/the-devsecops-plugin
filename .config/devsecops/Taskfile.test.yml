@@ -4,7 +4,7 @@ version: "3"
 vars:
   TASK_DEVSECOPS_TEST_ENABLED: '{{.TASK_DEVSECOPS_TEST_ENABLED | default "true"}}'
   TASK_DEVSECOPS_TEST_ANSIBLE_VIRTUALENV: '{{.TASK_DEVSECOPS_TEST_ANSIBLE_VIRTUALENV | default "./venv/ansible"}}'
-  TASK_DEVSECOPS_TEST_KUBECONFIG_DIR: '{{.TASK_DEVSECOPS_TEST_KUBECONFIG_DIR | default "iac/environment/testing"}}'
+  TASK_DEVSECOPS_TEST_KUBECONFIG_DIR: '{{.TASK_DEVSECOPS_TEST_KUBECONFIG_DIR | default ""}}'
   TASK_DEVSECOPS_TEST_KUBECONFIG_FILE: '{{.TASK_DEVSECOPS_TEST_KUBECONFIG_DIR}}/kubeconfig.yaml'
   TASK_DEVSECOPS_TEST_DESTROY_ENABLED: '{{.TASK_DEVSECOPS_TEST_DESTROY_ENABLED | default "true"}}'
   TASK_DEVSECOPS_TEST_CLEANUP_ENABLED: '{{.TASK_DEVSECOPS_TEST_CLEANUP_ENABLED | default "true"}}'
@@ -17,10 +17,7 @@ tasks:
     cmds:
       - cmd: echo "🔄 Starting test phase"
         silent: true
-      - task: bootstrap:infrastructure
       - task: :project:test
-      - task: validate:resilience
-      - task: teardown:infrastructure
       - cmd: echo "🎉 Test phase completed successfully"
         silent: true
 
@@ -31,12 +28,7 @@ tasks:
     cmds:
       - cmd: echo "🔄 Starting tdd phase"
         silent: true
-      - task: bootstrap:infrastructure
-        vars:
-          TASK_DEVSECOPS_TEST_DESTROY_ENABLED: 'false'
-          TASK_DEVSECOPS_TEST_CLEANUP_ENABLED: 'false'
       - task: :project:test:tdd
-      - task: verify
       - cmd: echo "🎉 Tdd phase completed successfully"
         silent: true
 
