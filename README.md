@@ -153,25 +153,19 @@ Use `.` to create in the current directory
 
 ### Task Control
 
-The plugin uses Task for operation control. Key environment variables:
+The plugin uses Task for operation control. Configuration is managed through environment variables defined in `.env` or `.env.dist` files.
 
+Copy the template file and customize as needed:
 ```bash
-# Core Controls
-export TASK_FLAGS=""
-export TASK_SEPARATOR="----------------------------------------"
-
-# Component Controls
-export TASK_BUN_ENABLED=true
-export TASK_COMMITIZEN_ENABLED=true
-export TASK_DOCKER_CE_ENABLED=true
-export TASK_MEGALINTER_ENABLED=true
-export TASK_LIZARD_ENABLED=true
-
-# Pipeline Stage Controls
-export TASK_DEVSECOPS_PLAN_ENABLED=true
-export TASK_DEVSECOPS_CODE_ENABLED=true
-export TASK_DEVSECOPS_BUILD_ENABLED=true
+cp .env.dist .env
+# Edit .env with your preferred settings
 ```
+
+Key environment variables are automatically loaded by Task. See [`.env.dist`](.env.dist) for the complete list of available variables including:
+
+- **Core Controls**: `TASK_FLAGS`, `TASK_SEPARATOR`
+- **Component Controls**: Enable/disable individual tools (e.g., `TASK_MEGALINTER_ENABLED`, `TASK_DOCKER_CE_ENABLED`)
+- **Pipeline Stage Controls**: Enable/disable DevSecOps stages (e.g., `TASK_DEVSECOPS_CODE_ENABLED`, `TASK_DEVSECOPS_BUILD_ENABLED`)
 
 ### Common Operations
 
@@ -180,14 +174,14 @@ export TASK_DEVSECOPS_BUILD_ENABLED=true
   task dev:setup-environment
   ```
 
-2. **Run Security Scans**:
+2. **Run Code Quality and Security Checks**:
   ```bash
-  task devsecops:code:security
+  task devsecops:code
   ```
 
 3. **Validate Code Quality**:
   ```bash
-  task devsecops:code:quality
+  task devsecops:code
   ```
 
 4. **Create Release**:
@@ -197,10 +191,10 @@ export TASK_DEVSECOPS_BUILD_ENABLED=true
 
 ### Project Customization
 
-The plugin is designed to be easily customizable for specific project needs. Each project can define its own tasks in `src/Taskfile.yml` following the same lifecycle stages:
+The plugin is designed to be easily customizable for specific project needs. Each project can define its own tasks in `project/Taskfile.yml` following the same lifecycle stages:
 
 ```yaml
-# src/Taskfile.yml
+# project/Taskfile.yml
 tasks:
   plan:
     desc: Run project-specific plan tasks
@@ -247,36 +241,33 @@ task monitor    # Monitoring
 task feedback   # Feedback loop
 
 # Run specific tools
-task megalinter     # Code quality & security
-task commitizen     # Manage commits
-task docker-ce:test    # Docker tests
+task megalinter         # Code quality & security
+task commitizen         # Manage commits
+task docker-ce:test     # Docker tests
+task lizard             # Code complexity analysis
+task commitlint         # Commit message validation
 ```
 
 ## Environment Variables
 
 ### Task Control Variables
-You can customize the behavior of the plugin by setting these environment variables:
+You can customize the behavior of the plugin by setting environment variables in your `.env` file.
 
+**Setup:**
 ```bash
-# Core Features
-TASK_BUN_ENABLED=true           # Enable/disable Bun runtime
-TASK_COMMITIZEN_ENABLED=true    # Enable/disable Commitizen
-TASK_COMMITLINT_ENABLED=true    # Enable/disable Commitlint
-TASK_MEGALINTER_ENABLED=true    # Enable/disable MegaLinter
-TASK_DOCKER_CE_ENABLED=true     # Enable/disable Docker CE features
-TASK_LIZARD_ENABLED=true        # Enable/disable Lizard code analysis
-
-# DevSecOps Pipeline Stages
-TASK_DEVSECOPS_PLAN_ENABLED=true      # Enable/disable Plan stage
-TASK_DEVSECOPS_CODE_ENABLED=true      # Enable/disable Code stage
-TASK_DEVSECOPS_BUILD_ENABLED=true     # Enable/disable Build stage
-TASK_DEVSECOPS_TEST_ENABLED=true      # Enable/disable Test stage
-TASK_DEVSECOPS_RELEASE_ENABLED=true   # Enable/disable Release stage
-TASK_DEVSECOPS_DEPLOY_ENABLED=true    # Enable/disable Deploy stage
-TASK_DEVSECOPS_OPERATE_ENABLED=true   # Enable/disable Operate stage
-TASK_DEVSECOPS_MONITOR_ENABLED=true   # Enable/disable Monitor stage
-TASK_DEVSECOPS_FEEDBACK_ENABLED=true  # Enable/disable Feedback stage
+# Copy the template and customize
+cp .env.dist .env
 ```
+
+**Available Variables:**
+All configuration variables are documented in [`.env.dist`](.env.dist). Key categories include:
+
+- **Core Controls**: Basic task behavior and formatting
+- **Component Controls**: Enable/disable individual tools (30+ available)
+- **Pipeline Stage Controls**: Enable/disable DevSecOps lifecycle stages
+- **Tool-Specific Configuration**: Settings for individual components
+
+For the complete list of variables and their default values, see [`.env.dist`](.env.dist).
 
 ### GitLab CI/CD Variables
 The following variables need to be configured in your GitLab CI/CD settings:
@@ -325,11 +316,11 @@ The plugin follows a modular architecture:
 │   ├── docker/             # Docker configuration
 │   └── megalinter/         # Linting configuration
 ├── .devcontainer/          # Dev container setup
-├── src/                    # Project-specific tasks
+├── project/                # Project-specific tasks
 │   └── Taskfile.yml       # Custom task definitions
 └── Taskfile.yml           # Main task orchestration
 
-Each project can extend the base functionality by adding custom tasks in src/Taskfile.yml,
+Each project can extend the base functionality by adding custom tasks in project/Taskfile.yml,
 which are automatically integrated into the main pipeline while preserving the core DevSecOps features.
 ```
 

@@ -187,26 +187,6 @@ Then('the commitizen "version_files" configuration should NOT contain {string}',
   }
 })
 
-Then('the Helm chart file {string} should exist', (chartPath) => { // eslint-disable-line no-undef
-  assertFileExists(resolveProjectPath(chartPath), `Helm chart file does not exist: ${resolveProjectPath(chartPath)}`)
-})
-
-Then('the Helm chart name should be {string}', (expectedName) => { // eslint-disable-line no-undef
-  const chartPath = resolveProjectPath('iac', 'helm', 'Chart.yaml')
-  assertFileExists(chartPath, `Helm chart file does not exist: ${chartPath}`)
-
-  const content = fs.readFileSync(chartPath, 'utf8')
-  const match = content.match(/^name:[ \t]*([^\n]+)$/m)
-  if (!match) {
-    throw new Error(`No 'name' key found in Helm chart: ${chartPath}`)
-  }
-
-  const actualName = match[1].trim()
-  if (actualName !== expectedName) {
-    throw new Error(`Expected Helm chart name '${expectedName}', got '${actualName}' in ${chartPath}`)
-  }
-})
-
 Then('the {string} file should NOT exist', (filePath) => { // eslint-disable-line no-undef
   assertFileNotExists(resolveProjectPath(filePath))
 })
@@ -223,18 +203,49 @@ Then('the content of the file {string} should be exactly:', function (filePath, 
 
 Given('a project has been generated with the DevSecOps plugin', function () { // eslint-disable-line no-undef
   ensureProjectExists()
+
+  // Diagnostic logging to validate git configuration
+  console.log('=== GIT CONFIGURATION DIAGNOSTICS ===')
+  try {
+    execSync('git config --global --list | grep user', { stdio: 'inherit' })
+  } catch (err) {
+    console.log('No global git user config found:', err.message)
+  }
+
+  executeCommand('git init --initial-branch=origin/main', getProjectRoot())
+
+  // Check git config in the generated project directory
+  console.log('=== GIT CONFIG IN GENERATED PROJECT ===')
+  try {
+    execSync('git config --list | grep user', { stdio: 'inherit', cwd: getProjectRoot() })
+  } catch (err) {
+    console.log('No git user config found in project directory:', err.message)
+  }
+
+  // Set git user identity locally in the generated project
+  console.log('=== SETTING LOCAL GIT IDENTITY ===')
+  executeCommand('git config user.name "CI Test User"', getProjectRoot())
+  executeCommand('git config user.email "ci-test@example.com"', getProjectRoot())
+
+  // Verify the configuration was set
+  console.log('=== VERIFYING LOCAL GIT IDENTITY ===')
+  executeCommand('git config --get user.name', getProjectRoot())
+  executeCommand('git config --get user.email', getProjectRoot())
+
+  executeCommand('git add .', getProjectRoot())
+  executeCommand('git commit -m"feat: init"', getProjectRoot())
   const taskfile = resolveProjectPath('.config', 'devsecops', 'Taskfile.test.yml')
   assertFileExists(taskfile, `DevSecOps Taskfile.test.yml not found: ${taskfile}`)
 })
 
-When('I execute the DevSecOps test task', function () { // eslint-disable-line no-undef
-  executeCommand('TASK_CODECEPTJS_GREP="" task test', getProjectRoot())
+When('I execute the DevSecOps task', function () { // eslint-disable-line no-undef
+  executeCommand('task devsecops', getProjectRoot())
 })
 
-Then('the DevSecOps test task should complete successfully', function () { // eslint-disable-line no-undef
+Then('the DevSecOps task should complete successfully', function () { // eslint-disable-line no-undef
   if (this.testError) {
     throw new Error(
-      `DevSecOps test task failed to execute in the generated project:\n${this.testError}\nOutput:\n${this.testResult}`
+      `DevSecOps task failed to execute in the generated project:\n${this.testError}\nOutput:\n${this.testResult}`
     )
   }
 })

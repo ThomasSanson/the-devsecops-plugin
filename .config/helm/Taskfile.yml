@@ -2,7 +2,7 @@
 version: "3"
 
 vars:
-  TASK_HELM_ENABLED: '{{.TASK_HELM_ENABLED | default "true"}}'
+  TASK_HELM_ENABLED: '{{.TASK_HELM_ENABLED | default "false"}}'
   TASK_HELM_VENV_DIR: '{{.TASK_HELM_VENV_DIR | default "./venv/helm"}}'
   TASK_HELM_ANSIBLE_CMD: '{{.TASK_HELM_ANSIBLE_CMD | default "./venv/helm/bin/ansible-playbook"}}'
   TASK_HELM_ANSIBLE_GALAXY_CMD: '{{.TASK_HELM_ANSIBLE_GALAXY_CMD | default "./venv/helm/bin/ansible-galaxy"}}'
@@ -12,7 +12,7 @@ vars:
   TASK_HELM_PYTHON_VERSION_FILE: '{{.TASK_HELM_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
   TASK_HELM_ANSIBLE_INVENTORY_TARGET: "localhost" # DevSkim: ignore DS162092
   TASK_HELM_MAJOR_VERSION: '{{.TASK_HELM_MAJOR_VERSION | default "v3.17.1"}}'
-  TASK_HELM_DIR: '{{.TASK_HELM_DIR | default "iac/helm"}}'
+  TASK_HELM_DIR: '{{.TASK_HELM_DIR | default ""}}'
   TASK_HELM_CLI_OPTS: '{{.TASK_HELM_CLI_OPTS | default ""}}'
   TASK_HELM_BUILD_DESTINATION: '{{.TASK_HELM_BUILD_DESTINATION | default ".cache/helm"}}'
   TASK_HELM_DEPENDENCY_UPDATE: '{{.TASK_HELM_DEPENDENCY_UPDATE | default "--dependency-update"}}'

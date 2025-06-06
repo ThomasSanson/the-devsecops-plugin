@@ -54,10 +54,10 @@ tasks:
       - cmd: echo "🚀 Starting project TDD test phase"
         silent: true
       - task: :deploy
-      - task: operate:kube:port-forward
       - task: :codeceptjs
         vars:
           TASK_CODECEPTJS_GREP: "{{.TASK_CODECEPTJS_GREP}}"
+          TASK_CODECEPTJS_CONFIG: "project/plugin/tests/e2e/codeceptjs/codecept.conf.js"
       - cmd: echo "✅ Project TDD test phase completed successfully"
         silent: true
 
@@ -108,24 +108,6 @@ tasks:
     cmds:
       - cmd: echo "🚀 Starting project deploy phase"
         silent: true
-      - task: :helm:dependency:update
-      - cmd: |
-          echo "🚀 Create namespace..."
-          kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml create namespace superset --dry-run=client -o yaml | kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml apply -f -
-          kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml create namespace testing --dry-run=client -o yaml | kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml apply -f -
-      - kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml apply -f iac/environment/{{.ENV | default "testing"}}/sealed-secrets.yaml
-      - cmd: |
-          echo "🚀 Deploying Apache Superset..."
-          helm repo add superset https://apache.github.io/superset
-          helm repo update
-          helm upgrade --install superset superset/superset \
-            --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml \
-            --namespace superset \
-            --create-namespace \
-            --values iac/environment/{{.ENV | default "testing"}}/superset-values.yaml \
-            --wait \
-            --timeout 30m \
-            --debug
       - cmd: echo "✅ Project Deploy phase completed successfully"
         silent: true
 
@@ -135,22 +117,6 @@ tasks:
       - cmd: echo "🚀 Starting project operate phase"
         silent: true
       - cmd: echo "✅ Project Operate phase completed successfully"
-        silent: true
-
-  operate:kube:port-forward:
-    desc: Port-forward the Superset service to localhost # DevSkim: ignore DS162092
-    status:
-      - 'curl --fail --max-time 2 http://localhost:8080 > /dev/null 2>&1' # DevSkim: ignore DS162092
-    cmds:
-      - cmd: echo "🚀 Starting project port-forward phase"
-        silent: true
-      - task: :kubectl:port-forward
-        vars:
-          SERVICE_NAME: superset
-          LOCAL_PORT: 8080
-          REMOTE_PORT: 8088
-          NAMESPACE: superset
-      - cmd: echo "✅ Project Port-forward phase completed successfully"
         silent: true
 
   monitor:

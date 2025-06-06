@@ -52,8 +52,6 @@ tasks:
         silent: true
       - task: setup-environment
       - task: :deploy
-      - cmd: echo " Open http://localhost:8080 in your browser" # DevSkim: ignore DS162092
-        silent: true
       - cmd: echo "=> Run 'task dev:reset to destroy and cleanup"
         silent: true
       - cmd: echo "🎉 Project launch sequence completed successfully"

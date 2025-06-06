@@ -4,10 +4,10 @@ version: "3"
 vars:
   TASK_SEALED_SECRETS_NAMESPACE: '{{.TASK_SEALED_SECRETS_NAMESPACE | default "kube-system"}}'
   TASK_SEALED_SECRETS_CONTROLLER: '{{.TASK_SEALED_SECRETS_CONTROLLER | default "sealed-secrets"}}'
-  TASK_SEALED_SECRETS_KUBECONFIG: '{{.TASK_SEALED_SECRETS_KUBECONFIG | default "iac/environment/testing/kubeconfig.yaml"}}'
-  TASK_SEALED_SECRETS_SECRETS_FILE: '{{.TASK_SEALED_SECRETS_SECRETS_FILE | default "iac/environment/testing/secrets.yaml"}}'
-  TASK_SEALED_SECRETS_SEALED_FILE: '{{.TASK_SEALED_SECRETS_SEALED_FILE | default "iac/environment/testing/sealed-secrets.yaml"}}'
-  TASK_SEALED_SECRETS_HELM_DIR: '{{.TASK_SEALED_SECRETS_HELM_DIR | default "iac/helm"}}'
+  TASK_SEALED_SECRETS_KUBECONFIG: '{{.TASK_SEALED_SECRETS_KUBECONFIG | default ""}}'
+  TASK_SEALED_SECRETS_SECRETS_FILE: '{{.TASK_SEALED_SECRETS_SECRETS_FILE | default ""}}'
+  TASK_SEALED_SECRETS_SEALED_FILE: '{{.TASK_SEALED_SECRETS_SEALED_FILE | default ""}}'
+  TASK_SEALED_SECRETS_HELM_DIR: '{{.TASK_SEALED_SECRETS_HELM_DIR | default ""}}'
 
 tasks:
   install:
@@ -19,8 +19,8 @@ tasks:
       🔧 Variables:
         - TASK_SEALED_SECRETS_NAMESPACE: Kubernetes namespace for sealed-secrets (default: kube-system)
         - TASK_SEALED_SECRETS_CONTROLLER: Name of the sealed-secrets controller (default: sealed-secrets)
-        - TASK_SEALED_SECRETS_KUBECONFIG: Path to kubeconfig file (default: iac/environment/testing/kubeconfig.yaml)
-        - TASK_SEALED_SECRETS_HELM_DIR: Path to Helm directory (default: iac/helm)
+        - TASK_SEALED_SECRETS_KUBECONFIG: Path to kubeconfig file (default: )
+        - TASK_SEALED_SECRETS_HELM_DIR: Path to Helm directory (default: )
     preconditions:
       - sh: "command -v helm >/dev/null 2>&1"
         msg: "❌ Helm is not installed"

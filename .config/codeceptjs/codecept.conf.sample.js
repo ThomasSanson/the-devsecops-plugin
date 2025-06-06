@@ -23,7 +23,7 @@ exports.config = {
   teardown: null,
   hooks: [],
   gherkin: {
-    features: '../../features/**/*.feature',
+    features: '../../project/**/*.feature',
     steps: [
       './step_definitions/steps.js',
       '../../tests/e2e/codeceptjs/step_definitions/entrypoint.js'

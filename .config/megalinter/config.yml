@@ -39,8 +39,8 @@ PRE_COMMANDS:
   - command: find /tmp/lint/.config -type d -name "roles" -exec rm -rf {} +
   - command: find /tmp/lint/.config -type d -name "node_modules" -exec rm -rf {} +
   - command: find /tmp/lint/ -type f \( -name "kubeconfig.yml" -o -name "kubeconfig.yaml" \) -exec rm -f {} \;
+  - command: find /tmp/lint/ -type f \( -name "secrets.yml" -o -name "secrets.yaml" \) -exec rm -f {} \;
   - command: find /tmp/lint/.config/ -type f -name "package-lock.json" -exec rm -f {} \;
-  - command: rm -f /tmp/lint/iac/environment/testing/sealed-secrets.yaml
   - command: rm -f /tmp/lint/project/public/helm/index.yaml
   - command: find /tmp/lint/ -type f -name "*.tgz" -exec rm -f {} \;
   - command: find /tmp/lint/ -name requirements.yml -exec ansible-galaxy install -r {} \;
