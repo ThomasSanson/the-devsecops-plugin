@@ -8,6 +8,6 @@ useDefault = true
 [allowlist]
 description = "Files to ignore for secrets detection"
 paths = [
-  '''iac/environment/.*/sealed-secrets\.yaml''',
-  '''iac/environment/testing/secrets\.yaml'''
+  '''.*/sealed-secrets\.yaml''',
+  '''.*/secrets\.yaml'''
 ]
