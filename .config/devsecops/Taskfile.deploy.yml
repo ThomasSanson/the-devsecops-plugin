@@ -12,8 +12,6 @@ tasks:
     cmds:
       - cmd: echo "🔄 Starting deploy phase"
         silent: true
-      - task: :devsecops:test:check-testing-environment
-      - task: bootstrap
       - task: :project:deploy
       - cmd: echo "🎉 Deploy phase completed successfully"
         silent: true
