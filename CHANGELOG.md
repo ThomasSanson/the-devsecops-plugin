@@ -2,6 +2,36 @@
 
 # Changelog
 
+## 10.0.0 (2025-06-06)
+
+### Feat
+
+- breaking change
+- **tests**: add diagnostic logging for git configuration in e2e tests to ensure proper setup and identity configuration for CI environment
+- **env**: add TASK_CODECEPTJS_ENABLED variable to enable task configuration for CodeceptJS tests
+- **tests**: add entrypoint.js.jinja for loading step definitions in e2e tests
+- **tests**: add entrypoint.js to load step definitions for e2e tests
+- **tests**: add end-to-end tests for the copier functionality to ensure project generation and validation of expected files and directories
+- **tests**: add CodeceptJS configuration file for end-to-end testing setup
+- **copier**: add project scaffolding feature to generate projects from templates for improved setup efficiency
+- **codeceptjs**: add sample configuration file for CodeceptJS to streamline testing setup and provide default settings
+
+### Fix
+
+- **Taskfile.yml**: change default value of TASK_GO_ENABLED from false to true to enable Go tasks by default
+- **Taskfile.yml**: change default value of TASK_PODMAN_ENABLED from true to false to prevent unintended podman usage
+- **Taskfile.yaml**: change default value of TASK_KUBESEAL_ENABLED to false and clear default values for KUBECONFIG, SECRETS_FILE, and SEALED_FILE to enhance flexibility in configuration
+- **Taskfile.yml**: change default value of TASK_K3D_ENABLED to false and remove default path for TASK_K3D_KUBECONFIG_DIR to enhance configuration flexibility
+- **Taskfile.yml**: change default value of TASK_HELM_ENABLED to false and TASK_HELM_DIR to an empty string to prevent unintended behavior in helm tasks
+- **Taskfile.yml**: change default value of TASK_GO_ENABLED from true to false to disable Go tasks by default
+- **cspell**: update ignore patterns to reflect new project structure for sealed-secrets.yaml and secrets.yaml files
+- **Taskfile.yml**: change default value of TASK_CODECEPTJS_ENABLED to false and update TASK_CODECEPTJS_CONFIG to point to sample config file to prevent unintended test runs in CI environments
+- **Taskfile.yml**: change default value of TASK_BUN_ENABLED from true to false to prevent unintended task execution
+
+### Refactor
+
+- **Taskfile.yml**: replace hardcoded kubeconfig paths with a variable for better maintainability and flexibility
+
 ## 9.3.0 (2025-05-14)
 
 ### Feat
