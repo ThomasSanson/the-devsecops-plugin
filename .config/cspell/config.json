@@ -13,8 +13,8 @@
       "**/node_modules/**",
       "**/venv/**",
       "**/vscode-extension/**",
-      "**/iac/environment/**/sealed-secrets.yaml",
-      "**/iac/environment/**/secrets.yaml",
+      "**/project/**/sealed-secrets.yaml",
+      "**/project/**/secrets.yaml",
       "megalinter-reports",
       "package-lock.json"
   ],
