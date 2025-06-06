@@ -11,6 +11,7 @@ vars:
   TASK_KUBECTL_PYTHON_VERSION_FILE: '{{.TASK_KUBECTL_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
   TASK_KUBECTL_ANSIBLE_INVENTORY_TARGET: "localhost" # DevSkim: ignore DS162092
   TASK_KUBECTL_VERSION: '{{.TASK_KUBECTL_VERSION | default "v1.32.0"}}'
+  TASK_KUBECTL_KUBECONFIG: '{{.TASK_KUBECTL_VERSION | default ""}}'
 
 env:
   LANG: "C.UTF-8"
@@ -102,7 +103,7 @@ tasks:
       - pkill -f "kubectl.*port-forward.*svc/{{.SERVICE_NAME}}" || true
       - cmd: echo "🔄 Starting port-forward for service '{{.SERVICE_NAME}}'..."
         silent: true
-      - bash -c "kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml port-forward svc/{{.SERVICE_NAME}} {{.LOCAL_PORT}}:{{.REMOTE_PORT}} -n {{.NAMESPACE | default "default"}} > /dev/null 2>&1 &"
+      - bash -c "kubectl --kubeconfig {{.TASK_KUBECTL_KUBECONFIG}} port-forward svc/{{.SERVICE_NAME}} {{.LOCAL_PORT}}:{{.REMOTE_PORT}} -n {{.NAMESPACE | default "default"}} > /dev/null 2>&1 &"
       - cmd: echo "🌐 Open http://localhost:{{.LOCAL_PORT}} in your browser" # DevSkim: ignore DS162092
         silent: true
       - cmd: echo "🎉 Port-forward phase completed successfully"
@@ -113,7 +114,7 @@ tasks:
     cmds:
       - cmd: echo "🔄 Vérification de l'état des pods pour l'environnement '{{.ENV | default "testing"}}'..."
         silent: true
-      - kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml get pods -A
+      - kubectl --kubeconfig {{.TASK_KUBECTL_KUBECONFIG}} get pods -A
       - cmd: echo "🎉 Vérification de l'état des pods terminée."
         silent: true
 
@@ -123,7 +124,7 @@ tasks:
       - cmd: echo "🔄 Recherche des pods en erreur pour l'environnement '{{.ENV | default "testing"}}'..."
         silent: true
       - |
-        PODS=$(kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml get pods -A --no-headers | awk '$4 == "Error" || $4 == "CrashLoopBackOff" {print $1 "/" $2}')
+        PODS=$(kubectl --kubeconfig {{.TASK_KUBECTL_KUBECONFIG}} get pods -A --no-headers | awk '$4 == "Error" || $4 == "CrashLoopBackOff" {print $1 "/" $2}')
         if [ -z "$PODS" ]; then
           echo "✅ Aucun pod en état Error ou CrashLoopBackOff trouvé."
         else
@@ -132,7 +133,7 @@ tasks:
             namespace=$(echo "$pod_id" | cut -d'/' -f1)
             pod_name=$(echo "$pod_id" | cut -d'/' -f2)
             echo "--- Logs for $pod_id ---"
-            kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml logs "$pod_name" -n "$namespace" --tail=50 || echo "   (Impossible de récupérer les logs pour $pod_id)"
+            kubectl --kubeconfig {{.TASK_KUBECTL_KUBECONFIG}} logs "$pod_name" -n "$namespace" --tail=50 || echo "   (Impossible de récupérer les logs pour $pod_id)"
           done
         fi
       - cmd: echo "🎉 Vérification des logs des pods en erreur terminée."
@@ -155,7 +156,7 @@ tasks:
           exit 1
         fi
         echo "🔍 Affichage des détails pour le pod '{{.CLI_ARGS}}' dans l'environnement '{{.ENV | default "testing"}}'..."
-        kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml describe pod {{.CLI_ARGS}}
+        kubectl --kubeconfig {{.TASK_KUBECTL_KUBECONFIG}} describe pod {{.CLI_ARGS}}
 
   troubleshoot:pod:logs:
     desc: |-
@@ -169,7 +170,7 @@ tasks:
           exit 1
         fi
         echo "📜 Affichage des logs pour le pod '{{.CLI_ARGS}}' dans l'environnement '{{.ENV | default "testing"}}'..."
-        kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml logs {{.CLI_ARGS}}
+        kubectl --kubeconfig {{.TASK_KUBECTL_KUBECONFIG}} logs {{.CLI_ARGS}}
 
   troubleshoot:pod:logs:previous:
     desc: |-
@@ -182,13 +183,13 @@ tasks:
           exit 1
         fi
         echo "📜 Affichage des logs précédents pour le pod '{{.CLI_ARGS}}' dans l'environnement '{{.ENV | default "testing"}}'..."
-        kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml logs --previous {{.CLI_ARGS}}
+        kubectl --kubeconfig {{.TASK_KUBECTL_KUBECONFIG}} logs --previous {{.CLI_ARGS}}
 
   troubleshoot:pods:node:
     desc: "[Organigramme] Vérifie sur quels nœuds les pods sont assignés."
     cmds:
       - echo "🗺️  Vérification de l'assignation des pods aux nœuds pour l'environnement '{{.ENV | default "testing"}}'..."
-      - kubectl --kubeconfig iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml get pods -A -o wide
+      - kubectl --kubeconfig {{.TASK_KUBECTL_KUBECONFIG}} get pods -A -o wide
 
   troubleshoot:pods:describe:problems:
     desc: "[Organigramme] Décrit automatiquement TOUS les pods qui ne sont PAS 'Running' ou 'Completed'."
@@ -196,7 +197,7 @@ tasks:
       - cmd: echo "🔄 Recherche des pods non-sains ('Pending', 'Error', 'CrashLoop...', '0/X Ready', etc.) pour l'environnement '{{.ENV | default "testing"}}'..."
         silent: true
       - |
-        KUBECONFIG_PATH="iac/environment/{{.ENV | default "testing"}}/kubeconfig.yaml"
+        KUBECONFIG_PATH="{{.TASK_KUBECTL_KUBECONFIG}}"
         # Ensure the path is canonical
         # KUBECONFIG_PATH=$(realpath "$KUBECONFIG_PATH") # Reverted this change
 
