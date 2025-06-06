@@ -1,5 +1,0 @@
----
-# Ansible collections required for infrastructure testing
-collections:
-  - name: kubernetes.core
-    version: "5.1.0"
