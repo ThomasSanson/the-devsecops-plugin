@@ -203,7 +203,7 @@ Then('the content of the file {string} should be exactly:', function (filePath, 
 
 Given('a project has been generated with the DevSecOps plugin', function () { // eslint-disable-line no-undef
   ensureProjectExists()
-  
+
   // Diagnostic logging to validate git configuration
   console.log('=== GIT CONFIGURATION DIAGNOSTICS ===')
   try {
@@ -211,9 +211,9 @@ Given('a project has been generated with the DevSecOps plugin', function () { //
   } catch (err) {
     console.log('No global git user config found:', err.message)
   }
-  
+
   executeCommand('git init --initial-branch=origin/main', getProjectRoot())
-  
+
   // Check git config in the generated project directory
   console.log('=== GIT CONFIG IN GENERATED PROJECT ===')
   try {
@@ -221,17 +221,17 @@ Given('a project has been generated with the DevSecOps plugin', function () { //
   } catch (err) {
     console.log('No git user config found in project directory:', err.message)
   }
-  
+
   // Set git user identity locally in the generated project
   console.log('=== SETTING LOCAL GIT IDENTITY ===')
   executeCommand('git config user.name "CI Test User"', getProjectRoot())
   executeCommand('git config user.email "ci-test@example.com"', getProjectRoot())
-  
+
   // Verify the configuration was set
   console.log('=== VERIFYING LOCAL GIT IDENTITY ===')
   executeCommand('git config --get user.name', getProjectRoot())
   executeCommand('git config --get user.email', getProjectRoot())
-  
+
   executeCommand('git add .', getProjectRoot())
   executeCommand('git commit -m"feat: init"', getProjectRoot())
   const taskfile = resolveProjectPath('.config', 'devsecops', 'Taskfile.test.yml')
