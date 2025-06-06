@@ -2,7 +2,7 @@
 version: "3"
 
 vars:
-  TASK_PODMAN_ENABLED: '{{.TASK_PODMAN_ENABLED | default "true"}}'
+  TASK_PODMAN_ENABLED: '{{.TASK_PODMAN_ENABLED | default "false"}}'
   TASK_PODMAN_VENV_DIR: '{{.TASK_PODMAN_VENV_DIR | default "./venv/podman"}}'
   TASK_PODMAN_ANSIBLE_CMD: '{{.TASK_PODMAN_ANSIBLE_CMD | default "./venv/podman/bin/ansible-playbook"}}'
   TASK_PODMAN_ANSIBLE_GALAXY_CMD: '{{.TASK_PODMAN_ANSIBLE_GALAXY_CMD | default "./venv/podman/bin/ansible-galaxy"}}'
