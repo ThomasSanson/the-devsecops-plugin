@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[![Project license](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](LICENSE)
+[![Project license](https://img.shields.io/badge/license-EUPL--1.2-blue.svg?style=flat-square)](LICENSE)
 [![Made with Go-Task](https://img.shields.io/badge/Built%20with-Task-blue?style=flat-square)](https://taskfile.dev)
 [![Powered by Docker](https://img.shields.io/badge/Powered%20by-Docker-2496ED?style=flat-square&logo=docker)](https://www.docker.com/)
 [![Made with Copier](https://img.shields.io/badge/Made%20with-Copier-blue?style=flat-square)](https://copier.readthedocs.io)
@@ -365,4 +365,4 @@ Please see our [Contributing Guide](CONTRIBUTING.md) for details on how to set u
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Ce projet est distribué sous licence EUPL v1.2 — voir le fichier [LICENSE](LICENSE) pour plus de détails.
