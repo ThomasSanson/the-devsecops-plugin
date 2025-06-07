@@ -355,6 +355,25 @@ The plugin implements multiple security measures:
 - Regular security scans
 - Code review enforcement
 
+## Tips & Troubleshooting
+
+### MegaLinter CSpell Configuration Fix
+
+When encountering MegaLinter CSpell errors, you can quickly fix configuration issues by:
+
+1. Copy the generated configuration file:
+   ```bash
+   cp megalinter-reports/.config/cspell/config.json .config/cspell/config.json
+   ```
+
+2. Review the differences between the files to understand what changed
+
+3. Validate the configuration works correctly
+
+4. Commit the updated configuration
+
+This approach ensures your CSpell configuration stays in sync with MegaLinter's requirements and resolves most spelling check issues.
+
 ## Contributing
 
 Please see our [Contributing Guide](CONTRIBUTING.md) for details on how to set up the development environment and contribute to the project.
