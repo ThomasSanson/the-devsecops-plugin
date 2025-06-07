@@ -362,9 +362,9 @@ The plugin implements multiple security measures:
 When encountering MegaLinter CSpell errors, you can quickly fix configuration issues by:
 
 1. Copy the generated configuration file:
-   ```bash
-   cp megalinter-reports/.config/cspell/config.json .config/cspell/config.json
-   ```
+  ```bash
+  cp megalinter-reports/.config/cspell/config.json .config/cspell/config.json
+  ```
 
 2. Review the differences between the files to understand what changed
 
