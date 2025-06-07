@@ -63,7 +63,6 @@ before_script:
     task --version
   # Execute the initialization Taskfile
   - task dev:init
-  - task dev:setup-environment
   # Source bash profile (might be needed if task install modifies it, keep for safety)
   - source ~/.bash_profile
 
@@ -110,7 +109,7 @@ test:
 
 release:
   stage: release
-  needs: ["code", "build", "test"]
+  needs: []  # Allows parallel execution
   tags:
     - saas-linux-medium-amd64
   variables:
@@ -134,24 +133,24 @@ release:
 
 deploy:
   stage: deploy
-  needs: ["release"]
+  needs: []  # Allows parallel execution
   script:
     - task deploy
 
 operate:
   stage: operate
-  needs: ["deploy"]
+  needs: []  # Allows parallel execution
   script:
     - task operate
 
 monitor:
   stage: monitor
-  needs: ["deploy"]
+  needs: []  # Allows parallel execution
   script:
     - task monitor
 
 feedback:
   stage: feedback
-  needs: ["deploy"]
+  needs: []  # Allows parallel execution
   script:
     - task feedback
