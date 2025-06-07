@@ -16,7 +16,8 @@
       "**/project/**/sealed-secrets.yaml",
       "**/project/**/secrets.yaml",
       "megalinter-reports",
-      "package-lock.json"
+      "package-lock.json",
+      "tmp/tests/copier/generated-project/.config/devsecops/.copier-answers.yml"
   ],
   "import": [
       "/usr/local/lib/node_modules/@cspell/dict-companies/cspell-ext.json",

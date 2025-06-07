@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[![Project license](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](LICENSE)
+[![Project license](https://img.shields.io/badge/license-EUPL--1.2-blue.svg?style=flat-square)](LICENSE)
 [![Made with Go-Task](https://img.shields.io/badge/Built%20with-Task-blue?style=flat-square)](https://taskfile.dev)
 [![Powered by Docker](https://img.shields.io/badge/Powered%20by-Docker-2496ED?style=flat-square&logo=docker)](https://www.docker.com/)
 [![Made with Copier](https://img.shields.io/badge/Made%20with-Copier-blue?style=flat-square)](https://copier.readthedocs.io)
@@ -355,6 +355,25 @@ The plugin implements multiple security measures:
 - Regular security scans
 - Code review enforcement
 
+## Tips & Troubleshooting
+
+### MegaLinter CSpell Configuration Fix
+
+When encountering MegaLinter CSpell errors, you can quickly fix configuration issues by:
+
+1. Copy the generated configuration file:
+  ```bash
+  cp megalinter-reports/.config/cspell/config.json .config/cspell/config.json
+  ```
+
+2. Review the differences between the files to understand what changed
+
+3. Validate the configuration works correctly
+
+4. Commit the updated configuration
+
+This approach ensures your CSpell configuration stays in sync with MegaLinter's requirements and resolves most spelling check issues.
+
 ## Contributing
 
 Please see our [Contributing Guide](CONTRIBUTING.md) for details on how to set up the development environment and contribute to the project.
@@ -365,4 +384,4 @@ Please see our [Contributing Guide](CONTRIBUTING.md) for details on how to set u
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Ce projet est distribué sous licence EUPL v1.2 — voir le fichier [LICENSE](LICENSE) pour plus de détails.

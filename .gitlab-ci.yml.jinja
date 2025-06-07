@@ -46,9 +46,6 @@ variables:
   TASK_DEV_INIT_GIT_USER_NAME: $GITLAB_USER_LOGIN
   TASK_DEV_INIT_GIT_USER_EMAIL: $GITLAB_USER_EMAIL
   TASK_CODECEPTJS_CI: "true"
-  # Variables for Helm repository
-  TASK_HELM_REPO_URL: "${CI_PAGES_URL}/helm/"  # Set the Helm repository URL using GitLab Pages
-  TASK_PAGES_PUBLISH_DIR: "project/public"
 
 services:
   # kics-scan ignore-line
@@ -66,6 +63,7 @@ before_script:
     task --version
   # Execute the initialization Taskfile
   - task dev:init
+  - task dev:setup-environment
   # Source bash profile (might be needed if task install modifies it, keep for safety)
   - source ~/.bash_profile
 
@@ -98,10 +96,6 @@ build:
   needs: []  # Allows parallel execution
   script:
     - task build
-  artifacts:
-    paths:
-      - project/public
-    expire_in: 1 week
 
 test:
   stage: test
@@ -109,17 +103,6 @@ test:
   needs: []  # Allows parallel execution
   script:
     - task test
-  artifacts:
-    exclude:
-      - $CI_PROJECT_DIR/.config/**/node_modules/**/*
-      - $CI_PROJECT_DIR/.git/**/*
-      - $CI_PROJECT_DIR/tmp/**/*
-      - $CI_PROJECT_DIR/venv/**/*
-    expire_in: 1 week
-    name: "full_repository_${CI_COMMIT_SHORT_SHA}"
-    paths:
-      - $CI_PROJECT_DIR
-    when: always
 
 release:
   stage: release
@@ -145,25 +128,9 @@ release:
 
 deploy:
   stage: deploy
-  needs:
-    - job: build
-      artifacts: true
-  variables:
-    TASK_K3D_CLUSTER_NAME: ${CI_COMMIT_SHORT_SHA}-release
+  needs: ["release"]
   script:
     - task deploy
-
-pages:
-  stage: deploy
-  needs:
-    - job: build
-      artifacts: true
-  script:
-    - echo "Publishing to GitLab Pages"
-  artifacts:
-    paths:
-      - $TASK_PAGES_PUBLISH_DIR
-  publish: $TASK_PAGES_PUBLISH_DIR
 
 operate:
   stage: operate
