@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 10.0.1 (2025-06-07)
+
+### Fix
+
+- **Taskfile.yml**: change default value of TASK_BUN_ENABLED from false to true to enable bun tasks by default
+
 ## 10.0.0 (2025-06-06)
 
 ### Feat
