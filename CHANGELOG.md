@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 10.1.0 (2025-06-07)
+
+### Feat
+
+- **ci**: remove unnecessary dependencies in GitLab CI stages to allow parallel execution of jobs
+
 ## 10.0.1 (2025-06-07)
 
 ### Fix
