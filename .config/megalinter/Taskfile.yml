@@ -20,6 +20,7 @@ tasks:
       - docker rm -f {{.TASK_MEGALINTER_CONTAINER_NAME}}
       - rm -rf ./megalinter-reports
       - df -h
+      - defer: df -h
       - defer: docker rm -f {{.TASK_MEGALINTER_CONTAINER_NAME}}
       - defer: docker cp {{.TASK_MEGALINTER_CONTAINER_NAME}}:/tmp/lint/megalinter-reports ./megalinter-reports && chown -R $(id -u):$(id -g) megalinter-reports
       - docker run --rm -d --name {{.TASK_MEGALINTER_CONTAINER_NAME}} -e MEGALINTER_CONFIG='.config/megalinter/config.yml' -v /var/run/docker.sock:/var/run/docker.sock:rw --entrypoint sleep oxsecurity/megalinter:{{.TASK_MEGALINTER_CONTAINER_VERSION}} infinity
