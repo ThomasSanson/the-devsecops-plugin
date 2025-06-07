@@ -63,6 +63,7 @@ before_script:
     task --version
   # Execute the initialization Taskfile
   - task dev:init
+  - task dev:setup-environment
   # Source bash profile (might be needed if task install modifies it, keep for safety)
   - source ~/.bash_profile
 
