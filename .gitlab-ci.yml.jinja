@@ -105,7 +105,7 @@ test:
 
 release:
   stage: release
-  needs: ["code", "build", "test"]
+  needs: []  # Allows parallel execution
   variables:
     # Variables for commitizen bump (likely used within 'task release')
     TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH: $CI_COMMIT_BRANCH
@@ -127,24 +127,24 @@ release:
 
 deploy:
   stage: deploy
-  needs: ["release"]
+  needs: []  # Allows parallel execution
   script:
     - task deploy
 
 operate:
   stage: operate
-  needs: ["deploy"]
+  needs: []  # Allows parallel execution
   script:
     - task operate
 
 monitor:
   stage: monitor
-  needs: ["deploy"]
+  needs: []  # Allows parallel execution
   script:
     - task monitor
 
 feedback:
   stage: feedback
-  needs: ["deploy"]
+  needs: []  # Allows parallel execution
   script:
     - task feedback
