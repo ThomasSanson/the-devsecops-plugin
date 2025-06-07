@@ -2,7 +2,7 @@
 version: "3"
 
 vars:
-  TASK_BUN_ENABLED: '{{.TASK_BUN_ENABLED | default "false"}}'
+  TASK_BUN_ENABLED: '{{.TASK_BUN_ENABLED | default "true"}}'
 
 tasks:
   install:
