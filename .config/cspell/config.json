@@ -138,6 +138,7 @@
       "podman",
       "psql",
       "pybabel",
+      "pyrightconfig",
       "pythonpath",
       "redhat",
       "resemblehelper",
