@@ -2,6 +2,17 @@
 
 # Changelog
 
+## 11.0.0 (2025-06-16)
+
+### Feat
+
+- **tests**: add project scaffolding feature tests for Copier template generation and validation
+- **python**: update Python version from 3.11 to 3.12 for compatibility improvements
+
+### Fix
+
+- **codecept.conf.js**: update feature path to correct relative location for Gherkin integration
+
 ## 10.1.0 (2025-06-07)
 
 ### Feat
