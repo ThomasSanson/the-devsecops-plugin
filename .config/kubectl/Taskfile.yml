@@ -110,91 +110,91 @@ tasks:
         silent: true
 
   status:pods:
-    desc: Vérifie l'état de tous les pods dans tous les namespaces en utilisant la configuration kubeconfig spécifiée par l'environnement.
+    desc: Checks the status of all pods in all namespaces using the kubeconfig specified by the environment.
     cmds:
-      - cmd: echo "🔄 Vérification de l'état des pods pour l'environnement '{{.ENV | default "testing"}}'..."
+      - cmd: echo "🔄 Checking pod status for environment '{{.ENV | default "testing"}}'..."
         silent: true
       - kubectl --kubeconfig {{.TASK_KUBECTL_KUBECONFIG}} get pods -A
-      - cmd: echo "🎉 Vérification de l'état des pods terminée."
+      - cmd: echo "🎉 Pod status check completed."
         silent: true
 
   logs:errors:
-    desc: Affiche les logs des pods en état 'Error' ou 'CrashLoopBackOff'.
+    desc: Displays logs for pods in 'Error' or 'CrashLoopBackOff' state.
     cmds:
-      - cmd: echo "🔄 Recherche des pods en erreur pour l'environnement '{{.ENV | default "testing"}}'..."
+      - cmd: echo "🔄 Searching for error pods in environment '{{.ENV | default "testing"}}'..."
         silent: true
       - |
         PODS=$(kubectl --kubeconfig {{.TASK_KUBECTL_KUBECONFIG}} get pods -A --no-headers | awk '$4 == "Error" || $4 == "CrashLoopBackOff" {print $1 "/" $2}')
         if [ -z "$PODS" ]; then
-          echo "✅ Aucun pod en état Error ou CrashLoopBackOff trouvé."
+          echo "✅ No pods in Error or CrashLoopBackOff state found."
         else
-          echo "🔥 Pods en erreur trouvés. Affichage des logs (50 dernières lignes) :"
+          echo "🔥 Error pods found. Displaying logs (last 50 lines):"
           for pod_id in $PODS; do
             namespace=$(echo "$pod_id" | cut -d'/' -f1)
             pod_name=$(echo "$pod_id" | cut -d'/' -f2)
             echo "--- Logs for $pod_id ---"
-            kubectl --kubeconfig {{.TASK_KUBECTL_KUBECONFIG}} logs "$pod_name" -n "$namespace" --tail=50 || echo "   (Impossible de récupérer les logs pour $pod_id)"
+            kubectl --kubeconfig {{.TASK_KUBECTL_KUBECONFIG}} logs "$pod_name" -n "$namespace" --tail=50 || echo "   (Unable to retrieve logs for $pod_id)"
           done
         fi
-      - cmd: echo "🎉 Vérification des logs des pods en erreur terminée."
+      - cmd: echo "🎉 Error pod logs check completed."
         silent: true
 
   troubleshoot:start:
-    desc: "[Organigramme Étape 1] Vérifie le statut général des pods. Lancez ceci pour commencer le dépannage."
+    desc: "[Flowchart Step 1] Checks the general status of pods. Run this to start troubleshooting."
     cmds:
       - task: status:pods
 
   troubleshoot:pod:describe:
     desc: |-
-      [Organigramme] Affiche les détails et événements d'un pod spécifique.
-      Utilisez ceci si un pod est 'Pending', 'Not Ready', 'ImagePullBackOff', ou 'CrashLoopBackOff'.
-      Usage: task kubectl:troubleshoot:pod:describe -- <nom-du-pod> [-n <namespace>]
+      [Flowchart] Shows details and events for a specific pod.
+      Use this if a pod is 'Pending', 'Not Ready', 'ImagePullBackOff', or 'CrashLoopBackOff'.
+      Usage: task kubectl:troubleshoot:pod:describe -- <pod-name> [-n <namespace>]
     cmds:
       - |
         if [ -z "{{.CLI_ARGS}}" ]; then
-          echo "❌ Erreur: Nom du pod manquant. Usage: task kubectl:troubleshoot:pod:describe -- <nom-du-pod> [-n <namespace>]"
+          echo "❌ Error: Pod name missing. Usage: task kubectl:troubleshoot:pod:describe -- <pod-name> [-n <namespace>]"
           exit 1
         fi
-        echo "🔍 Affichage des détails pour le pod '{{.CLI_ARGS}}' dans l'environnement '{{.ENV | default "testing"}}'..."
+        echo "🔍 Displaying details for pod '{{.CLI_ARGS}}' in environment '{{.ENV | default "testing"}}'..."
         kubectl --kubeconfig {{.TASK_KUBECTL_KUBECONFIG}} describe pod {{.CLI_ARGS}}
 
   troubleshoot:pod:logs:
     desc: |-
-      [Organigramme] Affiche les logs actuels d'un pod spécifique.
-      Utilisez ceci si un pod est 'Running' mais que l'application a des problèmes.
-      Usage: task kubectl:troubleshoot:pod:logs -- <nom-du-pod> [-n <namespace>] [--tail=N]
+      [Flowchart] Shows current logs for a specific pod.
+      Use this if a pod is 'Running' but the application has issues.
+      Usage: task kubectl:troubleshoot:pod:logs -- <pod-name> [-n <namespace>] [--tail=N]
     cmds:
       - |
         if [ -z "{{.CLI_ARGS}}" ]; then
-          echo "❌ Erreur: Nom du pod manquant. Usage: task kubectl:troubleshoot:pod:logs -- <nom-du-pod> [-n <namespace>]"
+          echo "❌ Error: Pod name missing. Usage: task kubectl:troubleshoot:pod:logs -- <pod-name> [-n <namespace>]"
           exit 1
         fi
-        echo "📜 Affichage des logs pour le pod '{{.CLI_ARGS}}' dans l'environnement '{{.ENV | default "testing"}}'..."
+        echo "📜 Displaying logs for pod '{{.CLI_ARGS}}' in environment '{{.ENV | default "testing"}}'..."
         kubectl --kubeconfig {{.TASK_KUBECTL_KUBECONFIG}} logs {{.CLI_ARGS}}
 
   troubleshoot:pod:logs:previous:
     desc: |-
-      [Organigramme] Affiche les logs du conteneur précédent (s'il a redémarré/crashé).
-      Usage: task kubectl:troubleshoot:pod:logs:previous -- <nom-du-pod> [-n <namespace>]
+      [Flowchart] Shows logs from the previous container (if it restarted/crashed).
+      Usage: task kubectl:troubleshoot:pod:logs:previous -- <pod-name> [-n <namespace>]
     cmds:
       - |
         if [ -z "{{.CLI_ARGS}}" ]; then
-          echo "❌ Erreur: Nom du pod manquant. Usage: task kubectl:troubleshoot:pod:logs:previous -- <nom-du-pod> [-n <namespace>]"
+          echo "❌ Error: Pod name missing. Usage: task kubectl:troubleshoot:pod:logs:previous -- <pod-name> [-n <namespace>]"
           exit 1
         fi
-        echo "📜 Affichage des logs précédents pour le pod '{{.CLI_ARGS}}' dans l'environnement '{{.ENV | default "testing"}}'..."
+        echo "📜 Displaying previous logs for pod '{{.CLI_ARGS}}' in environment '{{.ENV | default "testing"}}'..."
         kubectl --kubeconfig {{.TASK_KUBECTL_KUBECONFIG}} logs --previous {{.CLI_ARGS}}
 
   troubleshoot:pods:node:
-    desc: "[Organigramme] Vérifie sur quels nœuds les pods sont assignés."
+    desc: "[Flowchart] Checks which nodes the pods are assigned to."
     cmds:
-      - echo "🗺️  Vérification de l'assignation des pods aux nœuds pour l'environnement '{{.ENV | default "testing"}}'..."
+      - echo "🗺️  Checking pod assignment to nodes for environment '{{.ENV | default "testing"}}'..."
       - kubectl --kubeconfig {{.TASK_KUBECTL_KUBECONFIG}} get pods -A -o wide
 
   troubleshoot:pods:describe:problems:
-    desc: "[Organigramme] Décrit automatiquement TOUS les pods qui ne sont PAS 'Running' ou 'Completed'."
+    desc: "[Flowchart] Automatically describes ALL pods that are NOT 'Running' or 'Completed'."
     cmds:
-      - cmd: echo "🔄 Recherche des pods non-sains ('Pending', 'Error', 'CrashLoop...', '0/X Ready', etc.) pour l'environnement '{{.ENV | default "testing"}}'..."
+      - cmd: echo "🔄 Searching for unhealthy pods ('Pending', 'Error', 'CrashLoop...', '0/X Ready', etc.) for environment '{{.ENV | default "testing"}}'..."
         silent: true
       - |
         KUBECONFIG_PATH="{{.TASK_KUBECTL_KUBECONFIG}}"
@@ -203,9 +203,9 @@ tasks:
 
         PROBLEMATIC_PODS=$(kubectl --kubeconfig "$KUBECONFIG_PATH" get pods -A --no-headers | awk '$4 != "Running" && $4 != "Completed" {print $1 "/" $2}')
         if [ -z "$PROBLEMATIC_PODS" ]; then
-          echo "✅ Aucun pod dans un état non-sain trouvé."
+          echo "✅ No pods in an unhealthy state found."
         else
-          echo "🔥 Pods non-sains trouvés. Affichage des détails ('describe') pour chacun :"
+          echo "🔥 Unhealthy pods found. Displaying details ('describe') for each:"
           for pod_id in $PROBLEMATIC_PODS; do
             namespace=$(echo "$pod_id" | cut -d'/' -f1)
             pod_name=$(echo "$pod_id" | cut -d'/' -f2)
@@ -214,23 +214,23 @@ tasks:
             echo "---------------------------"
           done
         fi
-      - cmd: echo "🎉 Vérification des pods non-sains terminée."
+      - cmd: echo "🎉 Unhealthy pods check completed."
         silent: true
 
   debug:
-    desc: "Lance une séquence de tâches de dépannage pour les pods."
+    desc: "Runs a sequence of troubleshooting tasks for pods."
     cmds:
-      - cmd: echo "== Étape 1 Statut Général des Pods =="
+      - cmd: echo "== Step 1 General Pod Status =="
         silent: true
       - task: troubleshoot:start
-      - cmd: echo "\n== Étape 2 Description des Pods Non-Sains =="
+      - cmd: echo "\n== Step 2 Description of Unhealthy Pods =="
         silent: true
       - task: troubleshoot:pods:describe:problems
-      - cmd: echo "\n== Étape 3 Logs des Pods en Erreur =="
+      - cmd: echo "\n== Step 3 Logs of Error Pods =="
         silent: true
       - task: logs:errors
-      - cmd: echo "\n== Étape 4 Assignation des Pods aux Nœuds =="
+      - cmd: echo "\n== Step 4 Pod Assignment to Nodes =="
         silent: true
       - task: troubleshoot:pods:node
-      - cmd: echo "\n🏁 Séquence de débogage des pods terminée."
+      - cmd: echo "\n🏁 Pod debugging sequence completed."
         silent: true
