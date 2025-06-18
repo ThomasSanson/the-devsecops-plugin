@@ -2,6 +2,32 @@
 
 # Changelog
 
+## 12.0.0 (2025-06-18)
+
+### Feat
+
+- **ci**: add TASK_CODECEPTJS_COMMAND to create Docker directory and link certificates for CodeceptJS execution
+- **codeceptjs**: enhance Taskfile with additional Docker configuration options and improve command structure for running tests
+- **ci**: add dependency proxy login logic to GitLab CI configuration for improved security and flexibility
+- **megalinter**: add TASK_MEGALINTER_IMAGE_PREFIX variable for customizable image prefix in Taskfile configuration
+- **devcontainer**: add Ubuntu dev container configuration for improved development environment setup
+- **setup-user.sh**: add script to set up a non-root user with sudo access and shell configurations in the devcontainer environment
+- **setup-proxy.sh**: add script to configure HTTP, HTTPS, and FTP proxy settings for development environment
+- **setup-go.sh**: add script to configure Go environment variables system-wide
+- **setup-docker.sh**: add script to configure Docker for the development environment
+- **devcontainer**: add script to install Taskfile for development environment setup
+- **devcontainer**: add script to install necessary packages for development environment setup
+- **devcontainer**: add init.sh script to orchestrate the setup process for the development container
+- **cleanup.sh**: add cleanup script for environment cleanup and resource management
+- **devcontainer**: add Dockerfile for development container setup with necessary configurations and scripts
+
+### Fix
+
+- **Taskfile.yml**: simplify Docker run options by removing unnecessary flags for cleaner configuration
+- **Taskfile.yml**: update Dockerfile path from debian to ubuntu for consistency with environment setup
+- **kaniko**: update Dockerfile path from debian to ubuntu and change base image to ubuntu:24.04 for consistency with project requirements
+- **docker-compose**: switch service from debian to ubuntu for better compatibility and updated user settings
+
 ## 11.0.0 (2025-06-16)
 
 ### Feat
