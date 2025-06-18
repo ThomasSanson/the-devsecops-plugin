@@ -4,7 +4,6 @@ vars:
   TASK_CODECEPTJS_ENABLED: '{{.TASK_CODECEPTJS_ENABLED | default "false"}}'
   TASK_CODECEPTJS_CI: '{{.TASK_CODECEPTJS_CI | default "false"}}'
   TASK_CODECEPTJS_DIR: '{{.TASK_CODECEPTJS_DIR | default ".config/codeceptjs"}}'
-  TASK_CODECEPTJS_COMMAND: '{{.TASK_CODECEPTJS_COMMAND | default "npx --prefix .config/codeceptjs codeceptjs"}}'
   TASK_CODECEPTJS_CONFIG: '{{.TASK_CODECEPTJS_CONFIG | default ".config/codeceptjs/codecept.conf.sample.js"}}'
   TASK_CODECEPTJS_GREP: '{{.TASK_CODECEPTJS_GREP | default ""}}'
   TASK_CODECEPTJS_DEBUG: '{{.TASK_CODECEPTJS_DEBUG | default ""}}'
@@ -17,12 +16,13 @@ vars:
   TASK_CODECEPTJS_DOCKER_WORKDIR: '{{.TASK_CODECEPTJS_DOCKER_WORKDIR | default "/tests"}}'
   TASK_CODECEPTJS_DOCKER_VOLUME: '{{.TASK_CODECEPTJS_DOCKER_VOLUME | default "$(pwd):/tests:z"}}'
   TASK_CODECEPTJS_DOCKER_NETWORK: '{{.TASK_CODECEPTJS_DOCKER_NETWORK | default "host"}}'
-  TASK_CODECEPTJS_DOCKER_OPTS: '{{.TASK_CODECEPTJS_DOCKER_OPTS | default "--rm -t"}}'
+  TASK_CODECEPTJS_DOCKER_OPTS: '{{.TASK_CODECEPTJS_DOCKER_OPTS | default "--rm -it"}}'
+  TASK_CODECEPTJS_RUNNER: '{{.TASK_CODECEPTJS_RUNNER | default "docker"}}'
 
   # By default, it contains the option. In CI, you can set it to " ".
   TASK_CODECEPTJS_DOCKER_SOCKET_MOUNT: '{{.TASK_CODECEPTJS_DOCKER_SOCKET_MOUNT | default "-v /var/run/docker.sock:/var/run/docker.sock"}}'
   TASK_CODECEPTJS_ENV_DONT_FAIL: '{{.TASK_CODECEPTJS_ENV_DONT_FAIL | default "true"}}'
-  TASK_CODECEPTJS_ENV_BASE_URL: '{{.TASK_CODECEPTJS_ENV_BASE_URL | default "${CODECEPTJS_BASE_URL}"}}'
+  TASK_CODECEPTJS_ENV_BASE_URL: '{{.TASK_CODECEPTJS_ENV_BASE_URL | default "http://localhost:8080"}}' # DevSkim: ignore DS162092
 
 tasks:
   default:
@@ -32,7 +32,6 @@ tasks:
         Runs CodeceptJS to execute end-to-end tests.
 
       🔧 Variables:
-        - TASK_CODECEPTJS_COMMAND: Command to run CodeceptJS. Default: "npx --prefix .config/codeceptjs codeceptjs"
         - TASK_CODECEPTJS_CONFIG: Path to CodeceptJS configuration file. Default: ".config/codeceptjs/codecept.conf.sample.js"
         - TASK_CODECEPTJS_GREP: Filter tests by name. Default: ""
         - TASK_CODECEPTJS_DEBUG: Run tests in debug mode. Default: ""
@@ -53,11 +52,17 @@ tasks:
     status:
       - test "{{.TASK_CODECEPTJS_ENABLED}}" = "false"
     vars:
-      CODECEPTJS_RUN_COMMAND: "run --config {{.TASK_CODECEPTJS_CONFIG}}{{if .TASK_CODECEPTJS_GREP}} --grep {{.TASK_CODECEPTJS_GREP}}{{end}}{{if .TASK_CODECEPTJS_DEBUG}} --debug{{end}}{{if .TASK_CODECEPTJS_STEPS}} --steps{{end}}{{if .TASK_CODECEPTJS_REPORTER}} --reporter {{.TASK_CODECEPTJS_REPORTER}}{{end}}{{if .TASK_CODECEPTJS_VERBOSE}} --verbose{{end}}{{if .TASK_CODECEPTJS_OVERRIDE}} --override {{.TASK_CODECEPTJS_OVERRIDE}}{{end}}"
-      CODECEPTJS_RUNNER_COMMAND: "docker run {{.TASK_CODECEPTJS_DOCKER_OPTS}} --user {{.TASK_CODECEPTJS_DOCKER_USER}} {{.TASK_CODECEPTJS_DOCKER_SOCKET_MOUNT}} --network={{.TASK_CODECEPTJS_DOCKER_NETWORK}} -e DONT_FAIL_ON_EMPTY_RUN={{.TASK_CODECEPTJS_ENV_DONT_FAIL}} -e CODECEPTJS_BASE_URL={{.TASK_CODECEPTJS_ENV_BASE_URL}} -w {{.TASK_CODECEPTJS_DOCKER_WORKDIR}} -v {{.TASK_CODECEPTJS_DOCKER_VOLUME}} {{.TASK_CODECEPTJS_DOCKER_IMAGE}}"
+      _CODECEPTJS_RUN_COMMAND: "run --config {{.TASK_CODECEPTJS_CONFIG}}{{if .TASK_CODECEPTJS_GREP}} --grep {{.TASK_CODECEPTJS_GREP}}{{end}}{{if .TASK_CODECEPTJS_DEBUG}} --debug{{end}}{{if .TASK_CODECEPTJS_STEPS}} --steps{{end}}{{if .TASK_CODECEPTJS_REPORTER}} --reporter {{.TASK_CODECEPTJS_REPORTER}}{{end}}{{if .TASK_CODECEPTJS_VERBOSE}} --verbose{{end}}{{if .TASK_CODECEPTJS_OVERRIDE}} --override {{.TASK_CODECEPTJS_OVERRIDE}}{{end}}"
+      _CODECEPTJS_CMD_RESOLVED:
+        sh: |
+          if [ "{{.TASK_CODECEPTJS_RUNNER}}" = "docker" ]; then
+            echo "docker run {{.TASK_CODECEPTJS_DOCKER_OPTS}} --user {{.TASK_CODECEPTJS_DOCKER_USER}} {{.TASK_CODECEPTJS_DOCKER_SOCKET_MOUNT}} --network={{.TASK_CODECEPTJS_DOCKER_NETWORK}} -e DONT_FAIL_ON_EMPTY_RUN={{.TASK_CODECEPTJS_ENV_DONT_FAIL}} -e CODECEPTJS_BASE_URL={{.TASK_CODECEPTJS_ENV_BASE_URL}} -w {{.TASK_CODECEPTJS_DOCKER_WORKDIR}} -v {{.TASK_CODECEPTJS_DOCKER_VOLUME}} {{.TASK_CODECEPTJS_DOCKER_IMAGE}} codeceptjs"
+          else
+            echo "{{.TASK_CODECEPTJS_RUNNER}}"
+          fi
     cmds:
       - cmd: echo "🔄 Running CodeceptJS tests"
         silent: true
-      - cmd: "{{.CODECEPTJS_RUNNER_COMMAND}} codeceptjs {{.CODECEPTJS_RUN_COMMAND}} {{.CLI_ARGS}}"
+      - cmd: "{{._CODECEPTJS_CMD_RESOLVED}} {{._CODECEPTJS_RUN_COMMAND}} {{.CLI_ARGS}}"
       - cmd: echo '🎉 CodeceptJS tests completed successfully.'
         silent: true
