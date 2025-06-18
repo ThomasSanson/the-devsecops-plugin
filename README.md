@@ -393,4 +393,4 @@ Please see our [Contributing Guide](CONTRIBUTING.md) for details on how to set u
 
 ## License
 
-Ce projet est distribué sous licence EUPL v1.2 — voir le fichier [LICENSE](LICENSE) pour plus de détails.
+This project is distributed under the EUPL v1.2 license — see the [LICENSE](LICENSE) file for more details.
