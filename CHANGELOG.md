@@ -2,6 +2,13 @@
 
 # Changelog
 
+## 12.0.1 (2025-06-18)
+
+### Fix
+
+- **ci**: update GitLab CI configuration by removing unused dependency proxy login script and adding CodeceptJS runner variable
+- **README**: update license description from French to English for clarity
+
 ## 12.0.0 (2025-06-18)
 
 ### Feat
