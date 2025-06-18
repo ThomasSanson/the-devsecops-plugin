@@ -5,14 +5,22 @@ vars:
   TASK_CODECEPTJS_ENABLED: '{{.TASK_CODECEPTJS_ENABLED | default "false"}}'
   TASK_CODECEPTJS_CI: '{{.TASK_CODECEPTJS_CI | default "false"}}'
   TASK_CODECEPTJS_DIR: '{{.TASK_CODECEPTJS_DIR | default ".config/codeceptjs"}}'
-  TASK_CODECEPTJS_COMMAND: '{{.TASK_CODECEPTJS_COMMAND | default ""}}'
+  TASK_CODECEPTJS_COMMAND: '{{.TASK_CODECEPTJS_COMMAND | default "npx --prefix .config/codeceptjs codeceptjs"}}'
   TASK_CODECEPTJS_CONFIG: '{{.TASK_CODECEPTJS_CONFIG | default ".config/codeceptjs/codecept.conf.sample.js"}}'
   TASK_CODECEPTJS_GREP: '{{.TASK_CODECEPTJS_GREP | default ""}}'
   TASK_CODECEPTJS_DEBUG: '{{.TASK_CODECEPTJS_DEBUG | default ""}}'
   TASK_CODECEPTJS_STEPS: '{{.TASK_CODECEPTJS_STEPS | default ""}}'
   TASK_CODECEPTJS_REPORTER: '{{.TASK_CODECEPTJS_REPORTER | default ""}}'
   TASK_CODECEPTJS_VERBOSE: '{{.TASK_CODECEPTJS_VERBOSE | default ""}}'
+  TASK_CODECEPTJS_OVERRIDE: '{{.TASK_CODECEPTJS_OVERRIDE | default ""}}'
   TASK_CODECEPTJS_DOCKER_IMAGE: '{{.TASK_CODECEPTJS_DOCKER_IMAGE | default "registry.gitlab.com/digital-commons/devsecops/tools/codeceptjs:1.2.1"}}'
+  TASK_CODECEPTJS_DOCKER_USER: '{{.TASK_CODECEPTJS_DOCKER_USER | default "$(id -u):$(getent group docker | cut -d: -f3)"}}'
+  TASK_CODECEPTJS_DOCKER_WORKDIR: '{{.TASK_CODECEPTJS_DOCKER_WORKDIR | default "/tests"}}'
+  TASK_CODECEPTJS_DOCKER_VOLUME: '{{.TASK_CODECEPTJS_DOCKER_VOLUME | default "$(pwd):/tests:z"}}'
+  TASK_CODECEPTJS_DOCKER_NETWORK: '{{.TASK_CODECEPTJS_DOCKER_NETWORK | default "host"}}'
+  TASK_CODECEPTJS_DOCKER_OPTS: '{{.TASK_CODECEPTJS_DOCKER_OPTS | default "--rm -it --privileged"}}'
+  TASK_CODECEPTJS_ENV_DONT_FAIL: '{{.TASK_CODECEPTJS_ENV_DONT_FAIL | default "true"}}'
+  TASK_CODECEPTJS_ENV_BASE_URL: '{{.TASK_CODECEPTJS_ENV_BASE_URL | default "${CODECEPTJS_BASE_URL}"}}'
 
 tasks:
   default:
@@ -23,26 +31,32 @@ tasks:
 
       🔧 Variables:
         - TASK_CODECEPTJS_COMMAND: Command to run CodeceptJS. Default: "npx --prefix .config/codeceptjs codeceptjs"
-        - TASK_CODECEPTJS_CONFIG: Path to CodeceptJS configuration file. Default: ".config/codeceptjs/codecept.conf.js"
+        - TASK_CODECEPTJS_CONFIG: Path to CodeceptJS configuration file. Default: ".config/codeceptjs/codecept.conf.sample.js"
         - TASK_CODECEPTJS_GREP: Filter tests by name. Default: ""
         - TASK_CODECEPTJS_DEBUG: Run tests in debug mode. Default: ""
         - TASK_CODECEPTJS_STEPS: Show steps in output. Default: ""
         - TASK_CODECEPTJS_REPORTER: Specify reporter (e.g. "xunit"). Default: ""
         - TASK_CODECEPTJS_VERBOSE: Run with verbose output. Default: ""
         - TASK_CODECEPTJS_OVERRIDE: Override config options. Default: ""
+        - TASK_CODECEPTJS_DOCKER_IMAGE: Docker image to use. Default: registry.gitlab.com/digital-commons/devsecops/tools/codeceptjs:1.2.1
+        - TASK_CODECEPTJS_DOCKER_USER: Docker user. Default: "$(id -u):$(getent group docker | cut -d: -f3)"
+        - TASK_CODECEPTJS_DOCKER_WORKDIR: Docker working directory. Default: "/tests"
+        - TASK_CODECEPTJS_DOCKER_VOLUME: Docker volume mapping. Default: "$(pwd):/tests:z"
+        - TASK_CODECEPTJS_DOCKER_NETWORK: Docker network mode. Default: "host"
+        - TASK_CODECEPTJS_DOCKER_OPTS: Docker run options. Default: "--rm -it --privileged"
 
       🔄 Execution:
         Runs CodeceptJS tests with the specified configuration and options.
     status:
       - test "{{.TASK_CODECEPTJS_ENABLED}}" = "false"
     vars:
-      CODECEPTJS_RUN_COMMAND: "{{.TASK_CODECEPTJS_COMMAND}} run --config {{.TASK_CODECEPTJS_CONFIG}}{{if .TASK_CODECEPTJS_GREP}} --grep {{.TASK_CODECEPTJS_GREP}}{{end}}{{if .TASK_CODECEPTJS_DEBUG}} --debug{{end}}{{if .TASK_CODECEPTJS_STEPS}} --steps{{end}}{{if .TASK_CODECEPTJS_REPORTER}} --reporter {{.TASK_CODECEPTJS_REPORTER}}{{end}}{{if .TASK_CODECEPTJS_VERBOSE}} --verbose{{end}}{{if .TASK_CODECEPTJS_OVERRIDE}} --override {{.TASK_CODECEPTJS_OVERRIDE}}{{end}}"
+      CODECEPTJS_RUN_COMMAND: "run --config {{.TASK_CODECEPTJS_CONFIG}}{{if .TASK_CODECEPTJS_GREP}} --grep {{.TASK_CODECEPTJS_GREP}}{{end}}{{if .TASK_CODECEPTJS_DEBUG}} --debug{{end}}{{if .TASK_CODECEPTJS_STEPS}} --steps{{end}}{{if .TASK_CODECEPTJS_REPORTER}} --reporter {{.TASK_CODECEPTJS_REPORTER}}{{end}}{{if .TASK_CODECEPTJS_VERBOSE}} --verbose{{end}}{{if .TASK_CODECEPTJS_OVERRIDE}} --override {{.TASK_CODECEPTJS_OVERRIDE}}{{end}}"
+      CODECEPTJS_RUNNER_COMMAND: "docker run {{.TASK_CODECEPTJS_DOCKER_OPTS}} --user {{.TASK_CODECEPTJS_DOCKER_USER}} -v /var/run/docker.sock:/var/run/docker.sock --network={{.TASK_CODECEPTJS_DOCKER_NETWORK}} -e DONT_FAIL_ON_EMPTY_RUN={{.TASK_CODECEPTJS_ENV_DONT_FAIL}} -e CODECEPTJS_BASE_URL={{.TASK_CODECEPTJS_ENV_BASE_URL}} -w {{.TASK_CODECEPTJS_DOCKER_WORKDIR}} -v {{.TASK_CODECEPTJS_DOCKER_VOLUME}} {{.TASK_CODECEPTJS_DOCKER_IMAGE}}"
     cmds:
       - cmd: echo "🔄 Running CodeceptJS tests"
         silent: true
-      - cmd: echo "{{.CODECEPTJS_RUN_COMMAND}}"
+      - cmd: echo "{{.CODECEPTJS_RUNNER_COMMAND}} codeceptjs {{.CODECEPTJS_RUN_COMMAND}} {{.CLI_ARGS}}"
         silent: true
-      - |
-        docker run --rm -it --privileged --user "$(id -u):$(getent group docker | cut -d: -f3)" -v /var/run/docker.sock:/var/run/docker.sock --network="host" -e DONT_FAIL_ON_EMPTY_RUN=true -e CODECEPTJS_BASE_URL=${CODECEPTJS_BASE_URL} -w /tests -v "$(pwd):/tests:z" {{.TASK_CODECEPTJS_DOCKER_IMAGE}} codeceptjs {{.CODECEPTJS_RUN_COMMAND}} {{.CLI_ARGS}}
+      - cmd: "{{.CODECEPTJS_RUNNER_COMMAND}} codeceptjs {{.CODECEPTJS_RUN_COMMAND}} {{.CLI_ARGS}}"
       - cmd: echo '🎉 CodeceptJS tests completed successfully.'
         silent: true
