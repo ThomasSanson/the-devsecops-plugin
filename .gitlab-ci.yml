@@ -54,6 +54,10 @@ variables:
     -e DOCKER_TLS_CERTDIR=$DOCKER_TLS_CERTDIR
     -e DOCKER_TLS_VERIFY=$DOCKER_TLS_VERIFY
     -v $DOCKER_TLS_CERTDIR:$DOCKER_TLS_CERTDIR:ro
+  TASK_CODECEPTJS_COMMAND: >-
+    sh -c "mkdir -p /home/ubuntu/.docker &&
+    ln -s /certs/client/* /home/ubuntu/.docker/ &&
+    codeceptjs"
 
 services:
   # kics-scan ignore-line
