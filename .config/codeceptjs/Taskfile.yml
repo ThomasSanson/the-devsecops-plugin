@@ -5,62 +5,16 @@ vars:
   TASK_CODECEPTJS_ENABLED: '{{.TASK_CODECEPTJS_ENABLED | default "false"}}'
   TASK_CODECEPTJS_CI: '{{.TASK_CODECEPTJS_CI | default "false"}}'
   TASK_CODECEPTJS_DIR: '{{.TASK_CODECEPTJS_DIR | default ".config/codeceptjs"}}'
-  TASK_CODECEPTJS_COMMAND: '{{.TASK_CODECEPTJS_COMMAND | default "DONT_FAIL_ON_EMPTY_RUN=true npx --prefix .config/codeceptjs codeceptjs"}}'
+  TASK_CODECEPTJS_COMMAND: '{{.TASK_CODECEPTJS_COMMAND | default ""}}'
   TASK_CODECEPTJS_CONFIG: '{{.TASK_CODECEPTJS_CONFIG | default ".config/codeceptjs/codecept.conf.sample.js"}}'
   TASK_CODECEPTJS_GREP: '{{.TASK_CODECEPTJS_GREP | default ""}}'
   TASK_CODECEPTJS_DEBUG: '{{.TASK_CODECEPTJS_DEBUG | default ""}}'
   TASK_CODECEPTJS_STEPS: '{{.TASK_CODECEPTJS_STEPS | default ""}}'
   TASK_CODECEPTJS_REPORTER: '{{.TASK_CODECEPTJS_REPORTER | default ""}}'
   TASK_CODECEPTJS_VERBOSE: '{{.TASK_CODECEPTJS_VERBOSE | default ""}}'
-  TASK_CODECEPTJS_OVERRIDE: '{{.TASK_CODECEPTJS_OVERRIDE | default ""}}'
+  TASK_CODECEPTJS_DOCKER_IMAGE: '{{.TASK_CODECEPTJS_DOCKER_IMAGE | default "registry.gitlab.com/digital-commons/devsecops/tools/codeceptjs:1.2.1"}}'
 
 tasks:
-  install:
-    desc: Install CodeceptJS and Playwright locally
-    summary: |
-      ℹ️ Description:
-        Installs CodeceptJS locally in the .config/codeceptjs directory.
-
-      🔧 Variables:
-        - TASK_CODECEPTJS_DIR: Directory where CodeceptJS will be installed. Default: ".config/codeceptjs"
-
-      🔄 Execution:
-        Installs the dependencies defined in the package.json file.
-    sources:
-      - "{{.TASK_CODECEPTJS_DIR}}/package.json"
-    generates:
-      - "{{.TASK_CODECEPTJS_DIR}}/node_modules/.bin/codeceptjs"
-    cmds:
-      - cmd: echo "🔄 Installing CodeceptJS dependencies"
-        silent: true
-      - npm install --prefix {{.TASK_CODECEPTJS_DIR}}
-      - task: install:playwright
-      - cmd: echo '🎉 CodeceptJS has been installed successfully.'
-        silent: true
-
-  install:playwright:
-    desc: Install Playwright locally
-    summary: |
-      ℹ️ Description:
-        Installs Playwright locally in the .config/codeceptjs directory.
-
-      🔧 Variables:
-        - TASK_CODECEPTJS_DIR: Directory where CodeceptJS will be installed. Default: ".config/codeceptjs"
-
-      🔄 Execution:
-        Installs the dependencies defined in the package.json file.
-    status:
-      - "{{.TASK_CODECEPTJS_DIR}}/node_modules/.bin/playwright --version"
-      - bash -c "ls $HOME/.cache/ms-playwright/chromium-*/chrome-linux/chrome >/dev/null 2>&1"
-      - bash -c "ls $HOME/.cache/ms-playwright/chromium_*/chrome-linux/headless_shell >/dev/null 2>&1"
-      - test "$TASK_CODECEPTJS_CI" != "true"
-    cmds:
-      - cmd: echo "🔄 Installing Playwright dependencies"
-        silent: true
-      - npm exec --prefix {{.TASK_CODECEPTJS_DIR}} playwright install -- --with-deps chromium
-      - cmd: echo '🎉 Playwright has been installed successfully.'
-        silent: true
-
   default:
     desc: Run tests with CodeceptJS.
     summary: |
@@ -81,7 +35,6 @@ tasks:
         Runs CodeceptJS tests with the specified configuration and options.
     status:
       - test "{{.TASK_CODECEPTJS_ENABLED}}" = "false"
-    deps: [install]
     vars:
       CODECEPTJS_RUN_COMMAND: "{{.TASK_CODECEPTJS_COMMAND}} run --config {{.TASK_CODECEPTJS_CONFIG}}{{if .TASK_CODECEPTJS_GREP}} --grep {{.TASK_CODECEPTJS_GREP}}{{end}}{{if .TASK_CODECEPTJS_DEBUG}} --debug{{end}}{{if .TASK_CODECEPTJS_STEPS}} --steps{{end}}{{if .TASK_CODECEPTJS_REPORTER}} --reporter {{.TASK_CODECEPTJS_REPORTER}}{{end}}{{if .TASK_CODECEPTJS_VERBOSE}} --verbose{{end}}{{if .TASK_CODECEPTJS_OVERRIDE}} --override {{.TASK_CODECEPTJS_OVERRIDE}}{{end}}"
     cmds:
@@ -89,7 +42,7 @@ tasks:
         silent: true
       - cmd: echo "{{.CODECEPTJS_RUN_COMMAND}}"
         silent: true
-      - cmd: "{{.CODECEPTJS_RUN_COMMAND}} {{.CLI_ARGS}}"
-        silent: true
+      - |
+        docker run --rm -it --privileged --user "$(id -u):$(getent group docker | cut -d: -f3)" -v /var/run/docker.sock:/var/run/docker.sock --network="host" -e DONT_FAIL_ON_EMPTY_RUN=true -e CODECEPTJS_BASE_URL=${CODECEPTJS_BASE_URL} -w /tests -v "$(pwd):/tests:z" {{.TASK_CODECEPTJS_DOCKER_IMAGE}} codeceptjs {{.CODECEPTJS_RUN_COMMAND}} {{.CLI_ARGS}}
       - cmd: echo '🎉 CodeceptJS tests completed successfully.'
         silent: true
