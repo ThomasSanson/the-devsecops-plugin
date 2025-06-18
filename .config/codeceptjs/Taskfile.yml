@@ -19,7 +19,7 @@ vars:
   TASK_CODECEPTJS_DOCKER_NETWORK: '{{.TASK_CODECEPTJS_DOCKER_NETWORK | default "host"}}'
   TASK_CODECEPTJS_DOCKER_OPTS: '{{.TASK_CODECEPTJS_DOCKER_OPTS | default "--rm -t"}}'
 
-  # By default, it contains the option. In CI, you can set it to "".
+  # By default, it contains the option. In CI, you can set it to " ".
   TASK_CODECEPTJS_DOCKER_SOCKET_MOUNT: '{{.TASK_CODECEPTJS_DOCKER_SOCKET_MOUNT | default "-v /var/run/docker.sock:/var/run/docker.sock"}}'
   TASK_CODECEPTJS_ENV_DONT_FAIL: '{{.TASK_CODECEPTJS_ENV_DONT_FAIL | default "true"}}'
   TASK_CODECEPTJS_ENV_BASE_URL: '{{.TASK_CODECEPTJS_ENV_BASE_URL | default "${CODECEPTJS_BASE_URL}"}}'
