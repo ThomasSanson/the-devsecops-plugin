@@ -66,6 +66,8 @@ before_script:
   - task dev:init
   # Source bash profile (might be needed if task install modifies it, keep for safety)
   - source ~/.bash_profile
+  - cat /etc/group | grep docker
+  - ls -lisa /var/run/docker.sock
 
 stages:
   - plan
