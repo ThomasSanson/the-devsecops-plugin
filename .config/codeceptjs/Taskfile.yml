@@ -1,4 +1,3 @@
----
 version: "3"
 
 vars:
@@ -18,7 +17,12 @@ vars:
   TASK_CODECEPTJS_DOCKER_WORKDIR: '{{.TASK_CODECEPTJS_DOCKER_WORKDIR | default "/tests"}}'
   TASK_CODECEPTJS_DOCKER_VOLUME: '{{.TASK_CODECEPTJS_DOCKER_VOLUME | default "$(pwd):/tests:z"}}'
   TASK_CODECEPTJS_DOCKER_NETWORK: '{{.TASK_CODECEPTJS_DOCKER_NETWORK | default "host"}}'
-  TASK_CODECEPTJS_DOCKER_OPTS: '{{.TASK_CODECEPTJS_DOCKER_OPTS | default "--rm --privileged"}}'
+  TASK_CODECEPTJS_DOCKER_OPTS: '{{.TASK_CODECEPTJS_DOCKER_OPTS | default "--rm -t"}}'
+
+  # ## ADDED: Variable for the Docker socket mount.
+  # By default, it contains the option. In CI, you can set it to "".
+  TASK_CODECEPTJS_DOCKER_SOCKET_MOUNT: '{{.TASK_CODECEPTJS_DOCKER_SOCKET_MOUNT | default "-v /var/run/docker.sock:/var/run/docker.sock"}}'
+
   TASK_CODECEPTJS_ENV_DONT_FAIL: '{{.TASK_CODECEPTJS_ENV_DONT_FAIL | default "true"}}'
   TASK_CODECEPTJS_ENV_BASE_URL: '{{.TASK_CODECEPTJS_ENV_BASE_URL | default "${CODECEPTJS_BASE_URL}"}}'
 
@@ -43,7 +47,8 @@ tasks:
         - TASK_CODECEPTJS_DOCKER_WORKDIR: Docker working directory. Default: "/tests"
         - TASK_CODECEPTJS_DOCKER_VOLUME: Docker volume mapping. Default: "$(pwd):/tests:z"
         - TASK_CODECEPTJS_DOCKER_NETWORK: Docker network mode. Default: "host"
-        - TASK_CODECEPTJS_DOCKER_OPTS: Docker run options. Default: "--rm"
+        - TASK_CODECEPTJS_DOCKER_OPTS: Docker run options. Default: "--rm -t"
+        - TASK_CODECEPTJS_DOCKER_SOCKET_MOUNT: Docker socket mount option. Default: "-v /var/run/docker.sock:/var/run/docker.sock"
 
       🔄 Execution:
         Runs CodeceptJS tests with the specified configuration and options.
@@ -51,7 +56,10 @@ tasks:
       - test "{{.TASK_CODECEPTJS_ENABLED}}" = "false"
     vars:
       CODECEPTJS_RUN_COMMAND: "run --config {{.TASK_CODECEPTJS_CONFIG}}{{if .TASK_CODECEPTJS_GREP}} --grep {{.TASK_CODECEPTJS_GREP}}{{end}}{{if .TASK_CODECEPTJS_DEBUG}} --debug{{end}}{{if .TASK_CODECEPTJS_STEPS}} --steps{{end}}{{if .TASK_CODECEPTJS_REPORTER}} --reporter {{.TASK_CODECEPTJS_REPORTER}}{{end}}{{if .TASK_CODECEPTJS_VERBOSE}} --verbose{{end}}{{if .TASK_CODECEPTJS_OVERRIDE}} --override {{.TASK_CODECEPTJS_OVERRIDE}}{{end}}"
-      CODECEPTJS_RUNNER_COMMAND: "docker run {{.TASK_CODECEPTJS_DOCKER_OPTS}} --user {{.TASK_CODECEPTJS_DOCKER_USER}} -v /var/run/docker.sock:/var/run/docker.sock --network={{.TASK_CODECEPTJS_DOCKER_NETWORK}} -e DONT_FAIL_ON_EMPTY_RUN={{.TASK_CODECEPTJS_ENV_DONT_FAIL}} -e CODECEPTJS_BASE_URL={{.TASK_CODECEPTJS_ENV_BASE_URL}} -w {{.TASK_CODECEPTJS_DOCKER_WORKDIR}} -v {{.TASK_CODECEPTJS_DOCKER_VOLUME}} {{.TASK_CODECEPTJS_DOCKER_IMAGE}}"
+
+      # ## MODIFIED: Replaced the hardcoded string with the new variable.
+      # The space after the variable is intentional and will be handled correctly by the shell.
+      CODECEPTJS_RUNNER_COMMAND: "docker run {{.TASK_CODECEPTJS_DOCKER_OPTS}} --user {{.TASK_CODECEPTJS_DOCKER_USER}} {{.TASK_CODECEPTJS_DOCKER_SOCKET_MOUNT}} --network={{.TASK_CODECEPTJS_DOCKER_NETWORK}} -e DONT_FAIL_ON_EMPTY_RUN={{.TASK_CODECEPTJS_ENV_DONT_FAIL}} -e CODECEPTJS_BASE_URL={{.TASK_CODECEPTJS_ENV_BASE_URL}} -w {{.TASK_CODECEPTJS_DOCKER_WORKDIR}} -v {{.TASK_CODECEPTJS_DOCKER_VOLUME}} {{.TASK_CODECEPTJS_DOCKER_IMAGE}}"
     cmds:
       - cmd: echo "🔄 Running CodeceptJS tests"
         silent: true
