@@ -116,16 +116,12 @@ The plugin implements a complete DevSecOps lifecycle through distinct stages:
 
 Before using the DevSecOps Plugin, ensure you have the following installed:
 
-- Python 3.11 or higher
-- Docker Desktop 4.x or newer (for container support)
-- Visual Studio Code (recommended)
 - Git
+- Python 3.12
 - Taskfile as go-task ([installation guide](https://taskfile.dev/installation/))
+- Docker or Docker Desktop 4.x or newer (for container support)
+- Visual Studio Code (recommended)
 
-Quick install for Taskfile :
-```sh
-sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d
-```
 
 ### Installation
 
