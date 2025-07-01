@@ -120,6 +120,12 @@ Before using the DevSecOps Plugin, ensure you have the following installed:
 - Docker Desktop 4.x or newer (for container support)
 - Visual Studio Code (recommended)
 - Git
+- Taskfile as go-task ([installation guide](https://taskfile.dev/installation/))
+
+Quick install for Taskfile :
+```sh
+sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d
+```
 
 ### Installation
 
