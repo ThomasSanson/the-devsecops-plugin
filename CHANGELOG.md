@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 12.1.0 (2025-07-02)
+
+### Feat
+
+- **README**: add installation instructions for Taskfile to enhance setup guidance
+
 ## 12.0.1 (2025-06-18)
 
 ### Fix
