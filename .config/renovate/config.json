@@ -8,19 +8,6 @@
     "dockerfile",
     "gomod",
     "helm-values",
-    "github-actions",
-    "regex"
-  ],
-  "regexManagers": [
-    {
-      "fileMatch": [
-        "^\\.config/devsecops/\\.copier-answers\\.yml$"
-      ],
-      "matchStrings": [
-        "^_src_path:\\s*https://gitlab\\.com/digital-commons/devsecops/tools/the-devsecops-plugin\\.git[\\s\\S]*?^_commit:\\s*\"?(?<currentValue>[^\"\\n]+)\"?$"
-      ],
-      "datasourceTemplate": "git-tags",
-      "depNameTemplate": "https://gitlab.com/digital-commons/devsecops/tools/the-devsecops-plugin.git"
-    }
+    "custom.regex"
   ]
 }
