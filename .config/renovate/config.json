@@ -15,8 +15,9 @@
   "enabledManagers": [
     "npm",
     "dockerfile",
-    "gomod",
-    "helm-values",
-    "custom.regex"
+    "devcontainer",
+    "docker-compose",
+    "pip_requirements",
+    "regex"
   ]
 }
