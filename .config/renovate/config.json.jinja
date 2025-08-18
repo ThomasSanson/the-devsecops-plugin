@@ -1,0 +1,22 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":semanticCommitTypeAll(fix)"
+  ],
+  "onboarding": false,
+  "requireConfig": "optional",
+  "prConcurrentLimit": 1,
+  "semanticCommits": "enabled",
+  "semanticCommitType": "fix",
+  "semanticCommitScope": "deps",
+  "dependencyDashboard": true,
+  "enabledManagers": ["copier"],
+  "copier": {
+    "managerFilePatterns": [
+      "/^\\.config\\/devsecops\\/\\.copier-answers\\.yml$/"
+    ],
+    "ignoreScripts": true
+  }
+}

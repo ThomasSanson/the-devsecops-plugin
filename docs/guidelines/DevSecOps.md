@@ -318,6 +318,33 @@ vars:
   - Project configuration updates
 - **Parameterisation:** All planning parameters must be defined as variables.
 
+### 4.2. Renovate Usage
+
+Renovate is provided under `/.config/renovate/` to automate dependency upkeep. Use the following tasks:
+
+- **Validate configuration**
+  - Command:
+    ```bash
+    task renovate:validate
+    ```
+  - Purpose: Ensures the Renovate configuration file is valid before running.
+
+- **Dry-run (no changes)**
+  - Command:
+    ```bash
+    task renovate:dry-run
+    ```
+  - Purpose: Executes Renovate locally in read-only mode to preview potential updates.
+
+- **Variables**
+  - `TASK_RENOVATE_USE_DOCKER`: `"true"|"false"` (default: `"false"`). If `true`, runs via Docker image; otherwise uses `npx`.
+  - `TASK_RENOVATE_CONFIG`: path to configuration (default: `.config/renovate/config.json`).
+  - `TASK_RENOVATE_REPOSITORY`: repository root to scan (default: `.`).
+
+Notes:
+- Projects generated via Copier utilise the minimal template `config.json.jinja` to update only the DevSecOps plugin version through `regexManagers`.
+- This repository itself uses the full configuration `config.json`.
+
 ## 5. Task: Code
 
 ### 5.1. Quality Assurance
