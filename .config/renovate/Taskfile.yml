@@ -4,6 +4,7 @@ vars:
   TASK_RENOVATE_USE_DOCKER: '{{.TASK_RENOVATE_USE_DOCKER | default "false"}}'
   TASK_RENOVATE_CONFIG: '{{.TASK_RENOVATE_CONFIG | default ".config/renovate/config.json"}}'
   TASK_RENOVATE_REPOSITORY: '{{.TASK_RENOVATE_REPOSITORY | default "."}}'
+  TASK_RENOVATE_LOG_LEVEL: '{{.TASK_RENOVATE_LOG_LEVEL | default "info"}}'
 
 tasks:
   check:
@@ -19,9 +20,9 @@ tasks:
     cmds:
       - cmd: |
           if [ "{{.TASK_RENOVATE_USE_DOCKER}}" = "true" ]; then
-            docker run --rm -v "$PWD":/repo -w /repo ghcr.io/renovatebot/renovate:latest renovate-config-validator "{{.TASK_RENOVATE_CONFIG}}"
+            docker run --rm -e LOG_LEVEL="{{.TASK_RENOVATE_LOG_LEVEL}}" -v "$PWD":/repo -w /repo ghcr.io/renovatebot/renovate:latest renovate-config-validator "{{.TASK_RENOVATE_CONFIG}}"
           else
-            npx --yes renovate-config-validator "{{.TASK_RENOVATE_CONFIG}}"
+            LOG_LEVEL="{{.TASK_RENOVATE_LOG_LEVEL}}" npx --yes renovate-config-validator "{{.TASK_RENOVATE_CONFIG}}"
           fi
 
   dry-run:
@@ -30,7 +31,7 @@ tasks:
     cmds:
       - cmd: |
           if [ "{{.TASK_RENOVATE_USE_DOCKER}}" = "true" ]; then
-            docker run --rm -e RENOVATE_CONFIG_FILE="{{.TASK_RENOVATE_CONFIG}}" -v "$PWD":/repo -w /repo ghcr.io/renovatebot/renovate:latest renovate --platform=local --dry-run "{{.TASK_RENOVATE_REPOSITORY}}"
+            docker run --rm -e LOG_LEVEL="{{.TASK_RENOVATE_LOG_LEVEL}}" -e RENOVATE_CONFIG_FILE="{{.TASK_RENOVATE_CONFIG}}" -v "$PWD":/repo -w /repo ghcr.io/renovatebot/renovate:latest renovate --platform=local --dry-run
           else
-            RENOVATE_CONFIG_FILE="{{.TASK_RENOVATE_CONFIG}}" npx --yes renovate --platform=local --dry-run "{{.TASK_RENOVATE_REPOSITORY}}"
+            LOG_LEVEL="{{.TASK_RENOVATE_LOG_LEVEL}}" RENOVATE_CONFIG_FILE="{{.TASK_RENOVATE_CONFIG}}" npx --yes renovate --platform=local --dry-run
           fi
