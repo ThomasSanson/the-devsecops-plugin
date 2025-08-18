@@ -42,6 +42,27 @@ function assertFileExists (filePath, errorMessage = null) {
   return true
 }
 
+function assertFileContains (filePath, expected) {
+  const actual = fs.readFileSync(filePath, 'utf8').replace(/\r\n/g, '\n')
+
+  let normalizedExpected
+  if (expected && typeof expected === 'object' && typeof expected.content === 'string') {
+    normalizedExpected = expected.content.replace(/\r\n/g, '\n').trim()
+  } else if (Array.isArray(expected)) {
+    normalizedExpected = expected.map(l => l.trimEnd()).join('\n').replace(/\r\n/g, '\n').trim()
+  } else {
+    normalizedExpected = String(expected).replace(/\r\n/g, '\n').trim()
+  }
+
+  if (!actual.includes(normalizedExpected)) {
+    console.log('---DEBUG FILE CONTAINS---')
+    console.log('ACTUAL:[' + actual.split('\n').map(l => JSON.stringify(l)).join(',') + ']')
+    console.log('EXPECTED SUBSTRING:[' + normalizedExpected.split('\n').map(l => JSON.stringify(l)).join(',') + ']')
+    throw new Error(`File content does not contain expected snippet for ${filePath}\n--- Expected snippet ---\n${normalizedExpected}`)
+  }
+  return true
+}
+
 function assertFileNotExists (filePath) {
   if (fs.existsSync(filePath) && fs.lstatSync(filePath).isFile()) {
     throw new Error(`File should NOT exist: ${filePath}`)
@@ -199,6 +220,12 @@ Then('the content of the file {string} should be exactly:', function (filePath, 
   const absPath = resolveProjectPath(filePath)
   assertFileExists(absPath)
   compareFileContent(absPath, contentBlock)
+})
+
+Then('the content of the file {string} should contain:', function (filePath, contentBlock) { // eslint-disable-line no-undef
+  const absPath = resolveProjectPath(filePath)
+  assertFileExists(absPath)
+  assertFileContains(absPath, contentBlock)
 })
 
 Given('a project has been generated with the DevSecOps plugin', function () { // eslint-disable-line no-undef
