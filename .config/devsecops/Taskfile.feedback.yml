@@ -3,6 +3,7 @@ version: "3"
 
 vars:
   TASK_DEVSECOPS_FEEDBACK_ENABLED: '{{.TASK_DEVSECOPS_FEEDBACK_ENABLED | default "true"}}'
+  TASK_DEVSECOPS_FEEDBACK_RENOVATE_ENABLED: '{{.TASK_DEVSECOPS_FEEDBACK_RENOVATE_ENABLED | default "true"}}'
 
 tasks:
   default:
@@ -13,5 +14,14 @@ tasks:
       - cmd: echo "🔄 Starting feedback phase"
         silent: true
       - task: :project:feedback
+      - task: renovate
       - cmd: echo "🎉 Feedback phase completed successfully"
         silent: true
+
+  renovate:
+    desc: Run Renovate as part of feedback (skipped unless enabled)
+    status:
+      - test "{{.TASK_DEVSECOPS_FEEDBACK_RENOVATE_ENABLED}}" != "true" || test -z "$RENOVATE_TOKEN"
+    cmds:
+      - task: :renovate:validate
+      - task: :renovate:run
