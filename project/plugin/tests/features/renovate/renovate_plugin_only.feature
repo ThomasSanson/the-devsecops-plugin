@@ -11,17 +11,17 @@ Feature: Renovate plugin-only configuration
     And the ".config/renovate/config.json" file should exist
     And the content of the file ".config/renovate/config.json" should contain:
       """
-      "enabledManagers": ["regex"]
+      "enabledManagers": ["copier"]
       """
     And the content of the file ".config/renovate/config.json" should contain:
       """
-      "regexManagers": [
+      "copier": {
       """
     And the content of the file ".config/renovate/config.json" should contain:
       """
-      "datasourceTemplate": "git-tags"
+      "managerFilePatterns": [
       """
     And the content of the file ".config/renovate/config.json" should contain:
       """
-      "depNameTemplate": "https://gitlab.com/digital-commons/devsecops/tools/the-devsecops-plugin.git"
+      "ignoreScripts": true
       """
