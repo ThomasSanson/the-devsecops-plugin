@@ -97,6 +97,9 @@ includes:
   podman:
     taskfile: .config/podman/Taskfile.yml
     optional: true
+  renovate:
+    taskfile: .config/renovate/Taskfile.yml
+    optional: true
   sealed-secrets:
     taskfile: .config/sealed-secrets/Taskfile.yaml
     optional: true
