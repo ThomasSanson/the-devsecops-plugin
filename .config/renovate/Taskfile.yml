@@ -1,0 +1,36 @@
+version: "3"
+
+vars:
+  TASK_RENOVATE_USE_DOCKER: '{{.TASK_RENOVATE_USE_DOCKER | default "false"}}'
+  TASK_RENOVATE_CONFIG: '{{.TASK_RENOVATE_CONFIG | default ".config/renovate/config.json"}}'
+  TASK_RENOVATE_REPOSITORY: '{{.TASK_RENOVATE_REPOSITORY | default "."}}'
+
+tasks:
+  check:
+    desc: Vérifie les prérequis (Docker si USE_DOCKER=true, sinon npx)
+    preconditions:
+      - sh: |
+          if [ "{{.TASK_RENOVATE_USE_DOCKER}}" = "true" ]; then command -v docker >/dev/null 2>&1; else command -v npx >/dev/null 2>&1; fi
+        msg: "❌ Prérequis manquant: installe Docker (si USE_DOCKER=true) ou Node.js/npm (pour npx)."
+
+  validate:
+    desc: Valide le fichier de configuration Renovate
+    deps: [check]
+    cmds:
+      - cmd: |
+          if [ "{{.TASK_RENOVATE_USE_DOCKER}}" = "true" ]; then
+            docker run --rm -v "$PWD":/repo -w /repo ghcr.io/renovatebot/renovate:latest renovate-config-validator "{{.TASK_RENOVATE_CONFIG}}"
+          else
+            npx --yes renovate-config-validator "{{.TASK_RENOVATE_CONFIG}}"
+          fi
+
+  dry-run:
+    desc: Exécution à blanc de Renovate en local avec la config fournie
+    deps: [check]
+    cmds:
+      - cmd: |
+          if [ "{{.TASK_RENOVATE_USE_DOCKER}}" = "true" ]; then
+            docker run --rm -e RENOVATE_CONFIG_FILE="{{.TASK_RENOVATE_CONFIG}}" -v "$PWD":/repo -w /repo ghcr.io/renovatebot/renovate:latest renovate --platform=local --dry-run "{{.TASK_RENOVATE_REPOSITORY}}"
+          else
+            RENOVATE_CONFIG_FILE="{{.TASK_RENOVATE_CONFIG}}" npx --yes renovate --platform=local --dry-run "{{.TASK_RENOVATE_REPOSITORY}}"
+          fi
