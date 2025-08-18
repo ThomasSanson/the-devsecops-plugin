@@ -5,17 +5,19 @@ vars:
   TASK_RENOVATE_CONFIG: '{{.TASK_RENOVATE_CONFIG | default ".config/renovate/config.json"}}'
   TASK_RENOVATE_REPOSITORY: '{{.TASK_RENOVATE_REPOSITORY | default "."}}'
   TASK_RENOVATE_LOG_LEVEL: '{{.TASK_RENOVATE_LOG_LEVEL | default "info"}}'
+  TASK_RENOVATE_PLATFORM: '{{.TASK_RENOVATE_PLATFORM | default "gitlab"}}'
+  TASK_RENOVATE_ENDPOINT: '{{.TASK_RENOVATE_ENDPOINT | default ""}}'
 
 tasks:
   check:
-    desc: Vérifie les prérequis (Docker si USE_DOCKER=true, sinon npx)
+    desc: Verify prerequisites (Docker if USE_DOCKER=true, otherwise npx)
     preconditions:
       - sh: |
           if [ "{{.TASK_RENOVATE_USE_DOCKER}}" = "true" ]; then command -v docker >/dev/null 2>&1; else command -v npx >/dev/null 2>&1; fi
-        msg: "❌ Prérequis manquant: installe Docker (si USE_DOCKER=true) ou Node.js/npm (pour npx)."
+        msg: "❌ Missing prerequisite: install Docker (if USE_DOCKER=true) or Node.js/npm (for npx)."
 
   validate:
-    desc: Valide le fichier de configuration Renovate
+    desc: Validate the Renovate configuration file
     deps: [check]
     cmds:
       - cmd: |
@@ -26,7 +28,7 @@ tasks:
           fi
 
   dry-run:
-    desc: Exécution à blanc de Renovate en local avec la config fournie
+    desc: Local dry-run of Renovate with the provided configuration
     deps: [check]
     cmds:
       - cmd: |
@@ -34,4 +36,40 @@ tasks:
             docker run --rm -e LOG_LEVEL="{{.TASK_RENOVATE_LOG_LEVEL}}" -e RENOVATE_CONFIG_FILE="{{.TASK_RENOVATE_CONFIG}}" -v "$PWD":/repo -w /repo ghcr.io/renovatebot/renovate:latest renovate --platform=local --dry-run
           else
             LOG_LEVEL="{{.TASK_RENOVATE_LOG_LEVEL}}" RENOVATE_CONFIG_FILE="{{.TASK_RENOVATE_CONFIG}}" npx --yes renovate --platform=local --dry-run
+          fi
+
+  run:
+    desc: Execute Renovate against the remote platform (GitLab/GitHub) or locally depending on variables
+    deps: [check]
+    cmds:
+      - cmd: |
+          set -e
+          PLATFORM_ARG=""; [ -n "{{.TASK_RENOVATE_PLATFORM}}" ] && PLATFORM_ARG="--platform={{.TASK_RENOVATE_PLATFORM}}"
+          if [ "{{.TASK_RENOVATE_USE_DOCKER}}" = "true" ]; then
+            if [ -n "{{.TASK_RENOVATE_ENDPOINT}}" ]; then
+              docker run --rm \
+                -e LOG_LEVEL="{{.TASK_RENOVATE_LOG_LEVEL}}" \
+                -e RENOVATE_CONFIG_FILE="{{.TASK_RENOVATE_CONFIG}}" \
+                -e RENOVATE_TOKEN \
+                -e RENOVATE_ENDPOINT="{{.TASK_RENOVATE_ENDPOINT}}" \
+                -v "$PWD":/repo -w /repo \
+                ghcr.io/renovatebot/renovate:latest renovate ${PLATFORM_ARG} "{{.TASK_RENOVATE_REPOSITORY}}"
+            else
+              docker run --rm \
+                -e LOG_LEVEL="{{.TASK_RENOVATE_LOG_LEVEL}}" \
+                -e RENOVATE_CONFIG_FILE="{{.TASK_RENOVATE_CONFIG}}" \
+                -e RENOVATE_TOKEN \
+                -v "$PWD":/repo -w /repo \
+                ghcr.io/renovatebot/renovate:latest renovate ${PLATFORM_ARG} "{{.TASK_RENOVATE_REPOSITORY}}"
+            fi
+          else
+            if [ -n "{{.TASK_RENOVATE_ENDPOINT}}" ]; then
+              RENOVATE_ENDPOINT="{{.TASK_RENOVATE_ENDPOINT}}" LOG_LEVEL="{{.TASK_RENOVATE_LOG_LEVEL}}" RENOVATE_CONFIG_FILE="{{.TASK_RENOVATE_CONFIG}}" \
+                RENOVATE_TOKEN="$RENOVATE_TOKEN" \
+                npx --yes renovate ${PLATFORM_ARG} "{{.TASK_RENOVATE_REPOSITORY}}"
+            else
+              LOG_LEVEL="{{.TASK_RENOVATE_LOG_LEVEL}}" RENOVATE_CONFIG_FILE="{{.TASK_RENOVATE_CONFIG}}" \
+                RENOVATE_TOKEN="$RENOVATE_TOKEN" \
+                npx --yes renovate ${PLATFORM_ARG} "{{.TASK_RENOVATE_REPOSITORY}}"
+            fi
           fi
