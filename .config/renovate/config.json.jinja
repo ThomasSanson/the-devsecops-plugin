@@ -12,17 +12,11 @@
   "semanticCommitType": "fix",
   "semanticCommitScope": "deps",
   "dependencyDashboard": true,
-  "enabledManagers": ["regex"],
-  "regexManagers": [
-    {
-      "fileMatch": [
-        "^\\.config/devsecops/\\.copier-answers\\.yml$"
-      ],
-      "matchStrings": [
-        "^_src_path:\\s*https:\\/\\/gitlab\\.com/digital-commons/devsecops/tools/the-devsecops-plugin\\.git[\\s\\S]*?^_commit:\\s*\"?(?<currentValue>[^\"\\n]+)\"?$"
-      ],
-      "datasourceTemplate": "git-tags",
-      "depNameTemplate": "https://gitlab.com/digital-commons/devsecops/tools/the-devsecops-plugin.git"
-    }
-  ]
+  "enabledManagers": ["copier"],
+  "copier": {
+    "managerFilePatterns": [
+      "/^\\.config\\/devsecops\\/\\.copier-answers\\.yml$/"
+    ],
+    "ignoreScripts": true
+  }
 }
