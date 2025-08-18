@@ -22,7 +22,7 @@ tasks:
           if [ "{{.TASK_RENOVATE_USE_DOCKER}}" = "true" ]; then
             docker run --rm -e LOG_LEVEL="{{.TASK_RENOVATE_LOG_LEVEL}}" -v "$PWD":/repo -w /repo ghcr.io/renovatebot/renovate:latest renovate-config-validator "{{.TASK_RENOVATE_CONFIG}}"
           else
-            LOG_LEVEL="{{.TASK_RENOVATE_LOG_LEVEL}}" npx --yes renovate-config-validator "{{.TASK_RENOVATE_CONFIG}}"
+            LOG_LEVEL="{{.TASK_RENOVATE_LOG_LEVEL}}" npx --yes -p renovate renovate-config-validator "{{.TASK_RENOVATE_CONFIG}}"
           fi
 
   dry-run:
