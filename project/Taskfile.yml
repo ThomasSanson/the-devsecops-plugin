@@ -69,6 +69,8 @@ tasks:
       - task: :codeceptjs
         vars:
           TASK_CODECEPTJS_GREP: "@copier"
+          TASK_CODECEPTJS_ENABLED: "true"
+          TASK_CODECEPTJS_CONFIG: "project/plugin/tests/e2e/codeceptjs/codecept.conf.js"
       - cmd: echo "✅ Project copier test phase completed successfully"
         silent: true
 
