@@ -1,6 +1,8 @@
+---
 version: "3"
 
 vars:
+  TASK_RENOVATE_ENABLED: '{{.TASK_RENOVATE_ENABLED | default "true"}}'
   TASK_RENOVATE_USE_DOCKER: '{{.TASK_RENOVATE_USE_DOCKER | default "false"}}'
   TASK_RENOVATE_CONFIG: '{{.TASK_RENOVATE_CONFIG | default ".config/renovate/config.json"}}'
   TASK_RENOVATE_REPOSITORY: '{{.TASK_RENOVATE_REPOSITORY | default "."}}'
