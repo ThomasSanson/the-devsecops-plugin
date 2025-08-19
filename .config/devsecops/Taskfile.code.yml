@@ -17,11 +17,11 @@ tasks:
       - task: :megalinter
       - task: :commitizen:check
       - task: :commitizen:bump
-      - task: renovate
         vars:
           TASK_COMMITIZEN_BUMP_YES: "true"
           TASK_COMMITIZEN_BUMP_DRY_RUN: "true"
       - task: :lizard
+      - task: renovate
       - cmd: echo "🎉 Code phase completed successfully"
         silent: true
 
