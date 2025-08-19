@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 12.1.1 (2025-08-19)
+
+### Fix
+
+- **deps**: update dependency @codeceptjs/ui to v1.2.5
+
 ## 12.1.0 (2025-07-02)
 
 ### Feat
