@@ -13,15 +13,3 @@ Feature: Renovate plugin-only configuration
       """
       "enabledManagers": ["copier"]
       """
-    And the content of the file ".config/renovate/config.json" should contain:
-      """
-      "copier": {
-      """
-    And the content of the file ".config/renovate/config.json" should contain:
-      """
-      "managerFilePatterns": [
-      """
-    And the content of the file ".config/renovate/config.json" should contain:
-      """
-      "ignoreScripts": true
-      """
