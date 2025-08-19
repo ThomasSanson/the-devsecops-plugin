@@ -18,6 +18,6 @@
     "devcontainer",
     "docker-compose",
     "pip_requirements",
-    "regex"
+    "custom.regex"
   ]
 }
