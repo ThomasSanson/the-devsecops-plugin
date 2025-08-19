@@ -17,6 +17,7 @@ tasks:
       - task: :megalinter
       - task: :commitizen:check
       - task: :commitizen:bump
+      - task: renovate
         vars:
           TASK_COMMITIZEN_BUMP_YES: "true"
           TASK_COMMITIZEN_BUMP_DRY_RUN: "true"
@@ -30,3 +31,10 @@ tasks:
       - task: :copier:update
         vars:
           TASK_COPIER_ANSWER_FILE: ".config/devsecops/.copier-answers.yml"
+
+  renovate:
+    desc: Validate Renovate configuration during the code phase (skipped unless enabled)
+    status:
+      - test "{{.TASK_RENOVATE_ENABLED}}" != "true"
+    cmds:
+      - task: :renovate:validate
