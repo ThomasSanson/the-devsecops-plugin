@@ -1,6 +1,13 @@
 ---
 image: registry.gitlab.com/digital-commons/devsecops/tools/the-devsecops-plugin:12.2.0
 
+include:
+  - local: .config/gitlab/ci/before_script.yml
+  # - local: .config/gitlab/ci/services.yml
+  # - local: .config/gitlab/ci/stages.yml
+  # - local: .config/gitlab/ci/variables.yml
+  # - local: .config/gitlab/ci/workflow.yml
+
 variables:
   TERM: xterm
   GIT_STRATEGY: clone
@@ -71,21 +78,6 @@ workflow:
 services:
   # kics-scan ignore-line
   - name: docker:24.0.5-dind # The rule [ce76b7d0-9e77-464d-b86f-c5c48e03e22d,698ed579-b239-4f8f-a388-baa4bcb13ef8,610e266e-6c12-4bca-9925-1ed0cd29742b] are ignored here because it causes false positives specifically related to the Docker-in-Docker service.
-
-before_script:
-  # Install Taskfile if not present
-  - |
-    if ! command -v task &> /dev/null; then
-      echo "Taskfile not found. Installation in progress..."
-      sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
-    else
-      echo "Taskfile already installed."
-    fi
-    task --version
-  # Execute the initialization Taskfile
-  - task dev:init
-  # Source bash profile (optional; only if present)
-  - test -f ~/.bash_profile && . ~/.bash_profile || true
 
 stages:
   - plan
