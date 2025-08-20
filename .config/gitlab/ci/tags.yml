@@ -1,0 +1,5 @@
+---
+# Defines a hidden template with default tags for this repository (the template repo).
+# Jobs will extend this to inherit the runner tags.
+.default-tags:
+  tags:
