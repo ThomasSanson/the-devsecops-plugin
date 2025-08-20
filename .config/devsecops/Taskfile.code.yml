@@ -21,7 +21,7 @@ tasks:
           TASK_COMMITIZEN_BUMP_YES: "true"
           TASK_COMMITIZEN_BUMP_DRY_RUN: "true"
       - task: :lizard
-      - task: renovate
+      - task: :renovate:validate
       - cmd: echo "🎉 Code phase completed successfully"
         silent: true
 
@@ -31,10 +31,3 @@ tasks:
       - task: :copier:update
         vars:
           TASK_COPIER_ANSWER_FILE: ".config/devsecops/.copier-answers.yml"
-
-  renovate:
-    desc: Validate Renovate configuration during the code phase (skipped unless enabled)
-    status:
-      - test "{{.TASK_RENOVATE_ENABLED}}" != "true"
-    cmds:
-      - task: :renovate:validate
