@@ -3,3 +3,4 @@
 # Jobs will extend this to inherit the runner tags.
 .default-tags:
   tags:
+    - saas-linux-medium-amd64
