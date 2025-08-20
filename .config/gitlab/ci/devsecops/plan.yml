@@ -1,0 +1,15 @@
+---
+plan:
+  stage: plan
+  needs: []  # Allows parallel execution
+  script:
+    - task plan
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_ALL_SCHEDULE == "1"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_PLAN_SCHEDULE == "1"'
+      when: always
+    - if: $CI_COMMIT_TAG =~ /^staging$/
+      when: never
+    # Run in all other cases (MRs, feature branches, etc.)
+    - when: always
