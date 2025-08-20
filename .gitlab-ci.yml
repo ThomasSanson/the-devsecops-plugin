@@ -5,6 +5,7 @@ include:
   - local: .config/gitlab/ci/before_script.yml
   - local: .config/gitlab/ci/services.yml
   - local: .config/gitlab/ci/stages.yml
+  - local: .config/gitlab/ci/tags.yml
   - local: .config/gitlab/ci/variables.yml
   - local: .config/gitlab/ci/workflow.yml
 
