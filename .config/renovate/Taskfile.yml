@@ -84,10 +84,9 @@ tasks:
 
   validate:
     desc: Validate the Renovate configuration file
+    deps: [check]
     cmds:
-      - task: default
-        vars:
-          TASK_RENOVATE_CMD: 'LOG_LEVEL="{{.TASK_RENOVATE_LOG_LEVEL}}" npx --yes -p renovate renovate-config-validator "{{.TASK_RENOVATE_CONFIG}}"'
+      - cmd: 'LOG_LEVEL="{{.TASK_RENOVATE_LOG_LEVEL}}" npx --yes -p renovate renovate-config-validator "{{.TASK_RENOVATE_CONFIG}}"'
 
   dry-run:
     desc: Local dry-run of Renovate with the provided configuration
