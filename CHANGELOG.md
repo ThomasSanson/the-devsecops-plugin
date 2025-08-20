@@ -2,6 +2,28 @@
 
 # Changelog
 
+## 12.3.0 (2025-08-20)
+
+### Feat
+
+- **ci**: extend default tags in the DevSecOps plan configuration for better consistency
+- **ci**: extend monitor job with default tags for improved configuration management
+- **ci**: extend feedback job with default tags for better configuration management
+- **ci**: add project-specific runner tags configuration for CI jobs
+- **ci**: add test job configuration for DevSecOps pipeline in GitLab CI
+- **ci**: add release configuration for GitLab CI to manage Docker tasks and scheduling rules
+- **ci**: add operate job configuration for scheduled pipeline execution in GitLab CI
+- **ci**: add monitor job configuration for scheduled pipeline execution in GitLab CI
+- **ci**: add feedback job to CI pipeline for scheduled tasks and conditions
+- **ci**: add deploy configuration for GitLab CI to manage deployment rules and scheduling
+- **ci**: add DevSecOps code job configuration for GitLab CI pipeline
+- **ci**: add build configuration for DevSecOps pipeline to enhance CI/CD process
+- **ci**: add DevSecOps plan configuration for scheduled pipeline execution
+- **ci**: add GitLab CI workflow rules to manage pipeline execution conditions
+- **ci**: add stages configuration for GitLab CI to define the pipeline flow
+- **ci**: add before_script configuration to install Taskfile and initialize environment
+- **ci**: update GitLab CI configuration to refine pipeline rules for better control over job execution based on commit tags and branches
+
 ## 12.2.0 (2025-08-20)
 
 ### Feat
