@@ -47,6 +47,8 @@ variables:
   TASK_DEV_INIT_GIT_USER_EMAIL: $GITLAB_USER_EMAIL
   TASK_CODECEPTJS_CI: "true"
   TASK_CODECEPTJS_RUNNER: "codeceptjs"
+  TASK_RENOVATE_REPOSITORY: $CI_PROJECT_PATH_SLUG
+  TASK_RENOVATE_PLATFORM: "gitlab"
 
 services:
   # kics-scan ignore-line
