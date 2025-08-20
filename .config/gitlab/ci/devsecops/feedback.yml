@@ -2,6 +2,7 @@
 feedback:
   stage: feedback
   needs: []  # Allows parallel execution
+  extends: .default-tags
   script:
     - task feedback
   rules:
