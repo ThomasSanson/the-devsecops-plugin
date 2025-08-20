@@ -6,25 +6,7 @@ include:
   - local: .config/gitlab/ci/services.yml
   - local: .config/gitlab/ci/stages.yml
   - local: .config/gitlab/ci/variables.yml
-  # - local: .config/gitlab/ci/workflow.yml
-
-workflow:
-  rules:
-    # Rule 1: Highest priority. Always run a pipeline for the 'staging' tag,
-    # regardless of the commit message.
-    - if: '$CI_COMMIT_TAG == "staging"'
-      when: always
-
-    # Rule 2: If the pipeline is for a branch (not a tag) AND the commit message
-    # starts with "build: bump version", explicitly prevent a pipeline from running.
-    - if: '$CI_COMMIT_BRANCH && $CI_COMMIT_MESSAGE =~ /^build: bump version/'
-      when: never
-
-    # Rule 3: Default catch-all for normal development.
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: $CI_PIPELINE_SOURCE == 'web'
-    - if: $CI_PIPELINE_SOURCE == 'schedule'
+  - local: .config/gitlab/ci/workflow.yml
 
 plan:
   stage: plan
