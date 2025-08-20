@@ -23,4 +23,4 @@ tasks:
     status:
       - test "{{.TASK_DEVSECOPS_FEEDBACK_RENOVATE_ENABLED}}" != "true" || test -z "$RENOVATE_TOKEN"
     cmds:
-      - task: :renovate:run
+      - task: :renovate
