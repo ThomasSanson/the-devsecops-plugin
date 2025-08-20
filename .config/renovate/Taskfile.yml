@@ -10,30 +10,67 @@ vars:
   TASK_RENOVATE_ENDPOINT: '{{.TASK_RENOVATE_ENDPOINT | default ""}}'
   TASK_RENOVATE_CLI_OPTS: '{{.TASK_RENOVATE_CLI_OPTS | default ""}}'
   TASK_RENOVATE_DRY_RUN: '{{.TASK_RENOVATE_DRY_RUN | default "false"}}'
+  TASK_RENOVATE_TOKEN: '{{.TASK_RENOVATE_TOKEN | default (env "RENOVATE_TOKEN")}}'
 
 tasks:
   default:
     desc: Run Renovate with configurable options
     deps: [check]
     status:
-      - test "{{.TASK_RENOVATE_ENABLED}}" != "true" || test -z "$RENOVATE_TOKEN"
+      - test "{{.TASK_RENOVATE_ENABLED}}" != "true"
     vars:
       TASK_RENOVATE_CMD:
         sh: |
-          PLATFORM_ARG=""
-          if [ -n "{{.TASK_RENOVATE_PLATFORM}}" ]; then PLATFORM_ARG="--platform={{.TASK_RENOVATE_PLATFORM}}"; fi
-          DRY_RUN_ARG=""
+          # Safer shell behaviour
+          set -eu
+
+          # Start building the command early
+          CMD="npx --yes renovate"
+
+          # Append dry-run argument directly
           case "{{.TASK_RENOVATE_DRY_RUN}}" in
-            ""|"false") DRY_RUN_ARG="" ;;
-            "true"|"full") DRY_RUN_ARG="--dry-run=full" ;;
-            "lookup"|"extract") DRY_RUN_ARG="--dry-run={{.TASK_RENOVATE_DRY_RUN}}" ;;
-            *) DRY_RUN_ARG="--dry-run={{.TASK_RENOVATE_DRY_RUN}}" ;;
+            ""|"false")
+              : # no dry-run
+              ;;
+            "true"|"full")
+              CMD="$CMD --dry-run=full"
+              ;;
+            "lookup"|"extract")
+              CMD="$CMD --dry-run={{.TASK_RENOVATE_DRY_RUN}}"
+              ;;
+            *)
+              CMD="$CMD --dry-run={{.TASK_RENOVATE_DRY_RUN}}"
+              ;;
           esac
-          REPO_ARG=""
-          if [ "{{.TASK_RENOVATE_PLATFORM}}" != "local" ] && [ -n "{{.TASK_RENOVATE_REPOSITORY}}" ]; then REPO_ARG="{{.TASK_RENOVATE_REPOSITORY}}"; fi
-          ENV_PREFIX="LOG_LEVEL=\"{{.TASK_RENOVATE_LOG_LEVEL}}\" RENOVATE_CONFIG_FILE=\"{{.TASK_RENOVATE_CONFIG}}\" RENOVATE_TOKEN=\"$RENOVATE_TOKEN\""
-          if [ -n "{{.TASK_RENOVATE_ENDPOINT}}" ]; then ENV_PREFIX="RENOVATE_ENDPOINT=\"{{.TASK_RENOVATE_ENDPOINT}}\" $ENV_PREFIX"; fi
-          echo "$ENV_PREFIX npx --yes renovate $DRY_RUN_ARG $PLATFORM_ARG {{.TASK_RENOVATE_CLI_OPTS}} $REPO_ARG {{.CLI_ARGS}}"
+
+          # Append platform argument directly
+          if [ -n "{{.TASK_RENOVATE_PLATFORM}}" ]; then
+            CMD="$CMD --platform={{.TASK_RENOVATE_PLATFORM}}"
+          fi
+
+          # Append optional CLI options
+          if [ -n "{{.TASK_RENOVATE_CLI_OPTS}}" ]; then
+            CMD="$CMD {{.TASK_RENOVATE_CLI_OPTS}}"
+          fi
+
+          # Append repository only when not using local platform
+          if [ "{{.TASK_RENOVATE_PLATFORM}}" != "local" ] && [ -n "{{.TASK_RENOVATE_REPOSITORY}}" ]; then
+            CMD="$CMD {{.TASK_RENOVATE_REPOSITORY}}"
+          fi
+
+          # Append trailing CLI args (from the Task invocation)
+          if [ -n "{{.CLI_ARGS}}" ]; then
+            CMD="$CMD {{.CLI_ARGS}}"
+          fi
+
+          # Environment prefix (deterministic order)
+          ENV_PREFIX="LOG_LEVEL=\"{{.TASK_RENOVATE_LOG_LEVEL}}\" RENOVATE_CONFIG_FILE=\"{{.TASK_RENOVATE_CONFIG}}\" RENOVATE_TOKEN=\"{{.TASK_RENOVATE_TOKEN}}\""
+          if [ -n "{{.TASK_RENOVATE_ENDPOINT}}" ]; then
+            ENV_PREFIX="RENOVATE_ENDPOINT=\"{{.TASK_RENOVATE_ENDPOINT}}\" $ENV_PREFIX"
+          fi
+
+          # Print the final single-line command
+          echo "$ENV_PREFIX $CMD"
     cmds:
       - cmd: '{{.TASK_RENOVATE_CMD}}'
 
