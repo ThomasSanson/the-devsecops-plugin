@@ -2,6 +2,34 @@
 
 # Changelog
 
+## 12.2.0 (2025-08-20)
+
+### Feat
+
+- **ci**: add renovate variables for repository and platform in CI configuration
+- **devsecops**: add default branch variable and check for current branch in Taskfile for enhanced feedback tasks
+- **devsecops**: add renovate task to validate Renovate configuration during the code phase
+- **renovate**: add support for GitLab platform and enhance task descriptions for clarity
+- **Taskfile.feedback.yml**: add renovate task to feedback phase for improved dependency management
+- **renovate**: add log level variable to Taskfile for better logging control
+- **tests**: add assertFileContains function to verify file content includes expected substring
+- **Taskfile**: add CodeceptJS configuration and enablement variables for testing setup
+- **Taskfile**: add renovate taskfile inclusion for better automation management
+- **tests**: add feature test for Renovate plugin-only configuration to ensure correct project generation
+- **renovate**: add Renovate configuration for managing dependencies with regex manager
+- **renovate**: add Taskfile.yml for managing Renovate tasks and configurations
+
+### Fix
+
+- **renovate**: change default platform from gitlab to local and update environment variable handling for consistency
+- **Taskfile.feedback.yml**: simplify renovate task command by removing unnecessary run suffix
+- **renovate**: update enabledManagers and configuration fields in renovate_plugin_only.feature to reflect new plugin requirements
+- **Taskfile.yml**: specify package for renovate-config-validator command to ensure correct execution
+
+### Refactor
+
+- **renovate**: enhance Taskfile with safer shell practices and improved command construction for Renovate execution
+
 ## 12.1.3 (2025-08-20)
 
 ### Fix
