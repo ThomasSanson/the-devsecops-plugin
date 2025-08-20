@@ -2,8 +2,7 @@
 build:
   stage: build
   needs: []  # Allows parallel execution
-  tags:
-    - saas-linux-medium-amd64
+  extends: .default-tags
   script:
     - task build
   rules:
