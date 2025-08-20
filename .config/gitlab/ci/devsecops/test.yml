@@ -3,8 +3,7 @@ test:
   stage: test
   retry: 1
   needs: []  # Allows parallel execution
-  tags:
-    - saas-linux-medium-amd64
+  extends: .default-tags
   script:
     - task test
   rules:
