@@ -1,0 +1,15 @@
+---
+before_script:
+  # Install Taskfile if not present
+  - |
+    if ! command -v task &> /dev/null; then
+      echo "Taskfile not found. Installation in progress..."
+      sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+    else
+      echo "Taskfile already installed."
+    fi
+    task --version
+  # Execute the initialization Taskfile
+  - task dev:init
+  # Source bash profile (optional; only if present)
+  - test -f ~/.bash_profile && . ~/.bash_profile || true
