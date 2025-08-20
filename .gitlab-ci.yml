@@ -50,6 +50,24 @@ variables:
   TASK_RENOVATE_REPOSITORY: $CI_PROJECT_PATH_SLUG
   TASK_RENOVATE_PLATFORM: "gitlab"
 
+workflow:
+  rules:
+    # Rule 1: Highest priority. Always run a pipeline for the 'staging' tag,
+    # regardless of the commit message.
+    - if: '$CI_COMMIT_TAG == "staging"'
+      when: always
+
+    # Rule 2: If the pipeline is for a branch (not a tag) AND the commit message
+    # starts with "build: bump version", explicitly prevent a pipeline from running.
+    - if: '$CI_COMMIT_BRANCH && $CI_COMMIT_MESSAGE =~ /^build: bump version/'
+      when: never
+
+    # Rule 3: Default catch-all for normal development.
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == 'web'
+    - if: $CI_PIPELINE_SOURCE == 'schedule'
+
 services:
   # kics-scan ignore-line
   - name: docker:24.0.5-dind # The rule [ce76b7d0-9e77-464d-b86f-c5c48e03e22d,698ed579-b239-4f8f-a388-baa4bcb13ef8,610e266e-6c12-4bca-9925-1ed0cd29742b] are ignored here because it causes false positives specifically related to the Docker-in-Docker service.
@@ -66,8 +84,8 @@ before_script:
     task --version
   # Execute the initialization Taskfile
   - task dev:init
-  # Source bash profile (might be needed if task install modifies it, keep for safety)
-  - source ~/.bash_profile
+  # Source bash profile (optional; only if present)
+  - test -f ~/.bash_profile && . ~/.bash_profile || true
 
 stages:
   - plan
@@ -85,6 +103,15 @@ plan:
   needs: []  # Allows parallel execution
   script:
     - task plan
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_ALL_SCHEDULE == "1"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_PLAN_SCHEDULE == "1"'
+      when: always
+    - if: $CI_COMMIT_TAG =~ /^staging$/
+      when: never
+    # Run in all other cases (MRs, feature branches, etc.)
+    - when: always
 
 code:
   stage: code
@@ -94,6 +121,18 @@ code:
     - saas-linux-medium-amd64
   script:
     - task code
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_ALL_SCHEDULE == "1"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_CODE_SCHEDULE == "1"'
+      when: always
+    - if: $CI_COMMIT_TAG =~ /^staging$/
+      when: never
+    # Do not execute default jobs on the main branch
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: never
+    # Run in all other cases (MRs, feature branches, etc.)
+    - when: always
 
 build:
   stage: build
@@ -102,6 +141,18 @@ build:
     - saas-linux-medium-amd64
   script:
     - task build
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_ALL_SCHEDULE == "1"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_BUILD_SCHEDULE == "1"'
+      when: always
+    - if: $CI_COMMIT_TAG =~ /^staging$/
+      when: never
+    # Do not execute default jobs on the main branch
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: never
+    # Run in all other cases (MRs, feature branches, etc.)
+    - when: always
 
 test:
   stage: test
@@ -111,6 +162,18 @@ test:
     - saas-linux-medium-amd64
   script:
     - task test
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_ALL_SCHEDULE == "1"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_TEST_SCHEDULE == "1"'
+      when: always
+    - if: $CI_COMMIT_TAG =~ /^staging$/
+      when: never
+    # Do not execute default jobs on the main branch
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: never
+    # Run in all other cases (MRs, feature branches, etc.)
+    - when: always
 
 release:
   stage: release
@@ -135,27 +198,81 @@ release:
     TASK_DOCKER_CE_REGISTRY_USERNAME: ${CI_REGISTRY_USER}
   script:
     - task release
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_ALL_SCHEDULE == "1"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_RELEASE_SCHEDULE == "1"'
+      when: always
+    - if: $CI_COMMIT_TAG =~ /^staging$/
+      when: never
+    # Run in all other cases (MRs, feature branches, etc.)
+    - when: always
 
 deploy:
   stage: deploy
   needs: []  # Allows parallel execution
   script:
     - task deploy
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_ALL_SCHEDULE == "1"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_DEPLOY_SCHEDULE == "1"'
+      when: always
+    - if: $CI_COMMIT_TAG =~ /^staging$/
+      when: never
+    # Do not execute default jobs on the main branch
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: never
+    # Run in all other cases (MRs, feature branches, etc.)
+    - when: always
 
 operate:
   stage: operate
   needs: []  # Allows parallel execution
   script:
     - task operate
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_ALL_SCHEDULE == "1"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_OPERATE_SCHEDULE == "1"'
+      when: always
+    - if: $CI_COMMIT_TAG =~ /^staging$/
+      when: never
+    # Do not execute default jobs on the main branch
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: never
+    # Run in all other cases (MRs, feature branches, etc.)
+    - when: always
 
 monitor:
   stage: monitor
   needs: []  # Allows parallel execution
   script:
     - task monitor
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_ALL_SCHEDULE == "1"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_MONITOR_SCHEDULE == "1"'
+      when: always
+    - if: $CI_COMMIT_TAG =~ /^staging$/
+      when: never
+    # Do not execute default jobs on the main branch
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: never
+    # Run in all other cases (MRs, feature branches, etc.)
+    - when: always
 
 feedback:
   stage: feedback
   needs: []  # Allows parallel execution
   script:
     - task feedback
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_ALL_SCHEDULE == "1"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_FEEDBACK_SCHEDULE == "1"'
+      when: always
+    - if: $CI_COMMIT_TAG =~ /^staging$/
+      when: never
+    # Run in all other cases (MRs, feature branches, etc.)
+    - when: always
