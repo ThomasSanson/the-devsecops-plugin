@@ -6,7 +6,7 @@ vars:
   TASK_RENOVATE_CONFIG: '{{.TASK_RENOVATE_CONFIG | default ".config/renovate/config.json"}}'
   TASK_RENOVATE_REPOSITORY: '{{.TASK_RENOVATE_REPOSITORY | default "."}}'
   TASK_RENOVATE_LOG_LEVEL: '{{.TASK_RENOVATE_LOG_LEVEL | default "info"}}'
-  TASK_RENOVATE_PLATFORM: '{{.TASK_RENOVATE_PLATFORM | default "gitlab"}}'
+  TASK_RENOVATE_PLATFORM: '{{.TASK_RENOVATE_PLATFORM | default "local"}}'
   TASK_RENOVATE_ENDPOINT: '{{.TASK_RENOVATE_ENDPOINT | default ""}}'
   TASK_RENOVATE_CLI_OPTS: '{{.TASK_RENOVATE_CLI_OPTS | default ""}}'
   TASK_RENOVATE_DRY_RUN: '{{.TASK_RENOVATE_DRY_RUN | default "false"}}'
@@ -18,6 +18,8 @@ tasks:
     deps: [check]
     status:
       - test "{{.TASK_RENOVATE_ENABLED}}" != "true"
+    env:
+      RENOVATE_TOKEN: '{{.TASK_RENOVATE_TOKEN}}'
     vars:
       TASK_RENOVATE_CMD:
         sh: |
@@ -64,7 +66,7 @@ tasks:
           fi
 
           # Environment prefix (deterministic order)
-          ENV_PREFIX="LOG_LEVEL=\"{{.TASK_RENOVATE_LOG_LEVEL}}\" RENOVATE_CONFIG_FILE=\"{{.TASK_RENOVATE_CONFIG}}\" RENOVATE_TOKEN=\"{{.TASK_RENOVATE_TOKEN}}\""
+          ENV_PREFIX="LOG_LEVEL=\"{{.TASK_RENOVATE_LOG_LEVEL}}\" RENOVATE_CONFIG_FILE=\"{{.TASK_RENOVATE_CONFIG}}\""
           if [ -n "{{.TASK_RENOVATE_ENDPOINT}}" ]; then
             ENV_PREFIX="RENOVATE_ENDPOINT=\"{{.TASK_RENOVATE_ENDPOINT}}\" $ENV_PREFIX"
           fi
