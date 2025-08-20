@@ -2,6 +2,13 @@
 
 # Changelog
 
+## 12.1.2 (2025-08-20)
+
+### Fix
+
+- **copier**: update copier version from 9.4.1 to 9.9.1 for improved features and fixes
+- **deps**: update codeceptjs/codeceptjs docker tag to v3.7.4
+
 ## 12.1.1 (2025-08-19)
 
 ### Fix
