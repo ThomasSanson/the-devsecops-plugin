@@ -11,7 +11,7 @@ vars:
   TASK_CODECEPTJS_REPORTER: '{{.TASK_CODECEPTJS_REPORTER | default ""}}'
   TASK_CODECEPTJS_VERBOSE: '{{.TASK_CODECEPTJS_VERBOSE | default ""}}'
   TASK_CODECEPTJS_OVERRIDE: '{{.TASK_CODECEPTJS_OVERRIDE | default ""}}'
-  TASK_CODECEPTJS_DOCKER_IMAGE: '{{.TASK_CODECEPTJS_DOCKER_IMAGE | default "registry.gitlab.com/digital-commons/devsecops/tools/the-devsecops-plugin:12.1.2"}}'
+  TASK_CODECEPTJS_DOCKER_IMAGE: '{{.TASK_CODECEPTJS_DOCKER_IMAGE | default "registry.gitlab.com/digital-commons/devsecops/tools/the-devsecops-plugin:12.1.3"}}'
   TASK_CODECEPTJS_DOCKER_USER: '{{.TASK_CODECEPTJS_DOCKER_USER | default "$(id -u):$(getent group docker | cut -d: -f3)"}}'
   TASK_CODECEPTJS_DOCKER_WORKDIR: '{{.TASK_CODECEPTJS_DOCKER_WORKDIR | default "/tests"}}'
   TASK_CODECEPTJS_DOCKER_VOLUME: '{{.TASK_CODECEPTJS_DOCKER_VOLUME | default "$(pwd):/tests:z"}}'
