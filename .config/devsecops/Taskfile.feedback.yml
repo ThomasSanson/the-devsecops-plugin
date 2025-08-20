@@ -4,6 +4,11 @@ version: "3"
 vars:
   TASK_DEVSECOPS_FEEDBACK_ENABLED: '{{.TASK_DEVSECOPS_FEEDBACK_ENABLED | default "true"}}'
   TASK_DEVSECOPS_FEEDBACK_RENOVATE_ENABLED: '{{.TASK_DEVSECOPS_FEEDBACK_RENOVATE_ENABLED | default "true"}}'
+  TASK_GIT_DEFAULT_BRANCH: '{{.TASK_GIT_DEFAULT_BRANCH | default "main"}}'
+  TASK_GIT_IS_DEFAULT_BRANCH:
+    sh: |
+      CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo HEAD)"
+      if [ "$CURRENT_BRANCH" = "{{.TASK_GIT_DEFAULT_BRANCH}}" ]; then echo true; else echo false; fi
 
 tasks:
   default:
@@ -21,6 +26,8 @@ tasks:
   renovate:
     desc: Run Renovate as part of feedback (skipped unless enabled)
     status:
-      - test "{{.TASK_DEVSECOPS_FEEDBACK_RENOVATE_ENABLED}}" != "true" || test -z "$RENOVATE_TOKEN"
+      - test "{{.TASK_DEVSECOPS_FEEDBACK_RENOVATE_ENABLED}}" != "true"
     cmds:
       - task: :renovate
+        vars:
+          TASK_RENOVATE_PLATFORM: '{{ if eq .TASK_GIT_IS_DEFAULT_BRANCH "false" }}local{{ else }}{{.TASK_RENOVATE_PLATFORM}}{{ end }}'
