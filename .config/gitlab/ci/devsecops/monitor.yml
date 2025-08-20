@@ -2,6 +2,7 @@
 monitor:
   stage: monitor
   needs: []  # Allows parallel execution
+  extends: .default-tags
   script:
     - task monitor
   rules:
