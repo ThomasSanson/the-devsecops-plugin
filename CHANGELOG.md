@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 12.3.1 (2025-08-21)
+
+### Fix
+
+- **ci**: update pipeline rules to allow non-push sources and restrict blocking conditions for better flexibility
+
 ## 12.3.0 (2025-08-20)
 
 ### Feat
