@@ -73,7 +73,7 @@ tasks:
     cmds:
       - cmd: echo "🔄 Starting Commitizen commit message formatting"
         silent: true
-      - uvx --from {{.TASK_COMMITIZEN_VERSION}} cz --config {{.TASK_COMMITIZEN_CONFIG_FULL_PATH}} {{.TASK_COMMITIZEN_CLI_OPTS}} commit {{.CLI_ARGS}}"
+      - "{{.TASK_COMMITIZEN_COMMAND}} --config {{.TASK_COMMITIZEN_CONFIG_FULL_PATH}} {{.TASK_COMMITIZEN_CLI_OPTS}} commit {{.CLI_ARGS}}"
       - cmd: echo '🎉 Commitizen commit message formatting completed.'
         silent: true
 
@@ -102,7 +102,7 @@ tasks:
       - test "{{.TASK_COMMITIZEN_ENABLED}}" = "false"
     vars:
       TASK_COMMITIZEN_COMMAND:
-        sh: echo "uvx --from {{.TASK_COMMITIZEN_VERSION}} cz --config {{.TASK_COMMITIZEN_CONFIG_FULL_PATH}} {{.TASK_COMMITIZEN_CLI_OPTS}} check {{.TASK_COMMITIZEN_CLI_CHECK_OPTS}}"
+        sh: echo "{{.TASK_COMMITIZEN_COMMAND}} --config {{.TASK_COMMITIZEN_CONFIG_FULL_PATH}} {{.TASK_COMMITIZEN_CLI_OPTS}} check {{.TASK_COMMITIZEN_CLI_CHECK_OPTS}}"
     cmds:
       - cmd: echo "🔄 Running Commitizen check"
         silent: true
@@ -178,7 +178,7 @@ tasks:
           fi
           echo "${options[@]}"
       COMMITIZEN_BUMP_COMMAND:
-        sh: echo "uvx --from {{.TASK_COMMITIZEN_VERSION}} cz --config {{.TASK_COMMITIZEN_CONFIG_FULL_PATH}} {{.CLI_OPTIONS}} bump {{.BUMP_OPTIONS}}"
+        sh: echo "{{.TASK_COMMITIZEN_COMMAND}} --config {{.TASK_COMMITIZEN_CONFIG_FULL_PATH}} {{.CLI_OPTIONS}} bump {{.BUMP_OPTIONS}}"
     status:
       - test "{{.TASK_COMMITIZEN_ENABLED}}" = "false"
     cmds:
@@ -222,7 +222,7 @@ tasks:
       🔄 Execution:
         Runs Commitizen check on the specified file.
     vars:
-      TASK_COMMITIZEN_COMMAND: "uvx --from {{.TASK_COMMITIZEN_VERSION}} cz check --commit-msg-file {{.COMMIT_MSG_FILE}}"
+      TASK_COMMITIZEN_COMMAND: "{{.TASK_COMMITIZEN_COMMAND}} check --commit-msg-file {{.COMMIT_MSG_FILE}}"
       _RED: '{{.RED | default "\033[0;31m"}}'
       _GREEN: '{{.GREEN | default "\033[0;32m"}}'
       _NC: '{{.NC | default "\033[0m"}}'
