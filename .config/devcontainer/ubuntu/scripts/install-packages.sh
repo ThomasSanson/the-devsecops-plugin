@@ -18,6 +18,10 @@ install_packages() {
     lsb-release \
     nano \
     openssh-client \
+    python3 \
+    "python3.12" \
+    "python3.12-venv" \
+    "python3.12-dev" \
     pipx \
     sudo \
     unzip \
