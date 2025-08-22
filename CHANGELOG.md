@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 12.4.2 (2025-08-22)
+
+### Fix
+
+- **ci**: update TASK_RENOVATE_REPOSITORY variable to use CI_PROJECT_PATH for accuracy
+
 ## 12.4.1 (2025-08-22)
 
 ### Fix
