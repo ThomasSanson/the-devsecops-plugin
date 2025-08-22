@@ -14,6 +14,13 @@ vars:
       else
         cat {{.TASK_COMMITIZEN_REQUIREMENTS_FILE}}
       fi
+  TASK_COMMITIZEN_COMMAND:
+    sh: |
+      if [ -n "${TASK_COMMITIZEN_COMMAND:-}" ]; then
+        echo "${TASK_COMMITIZEN_COMMAND}"
+      else
+        echo "uvx --from {{.TASK_COMMITIZEN_VERSION}} cz"
+      fi
   TASK_COMMITIZEN_BUMP_DRY_RUN: '{{.TASK_COMMITIZEN_BUMP_DRY_RUN | default "false"}}'
   TASK_COMMITIZEN_BUMP_YES: '{{.TASK_COMMITIZEN_BUMP_YES | default "false"}}'
   TASK_COMMITIZEN_BUMP_CHECK_CONSISTENCY: '{{.TASK_COMMITIZEN_BUMP_CHECK_CONSISTENCY | default "true"}}'
