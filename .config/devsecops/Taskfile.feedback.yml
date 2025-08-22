@@ -7,7 +7,20 @@ vars:
   TASK_GIT_DEFAULT_BRANCH: '{{.TASK_GIT_DEFAULT_BRANCH | default "main"}}'
   TASK_GIT_IS_DEFAULT_BRANCH:
     sh: |
-      CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo HEAD)"
+      # Resolve current branch with CI variables first, then fallback to git
+      if [ -n "${CI_COMMIT_BRANCH:-}" ]; then
+        CURRENT_BRANCH="$CI_COMMIT_BRANCH"
+      elif [ -n "${CI_COMMIT_REF_NAME:-}" ]; then
+        CURRENT_BRANCH="$CI_COMMIT_REF_NAME"
+      elif [ -n "${GITHUB_REF_NAME:-}" ]; then
+        CURRENT_BRANCH="$GITHUB_REF_NAME"
+      elif [ -n "${GIT_BRANCH:-}" ]; then
+        CURRENT_BRANCH="$GIT_BRANCH"
+      elif git rev-parse --is-inside-work-tree &>/dev/null; then
+        CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+      else
+        CURRENT_BRANCH="main"
+      fi
       if [ "$CURRENT_BRANCH" = "{{.TASK_GIT_DEFAULT_BRANCH}}" ]; then echo true; else echo false; fi
 
 tasks:

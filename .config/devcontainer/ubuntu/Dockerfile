@@ -65,6 +65,7 @@ RUN --mount=type=secret,id=env_vars \
 
 # Run final scripts
 RUN ./.config/devcontainer/ubuntu/scripts/setup-docker.sh "$USER" \
+  && ./.config/devcontainer/ubuntu/scripts/install-uv.sh \
   && ./.config/devcontainer/ubuntu/scripts/cleanup.sh
 
 # Create the workspace directory
