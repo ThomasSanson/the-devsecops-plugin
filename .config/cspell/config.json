@@ -95,6 +95,7 @@
       "dotenv",
       "dryrun",
       "dsfr",
+      "ensurepath",
       "epel",
       "esac",
       "esbenp",
