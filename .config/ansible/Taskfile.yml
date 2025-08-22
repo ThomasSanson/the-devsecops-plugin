@@ -3,19 +3,29 @@ version: "3"
 
 vars:
   TASK_ANSIBLE_ENABLED: '{{.TASK_ANSIBLE_ENABLED | default "true"}}'
-  TASK_ANSIBLE_VIRTUALENV: '{{.TASK_ANSIBLE_VIRTUALENV | default "./venv/ansible"}}'
-  TASK_ANSIBLE_COMMAND: '{{.TASK_ANSIBLE_COMMAND | default "./venv/ansible/bin/ansible"}}'
   TASK_ANSIBLE_CONFIG_FULL_PATH: '{{.TASK_ANSIBLE_CONFIG_FULL_PATH | default ".config/ansible/ansible.cfg"}}'
   TASK_ANSIBLE_CLI_OPTS: '{{.TASK_ANSIBLE_CLI_OPTS | default ""}}'
   TASK_ANSIBLE_CLI_CHECK_OPTS: '{{.TASK_ANSIBLE_CLI_CHECK_OPTS | default "--check"}}'
-  TASK_ANSIBLE_PYTHON_VERSION_FILE: '{{.TASK_ANSIBLE_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
   TASK_ANSIBLE_REQUIREMENTS_FILE: '{{.TASK_ANSIBLE_REQUIREMENTS_FILE | default ".config/ansible/requirements.txt"}}'
   TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE: '{{.TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE | default "tests/infra/kube/ansible/requirements.yml"}}'
   TASK_ANSIBLE_PLAYBOOK_DIR: '{{.TASK_ANSIBLE_PLAYBOOK_DIR | default ""}}'
+  TASK_ANSIBLE_VERSION:
+    sh: |
+      if [ -n "${TASK_ANSIBLE_VERSION:-}" ]; then
+        echo "${TASK_ANSIBLE_VERSION}"
+      else
+        cat {{.TASK_ANSIBLE_REQUIREMENTS_FILE}}
+      fi
+  TASK_ANSIBLE_COMMAND:
+    sh: |
+      if [ -n "${TASK_ANSIBLE_COMMAND:-}" ]; then
+        echo "${TASK_ANSIBLE_COMMAND}"
+      else
+        echo "uvx --from {{.TASK_ANSIBLE_VERSION}}"
+      fi
 
 tasks:
   default:
-    deps: [install]
     interactive: true
     desc: Run Ansible with default configuration.
     summary: |
@@ -23,8 +33,7 @@ tasks:
         Executes Ansible with the default configuration to display version and settings.
 
       🔧 Variables:
-        - TASK_ANSIBLE_VIRTUALENV: Path to the virtual environment. Default: "./venv/ansible"
-        - TASK_ANSIBLE_COMMAND: Command to run ansible. Default: "./venv/ansible/bin/ansible"
+        - TASK_ANSIBLE_COMMAND: Command to run ansible.
         - TASK_ANSIBLE_CONFIG_FULL_PATH: Path to the ansible configuration file. Default: ".config/ansible/ansible.cfg"
         - TASK_ANSIBLE_CLI_OPTS: Command line options for ansible. Default: ""
 
@@ -41,61 +50,10 @@ tasks:
       - cmd: echo "🔄 Starting default task"
         silent: true
       - |
-        source {{.TASK_ANSIBLE_VIRTUALENV}}/bin/activate && \
-        {{.TASK_ANSIBLE_COMMAND}} --version && \
+        {{.TASK_ANSIBLE_COMMAND}} ansible --version && \
         echo "Ansible Configuration:" && \
         echo "- Config File: {{.TASK_ANSIBLE_CONFIG_FULL_PATH}}"
       - cmd: echo '🎉 Default task completed successfully.'
-        silent: true
-
-  install:
-    desc: Set up Ansible in a virtual environment.
-    summary: |
-      ℹ️ Description:
-        Configures Ansible and its dependencies within a controlled virtual environment.
-
-      🔧 Variables:
-        - TASK_ANSIBLE_PYTHON_VERSION_FILE: Path to the file specifying the Python version.
-          Default: ".config/python/.python-version"
-          Example content: "3.11"
-        - TASK_ANSIBLE_REQUIREMENTS_FILE: Path to the file listing required packages.
-          Default: ".config/ansible/requirements.txt"
-          Example content: "ansible-core==2.18.2"
-        - TASK_ANSIBLE_VIRTUALENV: Location of the virtual environment for Ansible.
-          Default: "./venv/ansible"
-
-      🔐 Preconditions:
-        - Python must be installed on the system.
-        - A Python version file must exist at the specified location.
-        - An active internet connection is required to download Ansible and its dependencies.
-
-      🔄 Execution:
-        1. Creates a new Python virtual environment using the version specified in TASK_ANSIBLE_PYTHON_VERSION_FILE.
-        2. Installs Ansible and its dependencies using the TASK_ANSIBLE_REQUIREMENTS_FILE.
-        3. Verifies the installation by checking the installed Ansible version.
-
-      📝 Note:
-        Ensure the Python version file specifies a version compatible with Ansible and its dependencies.
-    preconditions:
-      - sh: command -v python3 >/dev/null 2>&1
-        msg: "❌ Error: Python is not installed. Please install Python before proceeding."
-      - sh: test -f {{.TASK_ANSIBLE_PYTHON_VERSION_FILE}}
-        msg: |
-          ❌ Error: missing file {{.TASK_ANSIBLE_PYTHON_VERSION_FILE}}.
-          Please create it as follows:
-          ```bash
-          mkdir -p $(dirname "{{.TASK_ANSIBLE_PYTHON_VERSION_FILE}}")
-          echo "3.11" > {{.TASK_ANSIBLE_PYTHON_VERSION_FILE}}
-          ```
-    status:
-      - |
-        {{.TASK_ANSIBLE_VIRTUALENV}}/bin/ansible --version | grep -q $(awk -F '==' '/ansible-core==/{print $2}' {{.TASK_ANSIBLE_REQUIREMENTS_FILE}})
-    cmds:
-      - cmd: echo "🔄 Setting up the virtual environment"
-        silent: true
-      - python$(cut -d '=' -f 2 {{.TASK_ANSIBLE_PYTHON_VERSION_FILE}}) -m venv {{.TASK_ANSIBLE_VIRTUALENV}}
-      - "{{.TASK_ANSIBLE_VIRTUALENV}}/bin/pip install -r {{.TASK_ANSIBLE_REQUIREMENTS_FILE}}"
-      - cmd: echo '🎉 Ansible and dependencies installed successfully.'
         silent: true
 
   galaxy:collection:install:
@@ -126,10 +84,7 @@ tasks:
 
       📝 Note:
         This task should be executed after the base Ansible installation to ensure all required collections are available.
-    deps: [install]
     preconditions:
-      - sh: test -d {{.TASK_ANSIBLE_VIRTUALENV}}
-        msg: "❌ Error: Virtual environment not found. Please run the 'install' task first."
       - sh: test -f {{.TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE}}
         msg: |
           ❌ Error: Missing collections requirements file at {{.TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE}}.
@@ -138,7 +93,7 @@ tasks:
       - |
         grep -E "name:|version:" {{.TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE}} | \
         awk 'NR%2 {name=$3; next} {gsub(/"/, "", $2); \
-            cmd=sprintf("{{.TASK_ANSIBLE_VIRTUALENV}}/bin/ansible-galaxy collection list | awk -v c=%s -v v=%s '\''BEGIN{f=0} $1==c && $2==v {f=1} END{exit !f}'\''", name, $2); \
+            cmd=sprintf("{{.TASK_ANSIBLE_COMMAND}} ansible-galaxy collection list | awk -v c=%s -v v=%s '\''BEGIN{f=0} $1==c && $2==v {f=1} END{exit !f}'\''", name, $2); \
             if (system(cmd) != 0) { \
                 printf "❌ Error: Collection %s version %s is not installed\n", name, $2 > "/dev/stderr"; \
                 exit 1 \
@@ -148,7 +103,7 @@ tasks:
       - cmd: echo "🔄 Installing Ansible collections"
         silent: true
       - |
-        {{.TASK_ANSIBLE_VIRTUALENV}}/bin/ansible-galaxy collection install -r {{.TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE}}
+        {{.TASK_ANSIBLE_COMMAND}} ansible-galaxy collection install -r {{.TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE}}
       - cmd: echo '🎉 Collections installed successfully.'
         silent: true
 
@@ -168,10 +123,7 @@ tasks:
       🔄 Execution:
         - Iterates through all files in TASK_ANSIBLE_PLAYBOOK_DIR.
         - Runs ansible-playbook --syntax-check for each playbook.
-    deps: [install]
     preconditions:
-      - sh: "command -v {{.TASK_ANSIBLE_COMMAND}} >/dev/null 2>&1"
-        msg: "❌ Ansible command '{{.TASK_ANSIBLE_COMMAND}}' not found. Run task 'install'."
       - sh: test -d {{.TASK_ANSIBLE_PLAYBOOK_DIR}}
         msg: "❌ Playbook directory '{{.TASK_ANSIBLE_PLAYBOOK_DIR}}' not found or not specified via TASK_ANSIBLE_PLAYBOOK_DIR."
     cmds:
@@ -184,7 +136,7 @@ tasks:
           if [ -f "$playbook" ]; then
             echo "Checking syntax of $playbook"
             # DevSkim: ignore DS162092 # Required for Ansible syntax checking
-            {{.TASK_ANSIBLE_COMMAND}}-playbook --inventory localhost, --connection local --syntax-check "$playbook" # DevSkim: ignore DS162092
+            {{.TASK_ANSIBLE_COMMAND}} ansible-playbook --inventory localhost, --connection local --syntax-check "$playbook" # DevSkim: ignore DS162092
           fi
         done
       - cmd: echo '🎉 Syntax check completed successfully.'
