@@ -28,6 +28,10 @@ tasks:
     status:
       - test "{{.TASK_DEVSECOPS_FEEDBACK_RENOVATE_ENABLED}}" != "true"
     cmds:
+      - cmd: |
+          echo "TASK_GIT_DEFAULT_BRANCH={{.TASK_GIT_DEFAULT_BRANCH}}"
+          echo "TASK_GIT_IS_DEFAULT_BRANCH={{.TASK_GIT_IS_DEFAULT_BRANCH}}"
+          echo "TASK_RENOVATE_PLATFORM={{.TASK_RENOVATE_PLATFORM}}"
       - task: :renovate
         vars:
           TASK_RENOVATE_PLATFORM: '{{ if eq .TASK_GIT_IS_DEFAULT_BRANCH "false" }}local{{ else }}{{.TASK_RENOVATE_PLATFORM}}{{ end }}'
