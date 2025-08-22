@@ -117,7 +117,7 @@ The plugin implements a complete DevSecOps lifecycle through distinct stages:
 Before using the DevSecOps Plugin, ensure you have the following installed:
 
 - Git
-- Python 3.12
+- [pipx](https://pipx.pypa.io/) – to install Python CLI applications (e.g., Copier and uv)
 - Taskfile as go-task ([installation guide](https://taskfile.dev/installation/))
 - Docker or Docker Desktop 4.x or newer (for container support)
 - Visual Studio Code (recommended)
@@ -125,26 +125,36 @@ Before using the DevSecOps Plugin, ensure you have the following installed:
 
 ### Installation
 
-1. Create and activate a Python virtual environment:
+1. Install uv with pipx:
 
 ```bash
-mkdir -p ~/workspace
-python3 -m venv ~/workspace/venv
+pipx install uv
+# Ensure your shell PATH is updated (only needed once)
+pipx ensurepath
 ```
 
-2. Install Copier in the virtual environment:
+2. Install Python 3.12 with uv:
 
 ```bash
-source ~/workspace/venv/bin/activate
-pip install copier
+uv python install 3.12
 ```
 
-3. Generate a new project using the template:
+3. Install Copier with pipx:
+
+```bash
+pipx install copier
+```
+
+Note: pipx installs CLI tools in isolated environments, independent of any project virtual environments. This is expected and recommended.
+
+4. Generate a new project using the template:
 
 ```bash
 cd ~/workspace/path/to/your/new/project
+```
 
-source ~/workspace/venv/bin/activate
+
+```bash
 copier copy -a .config/devsecops/.copier-answers.yml https://gitlab.com/digital-commons/devsecops/tools/the-devsecops-plugin.git .
 ```
 
