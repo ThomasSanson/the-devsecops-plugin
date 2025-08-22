@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 12.4.1 (2025-08-22)
+
+### Fix
+
+- **Taskfile.feedback.yml**: enhance current branch resolution logic to prioritize CI variables before falling back to git commands
+
 ## 12.4.0 (2025-08-22)
 
 ### Feat
