@@ -2,6 +2,17 @@
 
 # Changelog
 
+## 12.5.0 (2025-08-22)
+
+### Feat
+
+- **devcontainer**: add Python 3.12 and related packages to install script for enhanced development environment
+- **devcontainer**: add script to install UV for Python environment setup
+
+### Fix
+
+- **install-uv.sh**: add quotes around command substitution for safer parsing of Python version
+
 ## 12.4.2 (2025-08-22)
 
 ### Fix
