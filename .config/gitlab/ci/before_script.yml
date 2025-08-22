@@ -1,7 +1,7 @@
 ---
 before_script:
   - sudo apt update
-  - sudo apt install pipx
+  - sudo apt-get install -y --no-install-recommends pipx
   - pipx ensurepath
   - pipx install uv
   - uv python install $(cut -d '=' -f 2 .config/python/.python-version)
