@@ -3,7 +3,8 @@ code:
   stage: code
   retry: 1
   needs: []  # Allows parallel execution
-  extends: .default-tags
+  tags:
+    - saas-linux-medium-amd64
   script:
     - task code
   rules:
