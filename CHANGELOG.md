@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 12.4.0 (2025-08-22)
+
+### Feat
+
+- **Taskfile.feedback.yml**: add echo commands to display Git and Renovate variables for better debugging
+
 ## 12.3.1 (2025-08-21)
 
 ### Fix
