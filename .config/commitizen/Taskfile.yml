@@ -3,13 +3,17 @@ version: "3"
 
 vars:
   TASK_COMMITIZEN_ENABLED: '{{.TASK_COMMITIZEN_ENABLED | default "true"}}'
-  TASK_COMMITIZEN_VIRTUALENV: '{{.TASK_COMMITIZEN_VIRTUALENV | default "./venv/commitizen"}}'
-  TASK_COMMITIZEN_COMMAND: '{{.TASK_COMMITIZEN_COMMAND | default "./venv/commitizen/bin/cz"}}'
   TASK_COMMITIZEN_CONFIG_FULL_PATH: '{{.TASK_COMMITIZEN_CONFIG_FULL_PATH | default ".config/commitizen/cz.yaml"}}'
   TASK_COMMITIZEN_CLI_OPTS: '{{.TASK_COMMITIZEN_CLI_OPTS | default ""}}'
   TASK_COMMITIZEN_CLI_CHECK_OPTS: '{{.TASK_COMMITIZEN_CLI_CHECK_OPTS | default "--rev-range origin/main..HEAD"}}'
-  TASK_COMMITIZEN_PYTHON_VERSION_FILE: '{{.TASK_COMMITIZEN_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
   TASK_COMMITIZEN_REQUIREMENTS_FILE: '{{.TASK_COMMITIZEN_REQUIREMENTS_FILE | default ".config/commitizen/requirements.txt"}}'
+  TASK_COMMITIZEN_VERSION:
+    sh: |
+      if [ -n "${TASK_COMMITIZEN_VERSION:-}" ]; then
+        echo "${TASK_COMMITIZEN_VERSION}"
+      else
+        cat {{.TASK_COMMITIZEN_REQUIREMENTS_FILE}}
+      fi
   TASK_COMMITIZEN_BUMP_DRY_RUN: '{{.TASK_COMMITIZEN_BUMP_DRY_RUN | default "false"}}'
   TASK_COMMITIZEN_BUMP_YES: '{{.TASK_COMMITIZEN_BUMP_YES | default "false"}}'
   TASK_COMMITIZEN_BUMP_CHECK_CONSISTENCY: '{{.TASK_COMMITIZEN_BUMP_CHECK_CONSISTENCY | default "true"}}'
@@ -39,21 +43,19 @@ vars:
 
 tasks:
   default:
-    deps: [install]
     interactive: true
     desc: Run Commitizen for commit message formatting.
     summary: |
       ℹ️ Description:
-        Executes commitizen to guide the user through creating a standardized commit message.
+        Executes Commitizen to guide the user through creating a standardised commit message.
 
       🔧 Variables:
-        - TASK_COMMITIZEN_VIRTUALENV: Path to the virtual environment. Default: "./venv/commitizen"
-        - TASK_COMMITIZEN_COMMAND: Command to run commitizen. Default: "./venv/commitizen/bin/cz"
+        - TASK_COMMITIZEN_VERSION: Package spec for Commitizen (e.g., "commitizen==3.28.0").
+          Default: read from ".config/commitizen/requirements.txt"; can be overridden via env TASK_COMMITIZEN_VERSION.
         - TASK_COMMITIZEN_CONFIG_FULL_PATH: Path to the commitizen configuration file. Default: ".config/commitizen/cz.yaml"
         - TASK_COMMITIZEN_CLI_OPTS: Command line options for commitizen. Default: ""
 
       🔐 Preconditions:
-        - The 'install' task must have been successfully executed.
         - A commitizen configuration file must exist at the specified location.
 
       🔄 Execution:
@@ -64,75 +66,22 @@ tasks:
     cmds:
       - cmd: echo "🔄 Starting Commitizen commit message formatting"
         silent: true
-      - "{{.TASK_COMMITIZEN_COMMAND}} --config {{.TASK_COMMITIZEN_CONFIG_FULL_PATH}} {{.TASK_COMMITIZEN_CLI_OPTS}} commit {{.CLI_ARGS}}"
+      - uvx --from {{.TASK_COMMITIZEN_VERSION}} cz --config {{.TASK_COMMITIZEN_CONFIG_FULL_PATH}} {{.TASK_COMMITIZEN_CLI_OPTS}} commit {{.CLI_ARGS}}"
       - cmd: echo '🎉 Commitizen commit message formatting completed.'
         silent: true
 
-  install:
-    desc: Set up Commitizen in a virtual environment.
-    summary: |
-      ℹ️ Description:
-        Configures Commitizen and its dependencies within a controlled virtual environment.
-
-      🔧 Variables:
-        - TASK_COMMITIZEN_PYTHON_VERSION_FILE: Path to the file specifying the Python version.
-          Default: ".config/python/.python-version"
-          Example content: "3.11"
-        - TASK_COMMITIZEN_REQUIREMENTS_FILE: Path to the file listing required packages.
-          Default: ".config/commitizen/requirements.txt"
-          Example content: "commitizen==3.28.0"
-        - TASK_COMMITIZEN_VIRTUALENV: Location of the virtual environment for Commitizen.
-          Default: "./venv/commitizen"
-
-      🔐 Preconditions:
-        - Python must be installed on the system.
-        - A Python version file must exist at the specified location.
-        - An active internet connection is required to download Commitizen and its dependencies.
-
-      🔄 Execution:
-        1. Creates a new Python virtual environment using the version specified in TASK_COMMITIZEN_PYTHON_VERSION_FILE.
-        2. Installs Commitizen and its dependencies using the TASK_COMMITIZEN_REQUIREMENTS_FILE.
-        3. Verifies the installation by checking the installed Commitizen version.
-
-      📝 Note:
-        Ensure the Python version file specifies a version compatible with Commitizen and its dependencies.
-    preconditions:
-      - sh: command -v python3 >/dev/null 2>&1
-        msg: "❌ Error: Python is not installed. Please install Python before proceeding."
-      - sh: test -f {{.TASK_COMMITIZEN_PYTHON_VERSION_FILE}}
-        msg: |
-          ❌ Error: missing file {{.TASK_COMMITIZEN_PYTHON_VERSION_FILE}}.
-          Please create it as follows:
-          ```bash
-          mkdir -p $(dirname "{{.TASK_COMMITIZEN_PYTHON_VERSION_FILE}}")
-          echo "3.11" > {{.TASK_COMMITIZEN_PYTHON_VERSION_FILE}}
-          ```
-    status:
-      - |
-        {{.TASK_COMMITIZEN_COMMAND}} version | grep -q $(awk -F '==' '{print $2}' {{.TASK_COMMITIZEN_REQUIREMENTS_FILE}})
-    cmds:
-      - cmd: echo "🔄 Setting up Commitizen virtual environment"
-        silent: true
-      - python$(cut -d '=' -f 2 {{.TASK_COMMITIZEN_PYTHON_VERSION_FILE}}) -m venv {{.TASK_COMMITIZEN_VIRTUALENV}}
-      - "{{.TASK_COMMITIZEN_VIRTUALENV}}/bin/pip install -r {{.TASK_COMMITIZEN_REQUIREMENTS_FILE}}"
-      - cmd: echo '🎉 Commitizen and dependencies installed successfully.'
-        silent: true
-
   check:
-    deps: [install]
     desc: Verify commit messages with Commitizen.
     summary: |
       ℹ️ Description:
         Automatically verifies commits using Commitizen rules.
 
       🔧 Variables:
-        - TASK_COMMITIZEN_COMMAND: Command to run commitizen. Default: "./venv/commitizen/bin/cz"
         - TASK_COMMITIZEN_CONFIG_FULL_PATH: Path to the commitizen configuration file. Default: ".config/commitizen/cz.yaml"
         - TASK_COMMITIZEN_CLI_OPTS: Additional command line options for commitizen. Default: ""
         - TASK_COMMITIZEN_CLI_CHECK_OPTS: Options specific to the check command. Default: "--rev-range origin/main..HEAD"
 
       🔐 Preconditions:
-        - The 'install' task must have been successfully executed.
         - A commitizen configuration file must exist at the specified location.
 
       🔄 Execution:
@@ -146,7 +95,7 @@ tasks:
       - test "{{.TASK_COMMITIZEN_ENABLED}}" = "false"
     vars:
       TASK_COMMITIZEN_COMMAND:
-        sh: echo "{{.TASK_COMMITIZEN_COMMAND}} --config {{.TASK_COMMITIZEN_CONFIG_FULL_PATH}} {{.TASK_COMMITIZEN_CLI_OPTS}} check {{.TASK_COMMITIZEN_CLI_CHECK_OPTS}}"
+        sh: echo "uvx --from {{.TASK_COMMITIZEN_VERSION}} cz --config {{.TASK_COMMITIZEN_CONFIG_FULL_PATH}} {{.TASK_COMMITIZEN_CLI_OPTS}} check {{.TASK_COMMITIZEN_CLI_CHECK_OPTS}}"
     cmds:
       - cmd: echo "🔄 Running Commitizen check"
         silent: true
@@ -168,14 +117,12 @@ tasks:
         silent: true
 
   bump:
-    deps: [install]
     desc: Increment version based on commit history.
     summary: |
       ℹ️ Description:
         Increments the version number based on the commit history.
 
       🔧 Variables:
-        - TASK_COMMITIZEN_COMMAND: Command to run commitizen. Default: "./venv/commitizen/bin/cz"
         - TASK_COMMITIZEN_CONFIG_FULL_PATH: Path to the commitizen configuration file. Default: ".config/commitizen/cz.yaml"
         - TASK_COMMITIZEN_CLI_OPTS: Additional command line options for commitizen. Default: ""
         - TASK_COMMITIZEN_BUMP_DRY_RUN: Whether to perform a dry run. Default: true
@@ -187,7 +134,6 @@ tasks:
         - TASK_COMMITIZEN_BUMP_DEV_RELEASE: Development release identifier. Default: ""
 
       🔐 Preconditions:
-        - The 'install' task must have been successfully executed.
         - A commitizen configuration file must exist at the specified location.
 
       🔄 Execution:
@@ -225,7 +171,7 @@ tasks:
           fi
           echo "${options[@]}"
       COMMITIZEN_BUMP_COMMAND:
-        sh: echo "{{.TASK_COMMITIZEN_COMMAND}} --config {{.TASK_COMMITIZEN_CONFIG_FULL_PATH}} {{.CLI_OPTIONS}} bump {{.BUMP_OPTIONS}}"
+        sh: echo "uvx --from {{.TASK_COMMITIZEN_VERSION}} cz --config {{.TASK_COMMITIZEN_CONFIG_FULL_PATH}} {{.CLI_OPTIONS}} bump {{.BUMP_OPTIONS}}"
     status:
       - test "{{.TASK_COMMITIZEN_ENABLED}}" = "false"
     cmds:
@@ -258,7 +204,6 @@ tasks:
 
   check-message:
     desc: Check a specific commit message file using Commitizen (for commit-msg hook).
-    deps: [install]
     summary: |
       ℹ️ Description:
         Runs 'cz check --commit-msg-file' on a specific file provided as an argument.
@@ -270,7 +215,7 @@ tasks:
       🔄 Execution:
         Runs Commitizen check on the specified file.
     vars:
-      TASK_COMMITIZEN_COMMAND: "{{.TASK_COMMITIZEN_COMMAND}} check --commit-msg-file {{.COMMIT_MSG_FILE}}"
+      TASK_COMMITIZEN_COMMAND: "uvx --from {{.TASK_COMMITIZEN_VERSION}} cz check --commit-msg-file {{.COMMIT_MSG_FILE}}"
       _RED: '{{.RED | default "\033[0;31m"}}'
       _GREEN: '{{.GREEN | default "\033[0;32m"}}'
       _NC: '{{.NC | default "\033[0m"}}'
