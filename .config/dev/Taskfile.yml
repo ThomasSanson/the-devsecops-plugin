@@ -31,7 +31,6 @@ tasks:
     cmds:
       - cmd: echo "🔄 Starting development environment setup"
         silent: true
-      - task: ansible
       - task: bun
       - task: docker-ce
       - task: go
@@ -63,13 +62,6 @@ tasks:
       - task: :devsecops:test:teardown:infrastructure
       - cmd: echo "🎉 Development environment reset completed successfully"
         silent: true
-
-  ansible:
-    internal: true
-    status:
-      - test "{{.TASK_ANSIBLE_ENABLED}}" = "false"
-    cmds:
-      - task: :ansible:install
 
   bun:
     internal: true
