@@ -3,68 +3,34 @@ version: "3"
 
 vars:
   TASK_COPIER_ENABLED: '{{.TASK_COPIER_ENABLED | default "true"}}'
-  TASK_COPIER_VIRTUALENV: '{{.TASK_COPIER_VIRTUALENV | default "./venv/copier"}}'
-  TASK_COPIER_COMMAND: '{{.TASK_COPIER_COMMAND | default "./venv/copier/bin/copier"}}'
-  TASK_COPIER_PYTHON_VERSION_FILE: '{{.TASK_COPIER_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
-  TASK_COPIER_REQUIREMENTS_FILE: '{{.TASK_COPIER_REQUIREMENTS_FILE | default ".config/copier/requirements.txt"}}'
   TASK_COPIER_CLI_OPTS: '{{.TASK_COPIER_CLI_OPTS | default ""}}'
+  TASK_COPIER_REQUIREMENTS_FILE: '{{.TASK_COPIER_REQUIREMENTS_FILE | default ".config/copier/requirements.txt"}}'
+  TASK_COPIER_VERSION:
+    sh: |
+      if [ -n "${TASK_COPIER_VERSION:-}" ]; then
+        echo "${TASK_COPIER_VERSION}"
+      else
+        cat {{.TASK_COPIER_REQUIREMENTS_FILE}}
+      fi
+  TASK_COPIER_COMMAND:
+    sh: |
+      if [ -n "${TASK_COPIER_COMMAND:-}" ]; then
+        echo "${TASK_COPIER_COMMAND}"
+      else
+        echo "uvx {{.TASK_COPIER_VERSION}}"
+      fi
 
 tasks:
-  install:
-    desc: |
-      ℹ️ Description:
-        Configures Copier and its dependencies within a controlled virtual environment.
-
-      🔧 Variables:
-        - TASK_COPIER_PYTHON_VERSION_FILE: Path to the Python version file
-          Default: ".config/python/.python-version"
-        - TASK_COPIER_REQUIREMENTS_FILE: Path to the requirements file
-          Default: ".config/copier/requirements.txt"
-        - TASK_COPIER_VIRTUALENV: Location of the virtual environment
-          Default: "./venv/copier"
-
-      🔐 Preconditions:
-        - Python must be installed
-        - Python version file must exist
-
-      🔄 Execution:
-        Creates a virtual environment and installs Copier with dependencies
-
-      📝 Note:
-        Ensure Python version file contains a version compatible with Copier
-    preconditions:
-      - sh: command -v python3 >/dev/null 2>&1
-        msg: "❌ Error: Python is not installed. Please install Python before proceeding."
-      - sh: test -f {{.TASK_COPIER_PYTHON_VERSION_FILE}}
-        msg: |
-          ❌ Error: missing file {{.TASK_COPIER_PYTHON_VERSION_FILE}}.
-          Please create it with the content "3.11"
-    status:
-      - |
-        {{.TASK_COPIER_COMMAND}} --version | grep -q $(awk -F '==' '{print $2}' {{.TASK_COPIER_REQUIREMENTS_FILE}})
-    cmds:
-      - cmd: echo "🔄 Setting up Copier virtual environment"
-        silent: true
-      - defer: { task: cleanup }
-      - python$(cut -d '=' -f 2 {{.TASK_COPIER_PYTHON_VERSION_FILE}}) -m venv {{.TASK_COPIER_VIRTUALENV}}
-      - "{{.TASK_COPIER_VIRTUALENV}}/bin/pip install -r {{.TASK_COPIER_REQUIREMENTS_FILE}}"
-      - cmd: echo '🎉 Copier and dependencies installed successfully.'
-        silent: true
-
   default:
-    deps: [install]
+    interactive: true
     desc: |
       ℹ️ Description:
         Run Copier with specified options.
 
       🔧 Variables:
         - TASK_COPIER_COMMAND: Command to run Copier
-          Default: "./venv/copier/bin/copier"
         - TASK_COPIER_CLI_OPTS: Additional command line options
           Default: ""
-
-      🔐 Preconditions:
-        - The 'install' task must be completed
 
       🔄 Execution:
         Runs Copier with the provided arguments
@@ -79,7 +45,6 @@ tasks:
         silent: true
 
   update:
-    deps: [install]
     desc: |
       ℹ️ Description:
         Updates the project using Copier with a specific answers file.
@@ -109,26 +74,4 @@ tasks:
         silent: true
       - "{{.TASK_COPIER_COMMAND}} update {{.TASK_COPIER_CLI_OPTS}} --answers-file {{.TASK_COPIER_ANSWER_FILE}}"
       - cmd: echo "🎉 Copier update completed successfully."
-        silent: true
-
-  cleanup:
-    internal: true
-    desc: |
-      ℹ️ Description:
-        Cleans up temporary files created during installation.
-
-      🔧 Variables: None
-
-      🔐 Preconditions: None
-
-      🔄 Execution:
-        Removes temporary installation files.
-
-      📝 Note:
-        This task is internal and automatically called via defer.
-    cmds:
-      - cmd: echo "🔄 Cleaning up temporary files"
-        silent: true
-      - rm -rf {{.TASK_COPIER_VIRTUALENV}}/*-cache/
-      - cmd: echo '🎉 Temporary files have been cleaned up.'
         silent: true
