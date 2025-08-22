@@ -4,29 +4,26 @@ version: "3"
 vars:
   TASK_LIZARD_ENABLED: '{{.TASK_LIZARD_ENABLED | default "true"}}'
   TASK_LIZARD_CLI_OPTS: '{{.TASK_LIZARD_CLI_OPTS | default ""}}'
-  TASK_LIZARD_COMMAND: '{{.TASK_LIZARD_COMMAND | default "./venv/lizard/bin/lizard"}}'
+  TASK_LIZARD_VERSION:
+    sh: |
+      if [ -n "${TASK_LIZARD_VERSION:-}" ]; then
+        echo "${TASK_LIZARD_VERSION}"
+      else
+        cat .config/lizard/requirements.txt
+      fi
   TASK_LIZARD_PATH_TO_ANALYSE: '{{.TASK_LIZARD_PATH_TO_ANALYSE | default "."}}'
-  TASK_LIZARD_PYTHON_VERSION_FILE: '{{.TASK_LIZARD_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
-  TASK_LIZARD_REQUIREMENTS_FILE: '{{.TASK_LIZARD_REQUIREMENTS_FILE | default ".config/lizard/requirements.txt"}}'
-  TASK_LIZARD_VIRTUALENV: '{{.TASK_LIZARD_VIRTUALENV | default "./venv/lizard"}}'
 
 tasks:
   default:
-    deps: [install]
     desc: Analyze code complexity with Lizard.
     summary: |
       ℹ️ Description:
         Executes Lizard to analyse code complexity and maintainability.
 
       🔧 Variables:
-        - TASK_LIZARD_VIRTUALENV: Virtual environment path
-        - TASK_LIZARD_COMMAND: Lizard execution command
+        - TASK_LIZARD_VERSION: Lizard version
         - TASK_LIZARD_CLI_OPTS: Command-line options for Lizard
         - TASK_LIZARD_PATH_TO_ANALYSE: Path to analyse
-
-      🔐 Preconditions:
-        - 'install' task must be completed successfully
-        - Lizard configuration file must exist
 
       🔄 Execution:
         Runs Lizard with specified options on designated files
@@ -39,70 +36,6 @@ tasks:
       - cmd: echo "🔄 Starting lizard analysis phase"
         silent: true
       - |
-        {{.TASK_LIZARD_COMMAND}} $(grep -v '^#' .gitignore | grep -v '^$' | awk '{if ($0 ~ /\./) print "-x"$0; else print "-x./"$0"/*"}' | tr '\n' ' ') {{.TASK_LIZARD_CLI_OPTS}} {{.TASK_LIZARD_PATH_TO_ANALYSE}}
+        uvx {{.TASK_LIZARD_VERSION}} $(grep -v '^#' .gitignore | grep -v '^$' | awk '{if ($0 ~ /\./) print "-x"$0; else print "-x./"$0"/*"}' | tr '\n' ' ') {{.TASK_LIZARD_CLI_OPTS}} {{.TASK_LIZARD_PATH_TO_ANALYSE}}
       - cmd: echo "🎉 Lizard analysis phase completed successfully"
-        silent: true
-
-  install:
-    desc: Set up Lizard in a virtual environment.
-    summary: |
-      ℹ️ Description:
-        Sets up Lizard and its dependencies in a virtual environment.
-
-      🔧 Variables:
-        - TASK_LIZARD_PYTHON_VERSION_FILE: Python version file path
-        - TASK_LIZARD_REQUIREMENTS_FILE: Requirements file path
-        - TASK_LIZARD_VIRTUALENV: Virtual environment location
-
-      🔐 Preconditions:
-        - Python version file must exist
-        - Active internet connection required
-
-      🔄 Execution:
-        1. Creates Python virtual environment
-        2. Installs Lizard and dependencies
-        3. Verifies installation
-
-      📝 Note:
-        Ensure Python version is compatible with Lizard
-    preconditions:
-      - sh: test -f {{.TASK_LIZARD_PYTHON_VERSION_FILE}}
-        msg: |
-          ❌ Error: missing file {{.TASK_LIZARD_PYTHON_VERSION_FILE}}.
-          Please create it as follows:
-          ```bash
-          mkdir -p $(dirname "{{.TASK_LIZARD_PYTHON_VERSION_FILE}}")
-          echo "3.11" > {{.TASK_LIZARD_PYTHON_VERSION_FILE}}
-          ```
-    status:
-      - |
-        {{.TASK_LIZARD_COMMAND}} --version | grep -q $(awk -F '==' '{print $2}' {{.TASK_LIZARD_REQUIREMENTS_FILE}})
-    cmds:
-      - cmd: echo "🔄 Starting install phase"
-        silent: true
-      - python$(cut -d '=' -f 2 {{.TASK_LIZARD_PYTHON_VERSION_FILE}}) -m venv {{.TASK_LIZARD_VIRTUALENV}}
-      - "{{.TASK_LIZARD_VIRTUALENV}}/bin/pip install -r {{.TASK_LIZARD_REQUIREMENTS_FILE}}"
-      - cmd: echo "🎉 Install phase completed successfully"
-        silent: true
-
-  uninstall:
-    desc: Remove Lizard and clean up.
-    summary: |
-      ℹ️ Description:
-        Removes temporary files and cleans up the environment after Lizard execution.
-
-      🔧 Variables: None
-
-      🔐 Preconditions: None
-
-      🔄 Execution:
-        Removes temporary files and directories created during Lizard analysis
-
-      📝 Note:
-        This task is typically called via defer in other tasks
-    cmds:
-      - cmd: echo "🔄 Starting uninstall phase"
-        silent: true
-      - rm -rf {{.TASK_LIZARD_VIRTUALENV}}
-      - cmd: echo "🎉 Uninstall phase completed successfully"
         silent: true
