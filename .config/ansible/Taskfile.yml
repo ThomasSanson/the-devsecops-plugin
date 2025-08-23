@@ -63,7 +63,6 @@ tasks:
         Installs Ansible collections specified in the requirements file within the virtual environment.
 
       🔧 Variables:
-        - TASK_ANSIBLE_VIRTUALENV: Path to the virtual environment. Default: "./venv/ansible"
         - TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE: Path to the collections requirements file.
           Default: "tests/infra/kube/requirements.yml"
           Example content:
