@@ -53,7 +53,6 @@ tasks:
         - TASK_COPIER_ANSWER_FILE: Path to the Copier answers file (e.g., .config/devsecops/.copier-answers.yml)
           Required: Yes
         - TASK_COPIER_COMMAND: Command to run Copier
-          Default: "./venv/copier/bin/copier"
         - TASK_COPIER_CLI_OPTS: Additional command line options
           Default: ""
 
