@@ -54,10 +54,11 @@ SHELL ["/bin/bash", "-l", "-c"]
 ENV SHELL=/bin/bash
 ENV USER=$USER
 
-# Add local bin to PATH
-ENV PATH="/home/${USER}/.local/bin:${PATH}"
+# Add local bin to PATH (append, do not shadow system interpreters)
+ENV PATH="${PATH}:/home/${USER}/.local/bin"
 
-RUN echo "3.12" > $TEMP_DIR/.config/python/.python-version
+# Install uv/uvx for the non-root user before running Taskfile
+RUN ./.config/devcontainer/ubuntu/scripts/install-uv.sh
 
 # Run setup task with login shell to ensure .bashrc is sourced
 RUN --mount=type=secret,id=env_vars \
@@ -65,7 +66,6 @@ RUN --mount=type=secret,id=env_vars \
 
 # Run final scripts
 RUN ./.config/devcontainer/ubuntu/scripts/setup-docker.sh "$USER" \
-  && ./.config/devcontainer/ubuntu/scripts/install-uv.sh \
   && ./.config/devcontainer/ubuntu/scripts/cleanup.sh
 
 # Create the workspace directory
