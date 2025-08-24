@@ -1,7 +1,7 @@
 ---
 operate:
   stage: operate
-  needs: []  # Allows parallel execution
+  needs: [] # Allows parallel execution
   extends: .default-tags
   script:
     - task operate
