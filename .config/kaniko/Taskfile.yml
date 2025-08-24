@@ -7,7 +7,7 @@ vars:
   TASK_KANIKO_EXECUTOR: '{{.TASK_KANIKO_EXECUTOR | default "gcr.io/kaniko-project/executor:latest"}}'
   TASK_KANIKO_WARMER: '{{.TASK_KANIKO_WARMER | default "gcr.io/kaniko-project/warmer:latest"}}'
   TASK_KANIKO_RUNTIME_CMD: '{{.TASK_KANIKO_RUNTIME_CMD | default "docker container run"}}'
-  TASK_KANIKO_VOLUME_FLAG: '{{.TASK_KANIKO_VOLUME_FLAG | default "-v"}}'  # -v, --volume, --mount, etc.
+  TASK_KANIKO_VOLUME_FLAG: '{{.TASK_KANIKO_VOLUME_FLAG | default "-v"}}' # -v, --volume, --mount, etc.
 
   # Authentication settings
   TASK_KANIKO_AUTH_ENABLED: '{{.TASK_KANIKO_AUTH_ENABLED | default "false"}}'
