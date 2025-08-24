@@ -1,6 +1,7 @@
 {
-  "indentation" : [
-    "on", {
+  "indentation": [
+    "on",
+    {
       "Feature": 0,
       "Background": 2,
       "Scenario": 2,
