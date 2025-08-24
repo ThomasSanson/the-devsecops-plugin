@@ -31,7 +31,7 @@
   "postCreateCommand": {
     "cleanup": "rm -rf venv && rm -rf megalinter-reports",
     "taskfile": "task dev:setup-environment",
-    "docker" : "sudo chmod 666 /var/run/docker.sock"
+    "docker": "sudo chmod 666 /var/run/docker.sock"
   },
   "remoteEnv": {
     "PATH": "${containerEnv:PATH}:/home/developer/.local/bin"
