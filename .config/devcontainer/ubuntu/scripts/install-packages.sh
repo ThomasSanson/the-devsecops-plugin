@@ -19,9 +19,7 @@ install_packages() {
     nano \
     openssh-client \
     python3 \
-    "python3.12" \
-    "python3.12-venv" \
-    "python3.12-dev" \
+    python3-venv \
     pipx \
     sudo \
     unzip \
