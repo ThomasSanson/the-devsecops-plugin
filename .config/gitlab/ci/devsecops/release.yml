@@ -22,4 +22,3 @@ release:
       when: never
     # Run in all other cases (MRs, feature branches, etc.)
     - when: always
-
