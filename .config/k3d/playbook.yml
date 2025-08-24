@@ -26,13 +26,13 @@
       ansible.builtin.file:
         path: "{{ go_bin_path }}"
         state: directory
-        mode: '0755'
+        mode: "0755"
 
     - name: Ensure ~/.local/bin directory exists
       ansible.builtin.file:
         path: "{{ local_bin_path }}"
         state: directory
-        mode: '0755'
+        mode: "0755"
 
     - name: Install k3d using Go install
       environment:
@@ -49,7 +49,7 @@
         src: "{{ go_bin_path }}/k3d"
         dest: "{{ local_bin_path }}/k3d"
         state: link
-        mode: '0755'
+        mode: "0755"
       register: symlink_result
       failed_when: symlink_result.failed and not ansible_check_mode
 
@@ -57,7 +57,7 @@
       ansible.builtin.copy:
         src: "{{ go_bin_path }}/k3d"
         dest: "{{ local_bin_path }}/k3d"
-        mode: '0755'
+        mode: "0755"
         remote_src: true
       register: copy_result
       failed_when: copy_result.failed and not ansible_check_mode
