@@ -239,7 +239,7 @@ tasks:
         silent: true
       - task: charts:sync
         vars:
-          TASK_HELM_BUILD_DESTINATION: '{{.TASK_HELM_BUILD_DESTINATION}}'
+          TASK_HELM_BUILD_DESTINATION: "{{.TASK_HELM_BUILD_DESTINATION}}"
       - |
         # Check if any .tgz files are present in the directory
         if [ $(find {{.TASK_HELM_BUILD_DESTINATION}} -name "*.tgz" | wc -l) -eq 0 ]; then
