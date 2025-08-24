@@ -3,12 +3,7 @@ version: "3"
 
 vars:
   TASK_KUBECTL_ENABLED: '{{.TASK_KUBECTL_ENABLED | default "false"}}'
-  TASK_KUBECTL_VENV_DIR: '{{.TASK_KUBECTL_VENV_DIR | default "./venv/kubectl"}}'
-  TASK_KUBECTL_ANSIBLE_CMD: '{{.TASK_KUBECTL_ANSIBLE_CMD | default "./venv/kubectl/bin/ansible-playbook"}}'
-  TASK_KUBECTL_ANSIBLE_GALAXY_CMD: '{{.TASK_KUBECTL_ANSIBLE_GALAXY_CMD | default "./venv/kubectl/bin/ansible-galaxy"}}'
-  TASK_KUBECTL_ANSIBLE_REQUIREMENTS_FILE: '{{.TASK_KUBECTL_ANSIBLE_REQUIREMENTS_FILE | default ".config/kubectl/requirements.txt"}}'
   TASK_KUBECTL_ANSIBLE_PLAYBOOK_FILE: '{{.TASK_KUBECTL_ANSIBLE_PLAYBOOK_FILE | default ".config/kubectl/playbook.yml"}}'
-  TASK_KUBECTL_PYTHON_VERSION_FILE: '{{.TASK_KUBECTL_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
   TASK_KUBECTL_ANSIBLE_INVENTORY_TARGET: "localhost" # DevSkim: ignore DS162092
   TASK_KUBECTL_VERSION: '{{.TASK_KUBECTL_VERSION | default "v1.32.0"}}'
   TASK_KUBECTL_KUBECONFIG: '{{.TASK_KUBECTL_VERSION | default ""}}'
@@ -19,37 +14,6 @@ env:
   LANGUAGE: "C.UTF-8"
 
 tasks:
-  install:dependencies:
-    desc: |
-      ℹ️ Description:
-        Sets up Ansible and its dependencies in a dedicated virtual environment
-
-      🔧 Variables:
-        - TASK_KUBECTL_VENV_DIR: Virtual environment location
-        - TASK_KUBECTL_ANSIBLE_REQUIREMENTS_FILE: Dependencies file path
-
-      🔐 Preconditions:
-        - Python 3.x must be installed
-        - Internet connectivity required
-
-      🔄 Execution:
-        Creates virtualenv and installs required packages
-    deps: [cleanup]
-    preconditions:
-      - sh: "command -v python3 >/dev/null 2>&1"
-        msg: "❌ Python 3 is not installed"
-      - sh: "test -f {{.TASK_KUBECTL_PYTHON_VERSION_FILE}}"
-        msg: "❌ Python version file not found at {{.TASK_KUBECTL_PYTHON_VERSION_FILE}}"
-      - sh: "test -f {{.TASK_KUBECTL_ANSIBLE_REQUIREMENTS_FILE}}"
-        msg: "❌ Requirements file not found at {{.TASK_KUBECTL_ANSIBLE_REQUIREMENTS_FILE}}"
-    cmds:
-      - cmd: echo "🔄 Starting install dependencies phase"
-        silent: true
-      - python$(cut -d '=' -f 2 {{.TASK_KUBECTL_PYTHON_VERSION_FILE}}) -m venv {{.TASK_KUBECTL_VENV_DIR}}
-      - "{{.TASK_KUBECTL_VENV_DIR}}/bin/pip install -r {{.TASK_KUBECTL_ANSIBLE_REQUIREMENTS_FILE}}"
-      - cmd: echo "🎉 Install dependencies phase completed successfully"
-        silent: true
-
   install:
     desc: |
       ℹ️ Description:
@@ -73,9 +37,8 @@ tasks:
     cmds:
       - cmd: echo "🔄 Starting kubectl installation phase"
         silent: true
-      - task: install:dependencies
       - |
-        {{.TASK_KUBECTL_ANSIBLE_CMD}} \
+        {{.TASK_ANSIBLE_COMMAND}} ansible-playbook \
           -i {{.TASK_KUBECTL_ANSIBLE_INVENTORY_TARGET}}, \
           -e "kubectl_version={{.TASK_KUBECTL_VERSION}}" \
           {{.TASK_KUBECTL_ANSIBLE_PLAYBOOK_FILE}}
