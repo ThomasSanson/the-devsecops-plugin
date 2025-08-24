@@ -19,7 +19,7 @@ tasks:
     status:
       - test "{{.TASK_RENOVATE_ENABLED}}" != "true"
     env:
-      RENOVATE_TOKEN: '{{.TASK_RENOVATE_TOKEN}}'
+      RENOVATE_TOKEN: "{{.TASK_RENOVATE_TOKEN}}"
     vars:
       TASK_RENOVATE_CMD:
         sh: |
@@ -74,7 +74,7 @@ tasks:
           # Print the final single-line command
           echo "$ENV_PREFIX $CMD"
     cmds:
-      - cmd: '{{.TASK_RENOVATE_CMD}}'
+      - cmd: "{{.TASK_RENOVATE_CMD}}"
 
   check:
     desc: Verify prerequisites for npx usage
