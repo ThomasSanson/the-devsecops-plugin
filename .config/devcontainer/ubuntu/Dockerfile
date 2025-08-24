@@ -71,6 +71,27 @@ RUN ./.config/devcontainer/ubuntu/scripts/setup-docker.sh "$USER" \
 # Create the workspace directory
 WORKDIR /home/$USER/workspace/project
 
+# Final user-level cleanup to reduce image size (safe cache purges)
+RUN bash -lc "set -euo pipefail; \
+  echo '🧹 Pruning user-level caches'; \
+  if command -v uv >/dev/null 2>&1; then \
+    uv cache prune || true; \
+  fi; \
+  if command -v npm >/dev/null 2>&1; then \
+    npm cache clean --force || true; \
+  fi; \
+  if command -v pnpm >/dev/null 2>&1; then \
+    pnpm store prune || true; \
+  fi; \
+  if command -v yarn >/dev/null 2>&1; then \
+    yarn cache clean || true; \
+  fi; \
+  rm -rf \"$HOME/.bun/install/cache\" \"$HOME/.bun/cache\" 2>/dev/null || true; \
+  rm -rf \"$HOME/.ansible/tmp\" \"$HOME/.ansible/pc\" 2>/dev/null || true; \
+  rm -rf \"$HOME/.cache\"/* 2>/dev/null || true; \
+  rm -rf \"$HOME/go/pkg\" \"$HOME/go/cache\" 2>/dev/null || true; \
+"
+
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD task --version || exit 1
