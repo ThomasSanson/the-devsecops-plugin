@@ -15,13 +15,13 @@
       ansible.builtin.file:
         path: "{{ kubectl_install_dir }}"
         state: directory
-        mode: '0755'
+        mode: "0755"
 
     - name: Download kubectl binary
       ansible.builtin.get_url:
         url: "https://dl.k8s.io/release/{{ kubectl_version }}/bin/{{ kubectl_os }}/{{ kubectl_arch }}/kubectl"
         dest: "{{ kubectl_install_dir }}/kubectl"
-        mode: '0755'
+        mode: "0755"
         force: true
       register: kubectl_download
 
@@ -29,7 +29,7 @@
       ansible.builtin.get_url:
         url: "https://dl.k8s.io/release/{{ kubectl_version }}/bin/{{ kubectl_os }}/{{ kubectl_arch }}/kubectl.sha256"
         dest: "{{ kubectl_install_dir }}/kubectl.sha256"
-        mode: '0755'
+        mode: "0755"
       register: kubectl_checksum
 
     - name: Verify kubectl binary
@@ -46,8 +46,8 @@
     - name: Add installation directory to PATH in .bashrc if not present
       ansible.builtin.lineinfile:
         path: "{{ ansible_env.HOME }}/.bashrc"
-        line: 'export PATH=$PATH:{{ kubectl_install_dir }}'
-        regexp: '^export PATH=.*{{ kubectl_install_dir | regex_escape }}.*$'
+        line: "export PATH=$PATH:{{ kubectl_install_dir }}"
+        regexp: "^export PATH=.*{{ kubectl_install_dir | regex_escape }}.*$"
         state: present
 
     - name: Source .bashrc
