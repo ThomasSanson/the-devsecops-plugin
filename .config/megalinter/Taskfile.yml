@@ -26,3 +26,12 @@ tasks:
       - docker exec {{.TASK_MEGALINTER_CONTAINER_NAME}} /bin/bash /entrypoint.sh
       - cmd: echo "🎉 All files correctly linted with megalinter!"
         silent: true
+
+  pnpm:dlx:
+    desc: Run pnpm dlx megalinter
+    cmds:
+      - cmd: echo "🔄 Running pnpm dlx megalinter..."
+        silent: true
+      - pnpm dlx --package mega-linter-runner@latest mega-linter-runner -e MEGALINTER_CONFIG='.config/megalinter/config.yml'
+      - cmd: echo "🎉 All files correctly linted with megalinter!"
+        silent: true
