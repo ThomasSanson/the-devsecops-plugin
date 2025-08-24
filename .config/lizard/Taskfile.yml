@@ -4,14 +4,30 @@ version: "3"
 vars:
   TASK_LIZARD_ENABLED: '{{.TASK_LIZARD_ENABLED | default "true"}}'
   TASK_LIZARD_CLI_OPTS: '{{.TASK_LIZARD_CLI_OPTS | default ""}}'
+  TASK_LIZARD_PATH_TO_ANALYSE: '{{.TASK_LIZARD_PATH_TO_ANALYSE | default "."}}'
+  TASK_LIZARD_REQUIREMENTS_FILE: '{{.TASK_LIZARD_REQUIREMENTS_FILE | default ".config/lizard/requirements.txt"}}'
+  TASK_LIZARD_PYTHON_VERSION_PATH: '{{.TASK_LIZARD_PYTHON_VERSION_PATH | default ".config/python/.python-version"}}'
+  TASK_LIZARD_PYTHON_VERSION:
+    sh: |
+      if [ -n "${TASK_LIZARD_PYTHON_VERSION:-}" ]; then
+        echo "${TASK_LIZARD_PYTHON_VERSION}"
+      else
+        cat {{.TASK_LIZARD_PYTHON_VERSION_PATH}}
+      fi
   TASK_LIZARD_VERSION:
     sh: |
       if [ -n "${TASK_LIZARD_VERSION:-}" ]; then
         echo "${TASK_LIZARD_VERSION}"
       else
-        cat .config/lizard/requirements.txt
+        cat {{.TASK_LIZARD_REQUIREMENTS_FILE}}
       fi
-  TASK_LIZARD_PATH_TO_ANALYSE: '{{.TASK_LIZARD_PATH_TO_ANALYSE | default "."}}'
+  TASK_LIZARD_COMMAND:
+    sh: |
+      if [ -n "${TASK_LIZARD_COMMAND:-}" ]; then
+        echo "${TASK_LIZARD_COMMAND}"
+      else
+        echo "uvx --python {{.TASK_LIZARD_PYTHON_VERSION}} --from {{.TASK_LIZARD_VERSION}} lizard"
+      fi
 
 tasks:
   default:
@@ -36,6 +52,6 @@ tasks:
       - cmd: echo "🔄 Starting lizard analysis phase"
         silent: true
       - |
-        uvx {{.TASK_LIZARD_VERSION}} $(grep -v '^#' .gitignore | grep -v '^$' | awk '{if ($0 ~ /\./) print "-x"$0; else print "-x./"$0"/*"}' | tr '\n' ' ') {{.TASK_LIZARD_CLI_OPTS}} {{.TASK_LIZARD_PATH_TO_ANALYSE}}
+        {{.TASK_LIZARD_COMMAND}} $(grep -v '^#' .gitignore | grep -v '^$' | awk '{if ($0 ~ /\./) print "-x"$0; else print "-x./"$0"/*"}' | tr '\n' ' ') {{.TASK_LIZARD_CLI_OPTS}} {{.TASK_LIZARD_PATH_TO_ANALYSE}}
       - cmd: echo "🎉 Lizard analysis phase completed successfully"
         silent: true
