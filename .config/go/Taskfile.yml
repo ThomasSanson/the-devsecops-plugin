@@ -3,13 +3,8 @@ version: "3"
 
 vars:
   TASK_GO_ENABLED: '{{.TASK_GO_ENABLED | default "true"}}'
-  TASK_GO_VENV_DIR: '{{.TASK_GO_VENV_DIR | default "./venv/go"}}'
-  TASK_GO_ANSIBLE_CMD: '{{.TASK_GO_ANSIBLE_CMD | default "./venv/go/bin/ansible-playbook"}}'
-  TASK_GO_ANSIBLE_GALAXY_CMD: '{{.TASK_GO_ANSIBLE_GALAXY_CMD | default "./venv/go/bin/ansible-galaxy"}}'
-  TASK_GO_ANSIBLE_REQUIREMENTS_FILE: '{{.TASK_GO_ANSIBLE_REQUIREMENTS_FILE | default ".config/go/requirements.txt"}}'
   TASK_GO_ANSIBLE_ROLES_REQUIREMENTS: '{{.TASK_GO_ANSIBLE_ROLES_REQUIREMENTS | default ".config/go/requirements.yml"}}'
   TASK_GO_ANSIBLE_PLAYBOOK_FILE: '{{.TASK_GO_ANSIBLE_PLAYBOOK_FILE | default ".config/go/playbook.yml"}}'
-  TASK_GO_PYTHON_VERSION_FILE: '{{.TASK_GO_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
   TASK_GO_ANSIBLE_INVENTORY_TARGET: "localhost" # DevSkim: ignore DS162092
   TASK_GO_VERSION: '{{.TASK_GO_VERSION | default "1.24.1"}}'
   TASK_GO_CHECKSUM: '{{.TASK_GO_CHECKSUM | default "cb2396bae64183cdccf81a9a6df0aea3bce9511fc21469fb89a0c00470088073"}}' # DevSkim: ignore DS173237
@@ -21,36 +16,6 @@ env:
   ANSIBLE_ROLES_PATH: ".config/go/roles"
 
 tasks:
-  install:dependencies:
-    desc: |
-      ℹ️ Description:
-        Sets up Ansible and its dependencies in a dedicated virtual environment
-
-      🔧 Variables:
-        - TASK_GO_VENV_DIR: Virtual environment location
-        - TASK_GO_ANSIBLE_REQUIREMENTS_FILE: Dependencies file path
-
-      🔐 Preconditions:
-        - Python 3.x must be installed
-        - Internet connectivity required
-
-      🔄 Execution:
-        Creates virtualenv and installs required packages
-    preconditions:
-      - sh: "command -v python3 >/dev/null 2>&1"
-        msg: "❌ Python 3 is not installed"
-      - sh: "test -f {{.TASK_GO_PYTHON_VERSION_FILE}}"
-        msg: "❌ Python version file not found at {{.TASK_GO_PYTHON_VERSION_FILE}}"
-      - sh: "test -f {{.TASK_GO_ANSIBLE_REQUIREMENTS_FILE}}"
-        msg: "❌ Requirements file not found at {{.TASK_GO_ANSIBLE_REQUIREMENTS_FILE}}"
-    cmds:
-      - cmd: echo "🔄 Starting install dependencies phase"
-        silent: true
-      - python$(cut -d '=' -f 2 {{.TASK_GO_PYTHON_VERSION_FILE}}) -m venv {{.TASK_GO_VENV_DIR}}
-      - "{{.TASK_GO_VENV_DIR}}/bin/pip install -r {{.TASK_GO_ANSIBLE_REQUIREMENTS_FILE}}"
-      - cmd: echo "🎉 Install dependencies phase completed successfully"
-        silent: true
-
   install:roles:
     desc: |
       ℹ️ Description:
@@ -65,7 +30,6 @@ tasks:
 
       🔄 Execution:
         Installs required Ansible roles
-    deps: [install:dependencies]
     preconditions:
       - sh: "test -f {{.TASK_GO_ANSIBLE_ROLES_REQUIREMENTS}}"
         msg: "❌ Roles requirements file not found at {{.TASK_GO_ANSIBLE_ROLES_REQUIREMENTS}}"
@@ -73,7 +37,7 @@ tasks:
       - cmd: echo "🔄 Starting install roles phase"
         silent: true
       - mkdir -p .config/go/roles
-      - "{{.TASK_GO_ANSIBLE_GALAXY_CMD}} install -r {{.TASK_GO_ANSIBLE_ROLES_REQUIREMENTS}} --roles-path .config/go/roles"
+      - "{{.TASK_ANSIBLE_COMMAND}} ansible-galaxy install -r {{.TASK_GO_ANSIBLE_ROLES_REQUIREMENTS}} --roles-path .config/go/roles"
       - cmd: echo "🎉 Install roles phase completed successfully"
         silent: true
 
@@ -105,7 +69,7 @@ tasks:
       - defer: { task: cleanup }
       - task: install:roles
       - |
-        {{.TASK_GO_ANSIBLE_CMD}} \
+        {{.TASK_ANSIBLE_COMMAND}} ansible-playbook \
           -i {{.TASK_GO_ANSIBLE_INVENTORY_TARGET}}, \
           -c local \
           -e "go_version={{.TASK_GO_VERSION}}" \
