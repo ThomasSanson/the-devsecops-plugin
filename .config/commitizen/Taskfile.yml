@@ -7,6 +7,14 @@ vars:
   TASK_COMMITIZEN_CLI_OPTS: '{{.TASK_COMMITIZEN_CLI_OPTS | default ""}}'
   TASK_COMMITIZEN_CLI_CHECK_OPTS: '{{.TASK_COMMITIZEN_CLI_CHECK_OPTS | default "--rev-range origin/main..HEAD"}}'
   TASK_COMMITIZEN_REQUIREMENTS_FILE: '{{.TASK_COMMITIZEN_REQUIREMENTS_FILE | default ".config/commitizen/requirements.txt"}}'
+  TASK_COMMITIZEN_PYTHON_VERSION_PATH: '{{.TASK_COMMITIZEN_PYTHON_VERSION_PATH | default ".config/python/.python-version"}}'
+  TASK_COMMITIZEN_PYTHON_VERSION:
+    sh: |
+      if [ -n "${TASK_COMMITIZEN_PYTHON_VERSION:-}" ]; then
+        echo "${TASK_COMMITIZEN_PYTHON_VERSION}"
+      else
+        cat {{.TASK_COMMITIZEN_PYTHON_VERSION_PATH}}
+      fi
   TASK_COMMITIZEN_VERSION:
     sh: |
       if [ -n "${TASK_COMMITIZEN_VERSION:-}" ]; then
@@ -19,7 +27,7 @@ vars:
       if [ -n "${TASK_COMMITIZEN_COMMAND:-}" ]; then
         echo "${TASK_COMMITIZEN_COMMAND}"
       else
-        echo "uvx --from {{.TASK_COMMITIZEN_VERSION}} cz"
+        echo "uvx --python {{.TASK_COMMITIZEN_PYTHON_VERSION}} --from {{.TASK_COMMITIZEN_VERSION}} cz"
       fi
   TASK_COMMITIZEN_BUMP_DRY_RUN: '{{.TASK_COMMITIZEN_BUMP_DRY_RUN | default "false"}}'
   TASK_COMMITIZEN_BUMP_YES: '{{.TASK_COMMITIZEN_BUMP_YES | default "false"}}'
