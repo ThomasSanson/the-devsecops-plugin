@@ -25,7 +25,7 @@
       ansible.builtin.file:
         path: "{{ go_bin_path }}"
         state: directory
-        mode: '0755'
+        mode: "0755"
 
     - name: Install Kind using Go install
       environment:
@@ -42,7 +42,7 @@
         src: "{{ go_bin_path }}/kind"
         dest: "/usr/local/bin/kind"
         state: link
-        mode: '0755'
+        mode: "0755"
       become: true
       register: symlink_result
       failed_when: symlink_result.failed and not ansible_check_mode
@@ -51,7 +51,7 @@
       ansible.builtin.copy:
         src: "{{ go_bin_path }}/kind"
         dest: "/usr/local/bin/kind"
-        mode: '0755'
+        mode: "0755"
         remote_src: true
       become: true
       register: copy_result
