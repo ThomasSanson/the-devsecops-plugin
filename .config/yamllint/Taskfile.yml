@@ -7,6 +7,14 @@ vars:
   TASK_YAMLLINT_CLI_OPTS: '{{.TASK_YAMLLINT_CLI_OPTS | default "--strict"}}'
   TASK_YAMLLINT_PATH_TO_LINT: '{{.TASK_YAMLLINT_PATH_TO_LINT | default "."}}'
   TASK_YAMLLINT_REQUIREMENTS_FILE: '{{.TASK_YAMLLINT_REQUIREMENTS_FILE | default ".config/yamllint/requirements.txt"}}'
+  TASK_YAMLLINT_PYTHON_VERSION_PATH: '{{.TASK_YAMLLINT_PYTHON_VERSION_PATH | default ".config/python/.python-version"}}'
+  TASK_YAMLLINT_PYTHON_VERSION:
+    sh: |
+      if [ -n "${TASK_YAMLLINT_PYTHON_VERSION:-}" ]; then
+        echo "${TASK_YAMLLINT_PYTHON_VERSION}"
+      else
+        cat {{.TASK_YAMLLINT_PYTHON_VERSION_PATH}}
+      fi
   TASK_YAMLLINT_VERSION:
     sh: |
       if [ -n "${TASK_YAMLLINT_VERSION:-}" ]; then
@@ -19,7 +27,7 @@ vars:
       if [ -n "${TASK_YAMLLINT_COMMAND:-}" ]; then
         echo "${TASK_YAMLLINT_COMMAND}"
       else
-        echo "uvx --from {{.TASK_YAMLLINT_VERSION}} yamllint"
+        echo "uvx --python {{.TASK_YAMLLINT_PYTHON_VERSION}} --from {{.TASK_YAMLLINT_VERSION}} yamllint"
       fi
 
 tasks:
