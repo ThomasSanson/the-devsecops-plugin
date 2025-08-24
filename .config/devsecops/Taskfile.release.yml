@@ -48,18 +48,18 @@ tasks:
           TASK_COMMITIZEN_BUMP_YES: "true"
           TASK_COMMITIZEN_BUMP_CHANGELOG:
             sh: |
-                if [[ "{{.TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH}}" == "{{.TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH}}" ]]; then
-                  echo "true"
-                  exit 0
-                fi
-                echo "false"
+              if [[ "{{.TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH}}" == "{{.TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH}}" ]]; then
+                echo "true"
+                exit 0
+              fi
+              echo "false"
           TASK_COMMITIZEN_BUMP_DRY_RUN:
             sh: |
-                if [[ "{{.TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH}}" == "{{.TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH}}" ]]; then
-                  echo "false"
-                  exit 0
-                fi
-                echo "true"
+              if [[ "{{.TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH}}" == "{{.TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH}}" ]]; then
+                echo "false"
+                exit 0
+              fi
+              echo "true"
       - cmd: echo "🎉 Commitizen release bump completed successfully"
         silent: true
 
