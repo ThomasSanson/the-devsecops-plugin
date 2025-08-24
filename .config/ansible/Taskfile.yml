@@ -9,6 +9,14 @@ vars:
   TASK_ANSIBLE_REQUIREMENTS_FILE: '{{.TASK_ANSIBLE_REQUIREMENTS_FILE | default ".config/ansible/requirements.txt"}}'
   TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE: '{{.TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE | default "tests/infra/kube/ansible/requirements.yml"}}'
   TASK_ANSIBLE_PLAYBOOK_DIR: '{{.TASK_ANSIBLE_PLAYBOOK_DIR | default ""}}'
+  TASK_ANSIBLE_PYTHON_VERSION_PATH: '{{.TASK_ANSIBLE_PYTHON_VERSION_PATH | default ".config/python/.python-version"}}'
+  TASK_ANSIBLE_PYTHON_VERSION:
+    sh: |
+      if [ -n "${TASK_ANSIBLE_PYTHON_VERSION:-}" ]; then
+        echo "${TASK_ANSIBLE_PYTHON_VERSION}"
+      else
+        cat {{.TASK_ANSIBLE_PYTHON_VERSION_PATH}}
+      fi
   TASK_ANSIBLE_VERSION:
     sh: |
       if [ -n "${TASK_ANSIBLE_VERSION:-}" ]; then
@@ -21,7 +29,7 @@ vars:
       if [ -n "${TASK_ANSIBLE_COMMAND:-}" ]; then
         echo "${TASK_ANSIBLE_COMMAND}"
       else
-        echo "uvx --from {{.TASK_ANSIBLE_VERSION}}"
+        echo "uvx --python {{.TASK_ANSIBLE_PYTHON_VERSION}} --from {{.TASK_ANSIBLE_VERSION}}"
       fi
 
 tasks:
