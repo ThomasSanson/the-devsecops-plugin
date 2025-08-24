@@ -27,11 +27,11 @@ variables:
   DOCKER_TLS_VERIFY: 1
 
   # Docker BuildKit settings
-  DOCKER_BUILDKIT: "1"  # Enable Docker BuildKit at the Docker engine level
-  TASK_DOCKER_CE_BUILDKIT_ENABLED: "true"  # Enable BuildKit in our Taskfile
-  TASK_DOCKER_CE_BUILDKIT_CACHE_TYPE: "registry"  # Use registry-based caching
-  TASK_DOCKER_CE_AUTH_ENABLED: "true"  # Enable registry authentication
-  TASK_DOCKER_CE_PUSH: "true"  # Enable pushing to registry including cache images
+  DOCKER_BUILDKIT: "1" # Enable Docker BuildKit at the Docker engine level
+  TASK_DOCKER_CE_BUILDKIT_ENABLED: "true" # Enable BuildKit in our Taskfile
+  TASK_DOCKER_CE_BUILDKIT_CACHE_TYPE: "registry" # Use registry-based caching
+  TASK_DOCKER_CE_AUTH_ENABLED: "true" # Enable registry authentication
+  TASK_DOCKER_CE_PUSH: "true" # Enable pushing to registry including cache images
 
   DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   DOCKER_DRIVER: overlay2
