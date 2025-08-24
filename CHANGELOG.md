@@ -2,6 +2,23 @@
 
 # Changelog
 
+## 12.6.0 (2025-08-24)
+
+### Feat
+
+- **linter**: add pnpm task to run megalinter using pnpm dlx for improved linting process
+- **yamllint**: add support for specifying Python version in Taskfile.yml for improved compatibility
+- **taskfile**: add new variables for Python version and command to enhance configurability of lizard analysis tasks
+- **Taskfile**: add support for dynamic Python version retrieval in copier tasks to enhance flexibility
+- **commitizen**: add Python version handling to Taskfile for better compatibility with Python environments
+- **ansible**: add Python version handling to Taskfile for improved compatibility
+- **commitizen**: add TASK_COMMITIZEN_COMMAND to define default command for commitizen tasks
+- **ci**: add pipx installation and setup for managing Python packages in before_script configuration
+
+### Refactor
+
+- **ansible**: streamline Ansible command handling and remove deprecated virtualenv references for improved clarity and functionality
+
 ## 12.5.0 (2025-08-22)
 
 ### Feat
