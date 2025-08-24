@@ -5,6 +5,14 @@ vars:
   TASK_COPIER_ENABLED: '{{.TASK_COPIER_ENABLED | default "true"}}'
   TASK_COPIER_CLI_OPTS: '{{.TASK_COPIER_CLI_OPTS | default ""}}'
   TASK_COPIER_REQUIREMENTS_FILE: '{{.TASK_COPIER_REQUIREMENTS_FILE | default ".config/copier/requirements.txt"}}'
+  TASK_COPIER_PYTHON_VERSION_PATH: '{{.TASK_COPIER_PYTHON_VERSION_PATH | default ".config/python/.python-version"}}'
+  TASK_COPIER_PYTHON_VERSION:
+    sh: |
+      if [ -n "${TASK_COPIER_PYTHON_VERSION:-}" ]; then
+        echo "${TASK_COPIER_PYTHON_VERSION}"
+      else
+        cat {{.TASK_COPIER_PYTHON_VERSION_PATH}}
+      fi
   TASK_COPIER_VERSION:
     sh: |
       if [ -n "${TASK_COPIER_VERSION:-}" ]; then
@@ -17,7 +25,7 @@ vars:
       if [ -n "${TASK_COPIER_COMMAND:-}" ]; then
         echo "${TASK_COPIER_COMMAND}"
       else
-        echo "uvx {{.TASK_COPIER_VERSION}}"
+        echo "uvx --python {{.TASK_COPIER_PYTHON_VERSION}} --from {{.TASK_COPIER_VERSION}} copier"
       fi
 
 tasks:
