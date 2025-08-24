@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 12.6.1 (2025-08-24)
+
+### Fix
+
+- **deps**: update dependency lizard to v1.17.31
+
 ## 12.6.0 (2025-08-24)
 
 ### Feat
