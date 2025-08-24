@@ -37,7 +37,6 @@ vars:
         echo "false"
       fi
   TASK_DOCKER_CE_BUILD_RUN: '{{.TASK_DOCKER_CE_BUILD_RUN | default "always"}}'
-
   # BuildKit settings
   TASK_DOCKER_CE_BUILDKIT_ENABLED: '{{.TASK_DOCKER_CE_BUILDKIT_ENABLED | default "true"}}'
   TASK_DOCKER_CE_BUILDKIT_CACHE_TYPE: '{{.TASK_DOCKER_CE_BUILDKIT_CACHE_TYPE | default "inline"}}' # Options: inline, local, registry, none
