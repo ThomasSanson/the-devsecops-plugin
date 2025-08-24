@@ -3,13 +3,8 @@ version: "3"
 
 vars:
   TASK_DOCKER_CE_ENABLED: '{{.TASK_DOCKER_CE_ENABLED | default "true"}}'
-  TASK_DOCKER_CE_VENV_DIR: '{{.TASK_DOCKER_CE_VENV_DIR | default "./venv/docker-ce"}}'
-  TASK_DOCKER_CE_ANSIBLE_CMD: '{{.TASK_DOCKER_CE_ANSIBLE_CMD | default "./venv/docker-ce/bin/ansible-playbook"}}'
-  TASK_DOCKER_CE_ANSIBLE_GALAXY_CMD: '{{.TASK_DOCKER_CE_ANSIBLE_GALAXY_CMD | default "./venv/docker-ce/bin/ansible-galaxy"}}'
-  TASK_DOCKER_CE_ANSIBLE_REQUIREMENTS_FILE: '{{.TASK_DOCKER_CE_ANSIBLE_REQUIREMENTS_FILE | default ".config/docker-ce/requirements.txt"}}'
   TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS: '{{.TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS | default ".config/docker-ce/requirements.yml"}}'
   TASK_DOCKER_CE_ANSIBLE_PLAYBOOK_FILE: '{{.TASK_DOCKER_CE_ANSIBLE_PLAYBOOK_FILE | default ".config/docker-ce/playbook.yml"}}'
-  TASK_DOCKER_CE_PYTHON_VERSION_FILE: '{{.TASK_DOCKER_CE_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
   TASK_DOCKER_CE_ANSIBLE_INVENTORY_TARGET: "localhost" # DevSkim: ignore DS162092
 
   # Authentication settings
@@ -69,39 +64,6 @@ env:
   DOCKER_BUILDKIT: "{{.TASK_DOCKER_CE_BUILDKIT_ENABLED}}"
 
 tasks:
-  install:dependencies:
-    desc: |
-      ℹ️ Description:
-        Sets up Ansible and its dependencies in a dedicated virtual environment
-
-      🔧 Variables:
-        - TASK_DOCKER_CE_VENV_DIR: Virtual environment location
-        - TASK_DOCKER_CE_ANSIBLE_REQUIREMENTS_FILE: Dependencies file path
-
-      🔐 Preconditions:
-        - Python 3.x must be installed
-        - Internet connectivity required
-
-      🔄 Execution:
-        Creates virtualenv and installs required packages
-    status:
-      - test "{{.TASK_DOCKER_CE_ENABLED}}" = "false"
-    preconditions:
-      - sh: "command -v python3 >/dev/null 2>&1"
-        msg: "❌ Python 3 is not installed"
-      - sh: "test -f {{.TASK_DOCKER_CE_PYTHON_VERSION_FILE}}"
-        msg: "❌ Python version file not found at {{.TASK_DOCKER_CE_PYTHON_VERSION_FILE}}"
-      - sh: "test -f {{.TASK_DOCKER_CE_ANSIBLE_REQUIREMENTS_FILE}}"
-        msg: "❌ Requirements file not found at {{.TASK_DOCKER_CE_ANSIBLE_REQUIREMENTS_FILE}}"
-    cmds:
-      - cmd: echo "🔄 Starting install dependencies phase"
-        silent: true
-      - defer: { task: cleanup }
-      - python$(cut -d '=' -f 2 {{.TASK_DOCKER_CE_PYTHON_VERSION_FILE}}) -m venv {{.TASK_DOCKER_CE_VENV_DIR}}
-      - "{{.TASK_DOCKER_CE_VENV_DIR}}/bin/pip install -r {{.TASK_DOCKER_CE_ANSIBLE_REQUIREMENTS_FILE}}"
-      - cmd: echo "🎉 Install dependencies phase completed successfully"
-        silent: true
-
   install:roles:
     desc: |
       ℹ️ Description:
@@ -118,7 +80,6 @@ tasks:
         Installs required Ansible roles
     status:
       - test "{{.TASK_DOCKER_CE_ENABLED}}" = "false"
-    deps: [install:dependencies]
     preconditions:
       - sh: "test -f {{.TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS}}"
         msg: "❌ Roles requirements file not found at {{.TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS}}"
@@ -126,8 +87,8 @@ tasks:
       - cmd: echo "🔄 Starting install roles phase"
         silent: true
       - mkdir -p .config/docker-ce/roles
-      - "{{.TASK_DOCKER_CE_ANSIBLE_GALAXY_CMD}} install -r {{.TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS}} --roles-path .config/docker-ce/roles"
-      - "{{.TASK_DOCKER_CE_ANSIBLE_GALAXY_CMD}} collection install -r {{.TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS}}"
+      - "{{.TASK_ANSIBLE_COMMAND}} ansible-galaxy install -r {{.TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS}} --roles-path .config/docker-ce/roles"
+      - "{{.TASK_ANSIBLE_COMMAND}} ansible-galaxy collection install -r {{.TASK_DOCKER_CE_ANSIBLE_ROLES_REQUIREMENTS}}"
       - cmd: echo "🎉 Install roles phase completed successfully"
         silent: true
 
@@ -157,7 +118,7 @@ tasks:
       - defer: { task: cleanup }
       - task: install:roles
       - |
-        {{.TASK_DOCKER_CE_ANSIBLE_CMD}} \
+        {{.TASK_ANSIBLE_COMMAND}} ansible-playbook \
           -i {{.TASK_DOCKER_CE_ANSIBLE_INVENTORY_TARGET}}, \
           -c local \
           {{.TASK_DOCKER_CE_ANSIBLE_PLAYBOOK_FILE}} \
