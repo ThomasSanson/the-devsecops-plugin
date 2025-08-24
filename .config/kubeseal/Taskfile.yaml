@@ -4,11 +4,7 @@ version: "3"
 vars:
   TASK_KUBESEAL_ENABLED: '{{.TASK_KUBESEAL_ENABLED | default "false"}}'
   TASK_KUBESEAL_VERSION: '{{.TASK_KUBESEAL_VERSION | default "v0.28.0"}}'
-  TASK_KUBESEAL_VENV_DIR: '{{.TASK_KUBESEAL_VENV_DIR | default "./venv/kubeseal"}}'
-  TASK_KUBESEAL_ANSIBLE_CMD: '{{.TASK_KUBESEAL_ANSIBLE_CMD | default "./venv/kubeseal/bin/ansible-playbook"}}'
-  TASK_KUBESEAL_ANSIBLE_REQUIREMENTS_FILE: '{{.TASK_KUBESEAL_ANSIBLE_REQUIREMENTS_FILE | default ".config/kubeseal/requirements.txt"}}'
   TASK_KUBESEAL_ANSIBLE_PLAYBOOK_FILE: '{{.TASK_KUBESEAL_ANSIBLE_PLAYBOOK_FILE | default ".config/kubeseal/playbook.yml"}}'
-  TASK_KUBESEAL_PYTHON_VERSION_FILE: '{{.TASK_KUBESEAL_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
   TASK_KUBESEAL_ANSIBLE_INVENTORY_TARGET: "localhost" # DevSkim: ignore DS162092
   TASK_KUBESEAL_NAMESPACE: '{{.TASK_KUBESEAL_NAMESPACE | default "kube-system"}}'
   TASK_KUBESEAL_CONTROLLER: '{{.TASK_KUBESEAL_CONTROLLER | default "sealed-secrets"}}'
@@ -22,37 +18,6 @@ env:
   LANGUAGE: "C.UTF-8"
 
 tasks:
-  install:dependencies:
-    desc: |
-      ℹ️ Description:
-        Sets up Ansible and its dependencies in a dedicated virtual environment
-
-      🔧 Variables:
-        - TASK_KUBESEAL_VENV_DIR: Virtual environment location
-        - TASK_KUBESEAL_ANSIBLE_REQUIREMENTS_FILE: Dependencies file path
-
-      🔐 Preconditions:
-        - Python 3.x must be installed
-        - Internet connectivity required
-
-      🔄 Execution:
-        Creates virtualenv and installs required packages
-    deps: [cleanup]
-    preconditions:
-      - sh: "command -v python3 >/dev/null 2>&1"
-        msg: "❌ Python 3 is not installed"
-      - sh: "test -f {{.TASK_KUBESEAL_PYTHON_VERSION_FILE}}"
-        msg: "❌ Python version file not found at {{.TASK_KUBESEAL_PYTHON_VERSION_FILE}}"
-      - sh: "test -f {{.TASK_KUBESEAL_ANSIBLE_REQUIREMENTS_FILE}}"
-        msg: "❌ Requirements file not found at {{.TASK_KUBESEAL_ANSIBLE_REQUIREMENTS_FILE}}"
-    cmds:
-      - cmd: echo "🔄 Starting install dependencies phase"
-        silent: true
-      - python$(cut -d '=' -f 2 {{.TASK_KUBESEAL_PYTHON_VERSION_FILE}}) -m venv {{.TASK_KUBESEAL_VENV_DIR}}
-      - "{{.TASK_KUBESEAL_VENV_DIR}}/bin/pip install -r {{.TASK_KUBESEAL_ANSIBLE_REQUIREMENTS_FILE}}"
-      - cmd: echo "🎉 Install dependencies phase completed successfully"
-        silent: true
-
   install:
     desc: |
       ℹ️ Description:
@@ -83,9 +48,8 @@ tasks:
     cmds:
       - cmd: echo "🔄 Starting kubeseal installation phase"
         silent: true
-      - task: install:dependencies
       - |
-        {{.TASK_KUBESEAL_ANSIBLE_CMD}} \
+        {{.TASK_ANSIBLE_COMMAND}} ansible-playbook \
           -i {{.TASK_KUBESEAL_ANSIBLE_INVENTORY_TARGET}}, \
           -e "kubeseal_version={{.TASK_KUBESEAL_VERSION}}" \
           {{.TASK_KUBESEAL_ANSIBLE_PLAYBOOK_FILE}}
