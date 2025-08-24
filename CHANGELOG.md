@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 12.6.5 (2025-08-24)
+
+### Fix
+
+- **deps**: update dependency commitizen to v3.31.0
+
 ## 12.6.4 (2025-08-24)
 
 ### Fix
