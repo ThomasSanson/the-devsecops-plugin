@@ -3,13 +3,8 @@ version: "3"
 
 vars:
   TASK_PODMAN_ENABLED: '{{.TASK_PODMAN_ENABLED | default "false"}}'
-  TASK_PODMAN_VENV_DIR: '{{.TASK_PODMAN_VENV_DIR | default "./venv/podman"}}'
-  TASK_PODMAN_ANSIBLE_CMD: '{{.TASK_PODMAN_ANSIBLE_CMD | default "./venv/podman/bin/ansible-playbook"}}'
-  TASK_PODMAN_ANSIBLE_GALAXY_CMD: '{{.TASK_PODMAN_ANSIBLE_GALAXY_CMD | default "./venv/podman/bin/ansible-galaxy"}}'
-  TASK_PODMAN_ANSIBLE_REQUIREMENTS_FILE: '{{.TASK_PODMAN_ANSIBLE_REQUIREMENTS_FILE | default ".config/podman/requirements.txt"}}'
   TASK_PODMAN_ANSIBLE_ROLES_REQUIREMENTS: '{{.TASK_PODMAN_ANSIBLE_ROLES_REQUIREMENTS | default ".config/podman/requirements.yml"}}'
   TASK_PODMAN_ANSIBLE_PLAYBOOK_FILE: '{{.TASK_PODMAN_ANSIBLE_PLAYBOOK_FILE | default ".config/podman/playbook.yml"}}'
-  TASK_PODMAN_PYTHON_VERSION_FILE: '{{.TASK_PODMAN_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
   TASK_PODMAN_ANSIBLE_INVENTORY_TARGET: "localhost" # DevSkim: ignore DS162092
 
 env:
@@ -19,36 +14,6 @@ env:
   ANSIBLE_ROLES_PATH: ".config/podman/roles"
 
 tasks:
-  install:dependencies:
-    desc: |
-      ℹ️ Description:
-        Sets up Ansible and its dependencies in a dedicated virtual environment
-
-      🔧 Variables:
-        - TASK_PODMAN_VENV_DIR: Virtual environment location
-        - TASK_PODMAN_ANSIBLE_REQUIREMENTS_FILE: Dependencies file path
-
-      🔐 Preconditions:
-        - Python 3.x must be installed
-        - Internet connectivity required
-
-      🔄 Execution:
-        Creates virtualenv and installs required packages
-    preconditions:
-      - sh: "command -v python3 >/dev/null 2>&1"
-        msg: "❌ Python 3 is not installed"
-      - sh: "test -f {{.TASK_PODMAN_PYTHON_VERSION_FILE}}"
-        msg: "❌ Python version file not found at {{.TASK_PODMAN_PYTHON_VERSION_FILE}}"
-      - sh: "test -f {{.TASK_PODMAN_ANSIBLE_REQUIREMENTS_FILE}}"
-        msg: "❌ Requirements file not found at {{.TASK_PODMAN_ANSIBLE_REQUIREMENTS_FILE}}"
-    cmds:
-      - cmd: echo "🔄 Starting install dependencies phase"
-        silent: true
-      - python$(cut -d '=' -f 2 {{.TASK_PODMAN_PYTHON_VERSION_FILE}}) -m venv {{.TASK_PODMAN_VENV_DIR}}
-      - "{{.TASK_PODMAN_VENV_DIR}}/bin/pip install -r {{.TASK_PODMAN_ANSIBLE_REQUIREMENTS_FILE}}"
-      - cmd: echo "🎉 Install dependencies phase completed successfully"
-        silent: true
-
   install:roles:
     desc: |
       ℹ️ Description:
@@ -63,7 +28,6 @@ tasks:
 
       🔄 Execution:
         Installs required Ansible roles
-    deps: [install:dependencies]
     preconditions:
       - sh: "test -f {{.TASK_PODMAN_ANSIBLE_ROLES_REQUIREMENTS}}"
         msg: "❌ Roles requirements file not found at {{.TASK_PODMAN_ANSIBLE_ROLES_REQUIREMENTS}}"
@@ -71,7 +35,7 @@ tasks:
       - cmd: echo "🔄 Starting install roles phase"
         silent: true
       - mkdir -p .config/podman/roles
-      - "{{.TASK_PODMAN_ANSIBLE_GALAXY_CMD}} install -r {{.TASK_PODMAN_ANSIBLE_ROLES_REQUIREMENTS}} --roles-path .config/podman/roles"
+      - "{{.TASK_ANSIBLE_COMMAND}} ansible-galaxy install -r {{.TASK_PODMAN_ANSIBLE_ROLES_REQUIREMENTS}} --roles-path .config/podman/roles"
       - cmd: echo "🎉 Install roles phase completed successfully"
         silent: true
 
@@ -101,7 +65,7 @@ tasks:
       - defer: { task: cleanup }
       - task: install:roles
       - |
-        {{.TASK_PODMAN_ANSIBLE_CMD}} \
+        {{.TASK_ANSIBLE_COMMAND}} ansible-playbook \
           -i {{.TASK_PODMAN_ANSIBLE_INVENTORY_TARGET}}, \
           -c local \
           {{.TASK_PODMAN_ANSIBLE_PLAYBOOK_FILE}} \
