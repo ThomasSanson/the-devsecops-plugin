@@ -1,7 +1,7 @@
 ---
 release:
   stage: release
-  needs: []  # Allows parallel execution
+  needs: [] # Allows parallel execution
   extends: .default-tags
   variables:
     # Variables for Docker (likely used within 'task release')
