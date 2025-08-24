@@ -3,13 +3,8 @@ version: "3"
 
 vars:
   TASK_HELM_ENABLED: '{{.TASK_HELM_ENABLED | default "false"}}'
-  TASK_HELM_VENV_DIR: '{{.TASK_HELM_VENV_DIR | default "./venv/helm"}}'
-  TASK_HELM_ANSIBLE_CMD: '{{.TASK_HELM_ANSIBLE_CMD | default "./venv/helm/bin/ansible-playbook"}}'
-  TASK_HELM_ANSIBLE_GALAXY_CMD: '{{.TASK_HELM_ANSIBLE_GALAXY_CMD | default "./venv/helm/bin/ansible-galaxy"}}'
-  TASK_HELM_ANSIBLE_REQUIREMENTS_FILE: '{{.TASK_HELM_ANSIBLE_REQUIREMENTS_FILE | default ".config/helm/requirements.txt"}}'
   TASK_HELM_ANSIBLE_ROLES_REQUIREMENTS: '{{.TASK_HELM_ANSIBLE_ROLES_REQUIREMENTS | default ".config/helm/requirements.yml"}}'
   TASK_HELM_ANSIBLE_PLAYBOOK_FILE: '{{.TASK_HELM_ANSIBLE_PLAYBOOK_FILE | default ".config/helm/playbook.yml"}}'
-  TASK_HELM_PYTHON_VERSION_FILE: '{{.TASK_HELM_PYTHON_VERSION_FILE | default ".config/python/.python-version"}}'
   TASK_HELM_ANSIBLE_INVENTORY_TARGET: "localhost" # DevSkim: ignore DS162092
   TASK_HELM_MAJOR_VERSION: '{{.TASK_HELM_MAJOR_VERSION | default "v3.17.1"}}'
   TASK_HELM_DIR: '{{.TASK_HELM_DIR | default ""}}'
@@ -24,36 +19,6 @@ env:
   ANSIBLE_ROLES_PATH: ".config/helm/roles"
 
 tasks:
-  install:dependencies:
-    desc: |
-      ℹ️ Description:
-        Sets up Ansible and its dependencies in a dedicated virtual environment
-
-      🔧 Variables:
-        - TASK_HELM_VENV_DIR: Virtual environment location
-        - TASK_HELM_ANSIBLE_REQUIREMENTS_FILE: Dependencies file path
-
-      🔐 Preconditions:
-        - Python 3.x must be installed
-        - Internet connectivity required
-
-      🔄 Execution:
-        Creates virtualenv and installs required packages
-    preconditions:
-      - sh: "command -v python3 >/dev/null 2>&1"
-        msg: "❌ Python 3 is not installed"
-      - sh: "test -f {{.TASK_HELM_PYTHON_VERSION_FILE}}"
-        msg: "❌ Python version file not found at {{.TASK_HELM_PYTHON_VERSION_FILE}}"
-      - sh: "test -f {{.TASK_HELM_ANSIBLE_REQUIREMENTS_FILE}}"
-        msg: "❌ Requirements file not found at {{.TASK_HELM_ANSIBLE_REQUIREMENTS_FILE}}"
-    cmds:
-      - cmd: echo "🔄 Starting install dependencies phase"
-        silent: true
-      - python$(cut -d '=' -f 2 {{.TASK_HELM_PYTHON_VERSION_FILE}}) -m venv {{.TASK_HELM_VENV_DIR}}
-      - "{{.TASK_HELM_VENV_DIR}}/bin/pip install -r {{.TASK_HELM_ANSIBLE_REQUIREMENTS_FILE}}"
-      - cmd: echo "🎉 Install dependencies phase completed successfully"
-        silent: true
-
   install:roles:
     desc: |
       ℹ️ Description:
@@ -68,7 +33,6 @@ tasks:
 
       🔄 Execution:
         Installs required Ansible roles
-    deps: [install:dependencies]
     preconditions:
       - sh: "test -f {{.TASK_HELM_ANSIBLE_ROLES_REQUIREMENTS}}"
         msg: "❌ Roles requirements file not found at {{.TASK_HELM_ANSIBLE_ROLES_REQUIREMENTS}}"
@@ -76,7 +40,7 @@ tasks:
       - cmd: echo "🔄 Starting install roles phase"
         silent: true
       - mkdir -p .config/helm/roles
-      - "{{.TASK_HELM_ANSIBLE_GALAXY_CMD}} install -r {{.TASK_HELM_ANSIBLE_ROLES_REQUIREMENTS}} --roles-path .config/helm/roles"
+      - "{{.TASK_ANSIBLE_COMMAND}} ansible-galaxy install -r {{.TASK_HELM_ANSIBLE_ROLES_REQUIREMENTS}} --roles-path .config/helm/roles"
       - cmd: echo "🎉 Install roles phase completed successfully"
         silent: true
 
@@ -107,7 +71,7 @@ tasks:
       - defer: { task: cleanup }
       - task: install:roles
       - |
-        {{.TASK_HELM_ANSIBLE_CMD}} \
+        {{.TASK_ANSIBLE_COMMAND}} ansible-playbook \
           -i {{.TASK_HELM_ANSIBLE_INVENTORY_TARGET}}, \
           -c local \
           -e "helm_version={{.TASK_HELM_MAJOR_VERSION}}" \
