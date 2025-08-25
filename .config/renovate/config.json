@@ -8,6 +8,13 @@
   "onboarding": false,
   "requireConfig": "optional",
   "prConcurrentLimit": 1,
+
+  "automerge": true,
+  "platformAutomerge": true,
+  "automergeType": "pr",
+  "automergeStrategy": "fast-forward",
+  "prCreation": "immediate",
+
   "semanticCommits": "enabled",
   "semanticCommitType": "fix",
   "semanticCommitScope": "deps",
