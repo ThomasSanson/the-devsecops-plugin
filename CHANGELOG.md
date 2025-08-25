@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 13.0.0 (2025-08-25)
+
+### Fix
+
+- **feedback.yml**: update needs section to include optional release job for better job dependency management
+
 ## 12.6.5 (2025-08-24)
 
 ### Fix
