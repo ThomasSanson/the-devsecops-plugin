@@ -1,7 +1,9 @@
 ---
 feedback:
   stage: feedback
-  needs: [] # Allows parallel execution
+  needs:
+    - job: release
+      optional: true
   extends: .default-tags
   script:
     - task feedback
