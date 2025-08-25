@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 13.0.3 (2025-08-25)
+
+### Fix
+
+- **deps**: update dependency yamllint to v1.37.1
+
 ## 13.0.2 (2025-08-25)
 
 ### Fix
