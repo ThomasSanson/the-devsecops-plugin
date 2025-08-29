@@ -1,3 +1,9 @@
+## 13.0.5 (2025-08-29)
+
+### Fix
+
+- **deps**: update dependency @codeceptjs/ui to v1.3.1
+
 ## 13.0.4 (2025-08-25)
 
 ### Fix
