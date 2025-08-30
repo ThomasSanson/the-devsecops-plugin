@@ -1,3 +1,9 @@
+## 13.0.8 (2025-08-30)
+
+### Fix
+
+- **deps**: update dependency copier to v9.10.1
+
 ## 13.0.7 (2025-08-30)
 
 ### Fix
