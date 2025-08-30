@@ -1,3 +1,9 @@
+## 13.0.7 (2025-08-30)
+
+### Fix
+
+- **deps**: update dependency @types/node to v22.18.0
+
 ## 13.0.6 (2025-08-30)
 
 ### Fix
