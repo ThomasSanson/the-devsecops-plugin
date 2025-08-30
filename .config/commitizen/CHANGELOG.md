@@ -1,3 +1,9 @@
+## 13.0.6 (2025-08-30)
+
+### Fix
+
+- **deps**: update dependency ansible-core to v2.19.1
+
 ## 13.0.5 (2025-08-29)
 
 ### Fix
