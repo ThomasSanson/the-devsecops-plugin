@@ -1,3 +1,9 @@
+## 13.0.10 (2025-09-04)
+
+### Fix
+
+- **deps**: update dependency @types/node to v22.18.1
+
 ## 13.0.9 (2025-09-01)
 
 ### Fix
