@@ -1,3 +1,9 @@
+## 13.0.11 (2025-09-05)
+
+### Fix
+
+- **deps**: update dependency commitizen to v4.8.4
+
 ## 13.0.10 (2025-09-04)
 
 ### Fix
