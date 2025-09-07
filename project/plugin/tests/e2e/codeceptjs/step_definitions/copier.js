@@ -261,6 +261,7 @@ Given('a project has been generated with the DevSecOps plugin', function () { //
 
   executeCommand('git add .', getProjectRoot())
   executeCommand('git commit -m"feat: init"', getProjectRoot())
+  executeCommand('git tag 0.1.0', getProjectRoot())
   const taskfile = resolveProjectPath('.config', 'devsecops', 'Taskfile.test.yml')
   assertFileExists(taskfile, `DevSecOps Taskfile.test.yml not found: ${taskfile}`)
 })
