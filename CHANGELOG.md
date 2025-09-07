@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 13.1.3 (2025-09-07)
+
+### Fix
+
+- **ci**: update comments and reorder rules in code.yml for clarity and consistency
+
 ## 13.1.2 (2025-09-07)
 
 ### Fix
