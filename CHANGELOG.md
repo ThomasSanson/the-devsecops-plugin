@@ -2,6 +2,67 @@
 
 # Changelog
 
+## 13.1.0 (2025-09-07)
+
+### Feat
+
+- **copier.js**: add git tag command to mark the initial version of the project
+- **ci**: restructure GitLab CI configuration to implement multiple code checks in parallel and improve maintainability
+- **install.sh**: add installation script for UV to ensure proper setup if not present
+- **install.sh**: add a script for automatic installation of unzip across various Linux distributions
+- **install.sh**: add installation script for Taskfile to automate setup process
+- **install.sh**: add a script for automated pipx installation across various Linux distributions
+- **install.sh**: add a generic script for installing git on common Linux distributions
+- **curl**: add generic curl installation script for common Linux distros to simplify setup process
+
+## 13.0.11 (2025-09-05)
+
+### Fix
+
+- **deps**: update dependency commitizen to v4.8.4
+
+## 13.0.10 (2025-09-04)
+
+### Fix
+
+- **deps**: update dependency @types/node to v22.18.1
+
+## 13.0.9 (2025-09-01)
+
+### Fix
+
+- **deps**: update dependency @codeceptjs/ui to v1.3.7
+
+## 13.0.8 (2025-08-30)
+
+### Fix
+
+- **deps**: update dependency copier to v9.10.1
+
+## 13.0.7 (2025-08-30)
+
+### Fix
+
+- **deps**: update dependency @types/node to v22.18.0
+
+## 13.0.6 (2025-08-30)
+
+### Fix
+
+- **deps**: update dependency ansible-core to v2.19.1
+
+## 13.0.5 (2025-08-29)
+
+### Fix
+
+- **deps**: update dependency @codeceptjs/ui to v1.3.1
+
+## 13.0.4 (2025-08-25)
+
+### Fix
+
+- **deps**: update dependency commitizen to v4
+
 ## 13.0.3 (2025-08-25)
 
 ### Fix
@@ -66,8 +127,6 @@
 - **Taskfile**: add support for dynamic Python version retrieval in copier tasks to enhance flexibility
 - **commitizen**: add Python version handling to Taskfile for better compatibility with Python environments
 - **ansible**: add Python version handling to Taskfile for improved compatibility
-- **commitizen**: add TASK_COMMITIZEN_COMMAND to define default command for commitizen tasks
-- **ci**: add pipx installation and setup for managing Python packages in before_script configuration
 
 ### Refactor
 
@@ -92,17 +151,22 @@
 
 ## 12.4.1 (2025-08-22)
 
+### Feat
+
+- **commitizen**: add TASK_COMMITIZEN_COMMAND to define default command for commitizen tasks
+- **ci**: add pipx installation and setup for managing Python packages in before_script configuration
+
 ### Fix
 
 - **Taskfile.feedback.yml**: enhance current branch resolution logic to prioritize CI variables before falling back to git commands
 
 ## 12.4.0 (2025-08-22)
 
+## 12.3.1 (2025-08-21)
+
 ### Feat
 
 - **Taskfile.feedback.yml**: add echo commands to display Git and Renovate variables for better debugging
-
-## 12.3.1 (2025-08-21)
 
 ### Fix
 
@@ -132,6 +196,21 @@
 
 ## 12.2.0 (2025-08-20)
 
+## 12.1.3 (2025-08-20)
+
+### Fix
+
+- **deps**: update dependency codeceptjs to v3.7.4
+
+## 12.1.2 (2025-08-20)
+
+### Fix
+
+- **copier**: update copier version from 9.4.1 to 9.9.1 for improved features and fixes
+- **deps**: update codeceptjs/codeceptjs docker tag to v3.7.4
+
+## 12.1.1 (2025-08-19)
+
 ### Feat
 
 - **ci**: add renovate variables for repository and platform in CI configuration
@@ -149,6 +228,7 @@
 
 ### Fix
 
+- **deps**: update dependency @codeceptjs/ui to v1.2.5
 - **renovate**: change default platform from gitlab to local and update environment variable handling for consistency
 - **Taskfile.feedback.yml**: simplify renovate task command by removing unnecessary run suffix
 - **renovate**: update enabledManagers and configuration fields in renovate_plugin_only.feature to reflect new plugin requirements
@@ -157,25 +237,6 @@
 ### Refactor
 
 - **renovate**: enhance Taskfile with safer shell practices and improved command construction for Renovate execution
-
-## 12.1.3 (2025-08-20)
-
-### Fix
-
-- **deps**: update dependency codeceptjs to v3.7.4
-
-## 12.1.2 (2025-08-20)
-
-### Fix
-
-- **copier**: update copier version from 9.4.1 to 9.9.1 for improved features and fixes
-- **deps**: update codeceptjs/codeceptjs docker tag to v3.7.4
-
-## 12.1.1 (2025-08-19)
-
-### Fix
-
-- **deps**: update dependency @codeceptjs/ui to v1.2.5
 
 ## 12.1.0 (2025-07-02)
 
@@ -621,11 +682,38 @@
 
 - **Taskfile**: add build and push tasks for Docker images with authentication support and customizable labels to enhance Docker management capabilities
 - **Taskfile.release.yml**: add Docker CE build and push task with conditional execution based on TASK_DOCKER_CE_ENABLED variable to enhance deployment flexibility
+- **kaniko**: add Dockerfile for Kaniko to facilitate container image builds
+- **Dockerfile**: set entrypoint to ensure .bashrc is always sourced for a consistent shell environment
+- **Taskfile**: add check for bunx command in task preconditions to ensure all dependencies are available
+- **dependency-check**: add TASK_DEPENDENCY_CHECK_USER variable for user configuration in Docker command
+- **Taskfile.release.yml**: add environment variables for Commitizen bump process to enhance release automation and control
+- **kaniko**: add authentication settings for registry access and update build process to support authentication
+- **release**: add variables for default and current branch in Taskfile for better release management
+- **Taskfile.release.yml**: add Kaniko image push task with conditional execution based on TASK_KANIKO_ENABLED variable to enhance CI/CD process
+- **requirements**: add requirements.txt for Ansible dependencies to manage project setup and ensure compatibility
+- **Taskfile**: enhance Node.js installation process with Ansible automation and virtual environment setup
+- **playbook**: add Ansible playbook for installing Node.js with configurable version to streamline setup process
+- **kaniko**: update cache repository path to use $HOME for better portability and add cache directory preparation logic
+- **kaniko**: add runtime command and volume flag variables for flexibility in container execution
+- **Taskfile**: enhance DevSecOps task management with individual enable flags for better control over task execution
+- **kaniko**: add Taskfile.yml for building and caching container images with Kaniko to streamline image creation and improve build efficiency
+- **Taskfile**: add TASK_DEVSECOPS_BUILD_ENABLED variable to control DevSecOps build execution
+- **Taskfile**: add support for Kaniko task configuration to enhance build capabilities and flexibility
+- **debian.sh**: add function to update Node.js to the latest minor version using n package manager for better version management
 
 ### Fix
 
 - **Taskfile.yml**: update bun and bunx command paths to use absolute paths for better reliability in task execution
 - **ci**: enable DOCKER_TLS_VERIFY by setting it to 1 for improved security in CI pipeline
+- **Dockerfile**: remove unnecessary blank line to maintain a cleaner Dockerfile structure
+- **release**: enhance Kaniko task to read version from VERSION file and set image tag accordingly
+- **kaniko**: update TASK_KANIKO_RUNTIME_CMD to use docker instead of podman for better compatibility with existing workflows
+
+### Refactor
+
+- **kaniko**: restructure build command to include authentication setup and improve error handling for missing credentials
+- **kaniko**: replace hardcoded docker commands with variable references to support different container runtimes
+- **Taskfile**: modify devsecops build task to conditionally execute based on TASK_DEVSECOPS_BUILD_ENABLED variable
 
 ## 3.0.0 (2024-12-15)
 
@@ -761,11 +849,23 @@ chore(podman): add .gitignore for roles directory to prevent unnecessary trackin
 - **lizard**: add Taskfile for Lizard code complexity analysis and requirements file for dependencies
 - **docker**: add Taskfile for Docker installation and management tasks
 - **docker**: create installation script for Debian-based systems
-  feat(docker): implement testing framework for Docker installation process
+feat(docker): implement testing framework for Docker installation process
 - **devcontainer**: add Dockerfile and related scripts for Debian-based environment setup
 - **Taskfile**: add Taskfile.yml to configure the development environment with Docker, Node.js, and Bun installations
 - **dependency-check**: add Taskfile.yml for managing Dependency-Check tasks to streamline security analysis process
 - **commitlint**: add commitlint configuration and Taskfile for commit message validation
+- **commitizen**: add Commitizen configuration and setup for standardized commit messages
+- **taskfile**: add Taskfile for managing Bun JavaScript runtime installation, configuration, and uninstallation
+- **linter**: add MegaLinter configuration and task file for code analysis
+- **nodejs**: add Taskfile for Node.js installation and testing automation
+- **nodejs**: create debian.sh script for managing Node.js installation
+test(nodejs): add tests for checking NODEJS_MAJOR_VERSION and root execution
+test(nodejs): add full installation test for Node.js with defined version
+- **trivy**: add Trivy configuration and ignore files for better security scanning management
+- **yamllint**: add configuration files and task management for yamllint to ensure consistent YAML formatting and linting in the project
+- **devcontainer**: add Debian dev container configuration for development environment setup
+- **ci**: add GitLab CI configuration for automated build and deployment pipeline
+- **Taskfile**: add a central Taskfile for orchestrating development operations and workflows
 
 ### Fix
 
