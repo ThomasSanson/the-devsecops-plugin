@@ -1,12 +1,5 @@
----
-code:
-  stage: code
-  retry: 1
-  needs: [] # Allows parallel execution
-  tags:
-    - saas-linux-medium-amd64
-  script:
-    - task code
+# .gitlab-ci.yml
+.code-rules: &code_rules
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_ALL_SCHEDULE == "1"'
       when: always
@@ -14,8 +7,91 @@ code:
       when: always
     - if: $CI_COMMIT_TAG =~ /^staging$/
       when: never
-    # Do not execute default jobs on the main branch
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       when: never
-    # Run in all other cases (MRs, feature branches, etc.)
     - when: always
+
+# One job per check (all in parallel thanks to same stage + needs: [])
+code:project:
+  stage: code
+  image: ubuntu:24.04
+  needs: []
+  tags: [saas-linux-medium-amd64]
+  script:
+    - task project:code
+  <<: *code_rules
+
+code:commitlint:
+  stage: code
+  image: ubuntu:24.04
+  needs: []
+  script:
+    - task commitlint
+  <<: *code_rules
+
+code:commitizen-check:
+  stage: code
+  image: ubuntu:24.04
+  needs: []
+  script:
+    - task commitizen:check
+  <<: *code_rules
+
+code:commitizen-bump-dry:
+  stage: code
+  image: ubuntu:24.04
+  needs: []
+  script:
+    - TASK_COMMITIZEN_BUMP_YES=true TASK_COMMITIZEN_BUMP_DRY_RUN=true task commitizen:bump
+  <<: *code_rules
+
+code:lizard:
+  stage: code
+  image: ubuntu:24.04
+  needs: []
+  script:
+    - task lizard
+  <<: *code_rules
+
+code:renovate-validate:
+  stage: code
+  needs: []
+  script:
+    - task renovate:validate
+  <<: *code_rules
+
+code:megalinter:
+  stage: code
+  needs: []
+  tags: [saas-linux-medium-amd64]
+  script:
+    - task megalinter
+  artifacts:
+    when: always
+    expire_in: 2 days
+    paths:
+      - megalinter-reports/
+  allow_failure: false
+  rules:
+    # 1) If the variable equals "true", set the job to allow_failure
+    - if: '$MEGALINTER_ALLOW_FAILURE == "true"'
+      allow_failure: true
+      when: always
+    # 2) Re-inject the common rules via the anchor
+    - !reference [.code-rules, rules]
+
+# (Optional) Aggregator waiting for all checks
+code:all:
+  stage: code
+  image: ubuntu:24.04
+  needs:
+    - code:project
+    - code:commitlint
+    - code:commitizen-check
+    - code:commitizen-bump-dry
+    - code:lizard
+    - code:renovate-validate
+    - code:megalinter
+  script:
+    - echo "✅ All code checks passed."
+  <<: *code_rules
