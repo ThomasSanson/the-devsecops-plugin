@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 13.1.2 (2025-09-07)
+
+### Fix
+
+- **commitizen**: add changelog_file configuration to specify changelog location
+
 ## 13.1.1 (2025-09-07)
 
 ### Fix
