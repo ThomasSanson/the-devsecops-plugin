@@ -12,6 +12,8 @@ vars:
 tasks:
   default:
     desc: Check commit messages with commitlint.
+    deps:
+      - :bun:install
     summary: |
       ℹ️ Description:
         Runs commitlint to check commit messages.
