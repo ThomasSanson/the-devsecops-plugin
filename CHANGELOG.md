@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 13.1.1 (2025-09-07)
+
+### Fix
+
+- **changelog**: update changelog to reflect new features, fixes, and refactors for version 13.1.0 and previous versions
+
 ## 13.1.0 (2025-09-07)
 
 ### Feat

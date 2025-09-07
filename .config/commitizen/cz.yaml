@@ -1,11 +1,11 @@
 ---
 commitizen:
   bump_message: "build: bump version $current_version \u2192 $new_version [skip ci]"
+  changelog_file: ../../CHANGELOG.md
   name: cz_conventional_commits
   tag_format: $version
   update_changelog_on_bump: false
-  changelog_file: ../../CHANGELOG.md
-  version: 13.1.0
+  version: 13.1.1
   version_files:
   - .config/codeceptjs/Taskfile.yml
   - .gitlab-ci.yml
