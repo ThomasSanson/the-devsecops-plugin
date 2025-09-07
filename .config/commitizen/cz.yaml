@@ -6,11 +6,11 @@ commitizen:
   update_changelog_on_bump: false
   version: 13.0.11
   version_files:
-  - .config/codeceptjs/Taskfile.yml
-  - .gitlab-ci.yml
-  - .gitlab-ci.yml.jinja
-  - iac/helm/Chart.yaml:version
-  - VERSION
+    - .config/codeceptjs/Taskfile.yml
+    - .gitlab-ci.yml
+    - .gitlab-ci.yml.jinja
+    - iac/helm/Chart.yaml:version
+    - VERSION
   version_pattern: '(image: registry\.gitlab\.com/digital-commons/devsecops/tools/the-devsecops-plugin:)([0-9]+\.[0-9]+\.[0-9]+.*)'
   version_provider: commitizen
   version_scheme: semver2
