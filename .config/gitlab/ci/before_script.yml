@@ -1,15 +1,21 @@
----
 before_script:
-  # Install Taskfile if not present
-  - |
-    if ! command -v task &> /dev/null; then
-      echo "Taskfile not found. Installation in progress..."
-      sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
-    else
-      echo "Taskfile already installed."
-    fi
-    task --version
+  # Install curl (external script)
+  - .config/curl/install.sh
+
+  # Install git (external script)
+  - .config/git/install.sh
+
+  # Install Taskfile (external script)
+  - .config/task/install.sh
+
+  # Install unzip (external script)
+  - .config/unzip/install.sh
+
+  # Install UV (external script)
+  - .config/uv/install.sh
+
   # Execute the initialization Taskfile
   - task dev:init
+
   # Source bash profile (optional; only if present)
   - test -f ~/.bash_profile && . ~/.bash_profile || true
