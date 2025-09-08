@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 13.1.4 (2025-09-08)
+
+### Fix
+
+- **ci**: reorder rules in code.yml for better clarity and organization
+
 ## 13.1.3 (2025-09-07)
 
 ### Fix
