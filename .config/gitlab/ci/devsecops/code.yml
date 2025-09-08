@@ -73,12 +73,11 @@ code:megalinter:
       - megalinter-reports/
   allow_failure: false
   rules:
-    # 1) Re-inject the common rules via the anchor
-    - !reference [.code-rules, rules]
-    # 2) If the variable equals "true", set the job to allow_failure
+    # 1) If the variable equals "true", set the job to allow_failure
     - if: '$MEGALINTER_ALLOW_FAILURE == "true"'
       allow_failure: true
-      when: always
+    # 2) Re-inject the common rules via the anchor
+    - !reference [.code-rules, rules]
 
 # (Optional) Aggregator waiting for all checks
 code:all:
