@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 13.1.7 (2025-09-10)
+
+### Fix
+
+- **deps**: update dependency commitizen to v4.9.1
+
 ## 13.1.6 (2025-09-09)
 
 ### Fix
