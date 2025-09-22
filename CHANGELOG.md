@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 13.1.12 (2025-09-22)
+
+### Fix
+
+- **deps**: update codeceptjs/codeceptjs docker tag to v3.7.5
+
 ## 13.1.11 (2025-09-18)
 
 ### Fix
