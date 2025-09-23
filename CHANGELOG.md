@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 13.1.14 (2025-09-23)
+
+### Fix
+
+- **deps**: update dependency playwright to v1.55.1
+
 ## 13.1.13 (2025-09-23)
 
 ### Fix
