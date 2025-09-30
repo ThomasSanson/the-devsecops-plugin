@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 13.1.16 (2025-09-30)
+
+### Fix
+
+- **deps**: update dependency typescript to v5.9.3
+
 ## 13.1.15 (2025-09-29)
 
 ### Fix
