@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 13.1.18 (2025-10-01)
+
+### Fix
+
+- **deps**: update dependency lizard to v1.18.0
+
 ## 13.1.17 (2025-09-30)
 
 ### Fix
