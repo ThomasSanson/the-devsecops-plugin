@@ -2,7 +2,7 @@
 # Taskfile.yml: Central hub for development operations.
 version: "3"
 
-dotenv: [".env", ".env.dist"]
+dotenv: ['.env', '.env.dev', '.env.dist']
 
 vars:
   # Environment variables for task control
@@ -60,6 +60,12 @@ includes:
     optional: true
   docker-ce:
     taskfile: .config/docker-ce/Taskfile.yml
+    optional: true
+  git:
+    taskfile: .config/git/Taskfile.yml
+    optional: true
+  gitleaks:
+    taskfile: .config/gitleaks/Taskfile.yml
     optional: true
   go:
     taskfile: .config/go/Taskfile.yml
