@@ -11,5 +11,9 @@ Feature: Renovate plugin-only configuration
     And the ".config/renovate/config.json" file should exist
     And the content of the file ".config/renovate/config.json" should contain:
       """
-      "enabledManagers": ["copier"]
+      "matchManagers": ["copier"]
+      """
+    And the content of the file ".config/renovate/config.json" should contain:
+      """
+      "matchPaths": ["project/**"]
       """
