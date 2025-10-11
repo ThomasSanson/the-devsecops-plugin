@@ -2,6 +2,36 @@
 
 # Changelog
 
+## 14.0.0 (2025-10-11)
+
+### Feat
+
+- **codecept.conf.js**: add output directory for CodeceptJS test results to organize generated files
+- **lefthook**: add gitleaks command to pre-commit hooks for security checks
+- **Taskfile**: add support for additional environment files and include new taskfiles for git and gitleaks
+- **renovate**: enhance configuration to support DevSecOps updates and auto-detect project dependencies
+- **ci**: update test job to use Ubuntu 24.04 image and add artifacts for diagnostics and project files on failure
+- **ci**: add pipx installation of copier in feedback CI job for enhanced task management
+- **ci**: enhance CI configuration by adding gitleaks job and refining rules for scheduled pipelines and specific tags/branches
+- **devsecops**: add build coverage validation task to ensure Docker Compose files have corresponding build tasks
+- **devsecops**: add gitleaks scan-branch task to enhance security checks
+- **install.sh**: add installation script for Python3 on Debian/Ubuntu systems
+- **install.sh**: add installation script for Node.js with support for multiple package managers
+- **gitleaks**: add Taskfile configuration for gitleaks to scan for secrets in repository and staged files
+- **ci**: add GitLab CI cache configuration for Playwright to optimize pipeline performance
+- **Taskfile**: add Taskfile.yml for managing Git tasks and hooks installation
+- **docker**: add installation script for Docker CLI to streamline setup process
+- **devsecops**: add a script to check Docker Compose build coverage against Taskfiles for improved validation
+
+### Fix
+
+- **commitizen**: remove unnecessary version files from configuration to streamline version management
+- **deps**: update dependency @types/node to v22.18.10
+- **ci**: update gitleaks task from 'gitleaks:ci' to 'gitleaks:scan-branch' for accurate scanning functionality
+- **renovate**: update feature file to reflect changes in configuration keys for Renovate plugin settings
+- **Taskfile.yml**: update CMD to include package flag for renovate command to ensure proper execution
+- **Taskfile**: update codeceptjs task to use npx for better execution context
+
 ## 13.1.22 (2025-10-09)
 
 ### Fix
