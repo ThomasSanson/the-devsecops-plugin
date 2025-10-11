@@ -27,7 +27,7 @@ tasks:
           set -eu
 
           # Start building the command early
-          CMD="npx --yes renovate"
+          CMD="npx --yes -p renovate renovate"
 
           # Append dry-run argument directly
           case "{{.TASK_RENOVATE_DRY_RUN}}" in
