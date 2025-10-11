@@ -1,11 +1,18 @@
 ---
 test:
   stage: test
+  image: ubuntu:24.04
   retry: 1
   needs: [] # Allows parallel execution
   extends: .default-tags
   script:
     - task test
+  artifacts:
+    when: on_failure
+    paths:
+      - .diagnostics
+      - project
+    expire_in: 3 days
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_ALL_SCHEDULE == "1"'
       when: always
