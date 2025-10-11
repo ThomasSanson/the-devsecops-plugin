@@ -1,0 +1,21 @@
+---
+# GitLab CI Cache Configuration
+#
+# Documentation: https://docs.gitlab.com/ee/ci/caching/
+
+cache:
+  # Cache key based on Playwright version in Taskfile
+  # This ensures cache is invalidated when Playwright version changes
+  key:
+    files:
+      - .config/codeceptjs/Taskfile.yml
+    prefix: "codeceptjs-playwright"
+  paths:
+    # Playwright browsers cache (920MB, saves ~3-4 minutes per pipeline)
+    # Browsers are downloaded once and reused across all pipeline jobs
+    - .cache/codeceptjs/playwright/
+  # Use pull-push policy to update cache on every job
+  # Jobs pull the cache at start and push updates at the end
+  policy: pull-push
+  # Only save cache when job succeeds
+  when: on_success
