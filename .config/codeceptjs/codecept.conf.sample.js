@@ -1,62 +1,51 @@
 exports.config = {
-  output: '../../tests/e2e/codeceptjs/output',
+  output: './_output',
+  include: {
+    I: '../../../.config/codeceptjs/steps_file.js',
+    Admin: './actors/Admin.js',
+    ApplicationLoginPage: './pages/LoginPage.js',
+    ApplicationHomePage: './pages/HomePage.js'
+  },
   helpers: {
     Playwright: {
       browser: 'chromium',
-      url: process.env.CODECEPTJS_BASE_URL || 'http://localhost:8080', // # DevSkim: ignore DS162092
+      url: process.env.CODECEPTJS_BASE_URL,
       show: false,
-      windowSize: '1920x1080'
+      windowSize: '1920x1080',
+      waitForNavigation: 'domcontentloaded',
+      ignoreHTTPSErrors: true,
+      chromium: {
+        args: [
+          '--ignore-certificate-errors',
+          '--font-render-hinting=none',
+          '--disable-font-subpixel-positioning',
+          '--disable-lcd-text'
+        ]
+      }
     },
     ResembleHelper: {
       require: 'codeceptjs-resemblehelper',
-      screenshotFolder: '../../tests/e2e/codeceptjs/output/',
-      baseFolder: '../../tests/e2e/codeceptjs/screenshots/base/',
-      diffFolder: '../../tests/e2e/codeceptjs/screenshots/diff/'
+      screenshotFolder: './_output/',
+      baseFolder: './screenshots/base/',
+      diffFolder: './screenshots/diff/'
     }
   },
-  include: {
-    I: './steps_file.js'
-  },
-  mocha: {},
-  bootstrap: null,
-  timeout: null,
-  teardown: null,
   hooks: [],
   gherkin: {
-    features: '../../project/**/*.feature',
+    features: './features/**/*.feature',
     steps: [
-      './step_definitions/steps.js',
-      '../../tests/e2e/codeceptjs/step_definitions/entrypoint.js'
+      '../../../.config/codeceptjs/step_definitions/steps.js',
+      './step_definitions/application_steps.js'
     ]
   },
   plugins: {
-    screenshotOnFail: {
-      enabled: true
-    },
-    tryTo: {
-      enabled: true
-    },
-    retryFailedStep: {
-      enabled: true
-    },
-    retryTo: {
-      enabled: true
-    },
-    eachElement: {
-      enabled: true
-    },
-    pauseOnFail: {}
-  },
-  stepTimeout: 0,
-  stepTimeoutOverride: [{
-      pattern: 'wait.*',
-      timeout: 0
-    },
-    {
-      pattern: 'amOnPage',
-      timeout: 0
+    screenshotOnFail: { enabled: true },
+    retryFailedStep: { enabled: true },
+    tryTo: { enabled: true },
+    pageInfo: {
+      enabled: true,
+      browserLogs: ["verbose", "debug", "info", "log", "warning", "error"]
     }
-  ],
-  tests: '../../tests/e2e/codeceptjs/*.test.js',
-  name: 'codeceptjs'
+  },
+  name: 'application-e2e'
 }
