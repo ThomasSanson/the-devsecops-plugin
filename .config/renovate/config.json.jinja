@@ -12,5 +12,32 @@
   "semanticCommitType": "fix",
   "semanticCommitScope": "deps",
   "dependencyDashboard": true,
-  "enabledManagers": ["copier"]
+  "includePaths": [".config/devsecops/.copier-answers.yml", "project/**"],
+  "allowedPostUpgradeCommands": [
+    "^git restore \\.config/devsecops/\\.copier-answers\\.yml && task copier:update$"
+  ],
+  "packageRules": [
+    {
+      "description": "DevSecOps plugin: update .copier-answers.yml and run task copier:update to regenerate all files",
+      "matchManagers": ["copier"],
+      "matchPaths": [".config/devsecops/.copier-answers.yml"],
+      "semanticCommitType": "feat",
+      "semanticCommitScope": "devsecops",
+      "commitMessageTopic": "DevSecOps plugin",
+      "postUpgradeTasks": {
+        "commands": ["git restore .config/devsecops/.copier-answers.yml && task copier:update"],
+        "fileFilters": ["**/*"],
+        "executionMode": "branch"
+      }
+    },
+    {
+      "description": "Auto-detect dependencies in project/",
+      "matchPaths": ["project/**"],
+      "automerge": true,
+      "platformAutomerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "fast-forward",
+      "prCreation": "immediate",
+    }
+  ]
 }
