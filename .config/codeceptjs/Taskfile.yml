@@ -2,9 +2,11 @@
 version: "3"
 
 vars:
+  # Control flags
   TASK_CODECEPTJS_ENABLED: '{{.TASK_CODECEPTJS_ENABLED | default "false"}}'
   TASK_CODECEPTJS_CI: '{{.TASK_CODECEPTJS_CI | default "false"}}'
-  TASK_CODECEPTJS_DIR: '{{.TASK_CODECEPTJS_DIR | default ".config/codeceptjs"}}'
+
+  # Test configuration
   TASK_CODECEPTJS_CONFIG: '{{.TASK_CODECEPTJS_CONFIG | default ".config/codeceptjs/codecept.conf.sample.js"}}'
   TASK_CODECEPTJS_GREP: '{{.TASK_CODECEPTJS_GREP | default ""}}'
   TASK_CODECEPTJS_DEBUG: '{{.TASK_CODECEPTJS_DEBUG | default ""}}'
@@ -12,58 +14,66 @@ vars:
   TASK_CODECEPTJS_REPORTER: '{{.TASK_CODECEPTJS_REPORTER | default ""}}'
   TASK_CODECEPTJS_VERBOSE: '{{.TASK_CODECEPTJS_VERBOSE | default ""}}'
   TASK_CODECEPTJS_OVERRIDE: '{{.TASK_CODECEPTJS_OVERRIDE | default ""}}'
-  TASK_CODECEPTJS_DOCKER_IMAGE: '{{.TASK_CODECEPTJS_DOCKER_IMAGE | default "registry.gitlab.com/digital-commons/devsecops/tools/the-devsecops-plugin:13.1.21"}}'
-  TASK_CODECEPTJS_DOCKER_USER: '{{.TASK_CODECEPTJS_DOCKER_USER | default "$(id -u):$(getent group docker | cut -d: -f3)"}}'
-  TASK_CODECEPTJS_DOCKER_WORKDIR: '{{.TASK_CODECEPTJS_DOCKER_WORKDIR | default "/tests"}}'
-  TASK_CODECEPTJS_DOCKER_VOLUME: '{{.TASK_CODECEPTJS_DOCKER_VOLUME | default "$(pwd):/tests:z"}}'
-  TASK_CODECEPTJS_DOCKER_NETWORK: '{{.TASK_CODECEPTJS_DOCKER_NETWORK | default "host"}}'
-  TASK_CODECEPTJS_DOCKER_OPTS: '{{.TASK_CODECEPTJS_DOCKER_OPTS | default "--rm -it"}}'
-  TASK_CODECEPTJS_RUNNER: '{{.TASK_CODECEPTJS_RUNNER | default "docker"}}'
 
-  # By default, it contains the option. In CI, you can set it to " ".
-  TASK_CODECEPTJS_DOCKER_SOCKET_MOUNT: '{{.TASK_CODECEPTJS_DOCKER_SOCKET_MOUNT | default "-v /var/run/docker.sock:/var/run/docker.sock"}}'
-  TASK_CODECEPTJS_ENV_DONT_FAIL: '{{.TASK_CODECEPTJS_ENV_DONT_FAIL | default "true"}}'
+  # Environment variables
   TASK_CODECEPTJS_ENV_BASE_URL: '{{.TASK_CODECEPTJS_ENV_BASE_URL | default "http://localhost:8080"}}' # DevSkim: ignore DS162092
 
+  # Cache configuration
+  TASK_CODECEPTJS_CACHE_DIR: '{{.TASK_CODECEPTJS_CACHE_DIR | default ".cache/codeceptjs/playwright"}}'
+
 tasks:
-  default:
-    desc: Run tests with CodeceptJS.
+  playwright:install:
+    desc: Install Playwright browsers locally (Chromium, Firefox, WebKit).
     summary: |
-      ℹ️ Description:
-        Runs CodeceptJS to execute end-to-end tests.
+      Installs the Playwright browsers required by the CodeceptJS `Playwright` helper.
 
-      🔧 Variables:
-        - TASK_CODECEPTJS_CONFIG: Path to CodeceptJS configuration file. Default: ".config/codeceptjs/codecept.conf.sample.js"
-        - TASK_CODECEPTJS_GREP: Filter tests by name. Default: ""
-        - TASK_CODECEPTJS_DEBUG: Run tests in debug mode. Default: ""
-        - TASK_CODECEPTJS_STEPS: Show steps in output. Default: ""
-        - TASK_CODECEPTJS_REPORTER: Specify reporter (e.g. "xunit"). Default: ""
-        - TASK_CODECEPTJS_VERBOSE: Run with verbose output. Default: ""
-        - TASK_CODECEPTJS_OVERRIDE: Override config options. Default: ""
-        - TASK_CODECEPTJS_DOCKER_IMAGE: Docker image to use. Default: registry.gitlab.com/digital-commons/devsecops/tools/codeceptjs:1.2.1
-        - TASK_CODECEPTJS_DOCKER_USER: Docker user. Default: "$(id -u):$(getent group docker | cut -d: -f3)"
-        - TASK_CODECEPTJS_DOCKER_WORKDIR: Docker working directory. Default: "/tests"
-        - TASK_CODECEPTJS_DOCKER_VOLUME: Docker volume mapping. Default: "$(pwd):/tests:z"
-        - TASK_CODECEPTJS_DOCKER_NETWORK: Docker network mode. Default: "host"
-        - TASK_CODECEPTJS_DOCKER_OPTS: Docker run options. Default: "--rm -t"
-        - TASK_CODECEPTJS_DOCKER_SOCKET_MOUNT: Docker socket mount option. Default: "-v /var/run/docker.sock:/var/run/docker.sock"
-
-      🔄 Execution:
-        Runs CodeceptJS tests with the specified configuration and options.
-    status:
-      - test "{{.TASK_CODECEPTJS_ENABLED}}" = "false"
-    vars:
-      _CODECEPTJS_RUN_COMMAND: "run --config {{.TASK_CODECEPTJS_CONFIG}}{{if .TASK_CODECEPTJS_GREP}} --grep {{.TASK_CODECEPTJS_GREP}}{{end}}{{if .TASK_CODECEPTJS_DEBUG}} --debug{{end}}{{if .TASK_CODECEPTJS_STEPS}} --steps{{end}}{{if .TASK_CODECEPTJS_REPORTER}} --reporter {{.TASK_CODECEPTJS_REPORTER}}{{end}}{{if .TASK_CODECEPTJS_VERBOSE}} --verbose{{end}}{{if .TASK_CODECEPTJS_OVERRIDE}} --override {{.TASK_CODECEPTJS_OVERRIDE}}{{end}}"
-      _CODECEPTJS_CMD_RESOLVED:
-        sh: |
-          if [ "{{.TASK_CODECEPTJS_RUNNER}}" = "docker" ]; then
-            echo "docker run {{.TASK_CODECEPTJS_DOCKER_OPTS}} --user {{.TASK_CODECEPTJS_DOCKER_USER}} {{.TASK_CODECEPTJS_DOCKER_SOCKET_MOUNT}} --network={{.TASK_CODECEPTJS_DOCKER_NETWORK}} -e DONT_FAIL_ON_EMPTY_RUN={{.TASK_CODECEPTJS_ENV_DONT_FAIL}} -e CODECEPTJS_BASE_URL={{.TASK_CODECEPTJS_ENV_BASE_URL}} -w {{.TASK_CODECEPTJS_DOCKER_WORKDIR}} -v {{.TASK_CODECEPTJS_DOCKER_VOLUME}} {{.TASK_CODECEPTJS_DOCKER_IMAGE}} codeceptjs"
-          else
-            echo "{{.TASK_CODECEPTJS_RUNNER}}"
-          fi
+      - Uses `npx -y` to avoid local dependencies.
+      - `playwright install-deps` may require sudo; keep it optional/commented if not available.
+      - Browsers are cached in: {{.TASK_CODECEPTJS_CACHE_DIR}}
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: '{{.TASK_CODECEPTJS_CACHE_DIR}}'
     cmds:
-      - cmd: echo "🔄 Running CodeceptJS tests"
+      - cmd: echo "🔧 Installing Playwright browsers (Chromium only) in {{.TASK_CODECEPTJS_CACHE_DIR}}"
         silent: true
-      - cmd: "{{._CODECEPTJS_CMD_RESOLVED}} {{._CODECEPTJS_RUN_COMMAND}} {{.CLI_ARGS}}"
-      - cmd: echo '🎉 CodeceptJS tests completed successfully.'
+      - cmd: mkdir -p "{{.TASK_CODECEPTJS_CACHE_DIR}}"
+      - cmd: |
+          # Harden npm network in CI to reduce ECONNRESET
+          export NPM_CONFIG_FETCH_RETRIES="${NPM_CONFIG_FETCH_RETRIES:-5}"
+          export NPM_CONFIG_FETCH_RETRY_FACTOR="${NPM_CONFIG_FETCH_RETRY_FACTOR:-2}"
+          export NPM_CONFIG_FETCH_RETRY_MINTIMEOUT="${NPM_CONFIG_FETCH_RETRY_MINTIMEOUT:-20000}"
+          export NPM_CONFIG_FETCH_RETRY_MAXTIMEOUT="${NPM_CONFIG_FETCH_RETRY_MAXTIMEOUT:-120000}"
+          export NPM_CONFIG_REGISTRY="${NPM_CONFIG_REGISTRY:-https://registry.npmjs.org}"
+          npx -y -p playwright playwright install chromium
+      - cmd: |
+          # install-deps requires root privileges; skip in CI runners
+          if [ "{{.TASK_CODECEPTJS_CI}}" == "true" ]; then
+            npx -y -p playwright playwright install-deps || true
+          else
+            echo "ℹ️ Skipping install-deps in CI."
+          fi
+      - cmd: echo '✅ Playwright setup finished.'
+        silent: true
+
+  npx:
+    desc: Run CodeceptJS locally via npx (no Docker), with Playwright.
+    summary: |
+      Run CodeceptJS locally via npx with Playwright.
+
+      Variables: TASK_CODECEPTJS_CONFIG, CODECEPTJS_BASE_URL, CODECEPTJS_BASE_URL_CI, TASK_CODECEPTJS_GREP, TASK_CODECEPTJS_DEBUG
+      Example: task codeceptjs:npx CODECEPTJS_BASE_URL=https://localhost:8001 TASK_CODECEPTJS_CONFIG=project/tests/application/codecept.conf.js -- --debug  # DevSkim: ignore DS162092
+      Example CI: task codeceptjs:npx CODECEPTJS_BASE_URL=https://localhost:8001 CODECEPTJS_BASE_URL_CI=https://docker:8001 TASK_CODECEPTJS_CONFIG=project/tests/application/codecept.conf.js # DevSkim: ignore DS162092
+    deps:
+      - task: playwright:install
+    vars:
+      _FINAL_BASE_URL: '{{if and (eq .TASK_CODECEPTJS_CI "true") .CODECEPTJS_BASE_URL_CI}}{{.CODECEPTJS_BASE_URL_CI}}{{else}}{{.CODECEPTJS_BASE_URL | default .TASK_CODECEPTJS_ENV_BASE_URL}}{{end}}'
+    cmds:
+      - cmd: echo "🔄 Running CodeceptJS tests via npx (Playwright)"
+        silent: true
+      - cmd: >-
+          CODECEPTJS_BASE_URL={{._FINAL_BASE_URL}}
+          PLAYWRIGHT_BROWSERS_PATH={{.TASK_CODECEPTJS_CACHE_DIR}}
+          npx -y -p codeceptjs -p playwright -p codeceptjs-resemblehelper
+          codeceptjs run --config {{.TASK_CODECEPTJS_CONFIG}}{{if .TASK_CODECEPTJS_GREP}} --grep {{.TASK_CODECEPTJS_GREP}}{{end}}{{if .TASK_CODECEPTJS_DEBUG}} --debug{{end}}{{if .TASK_CODECEPTJS_STEPS}} --steps{{end}}{{if .TASK_CODECEPTJS_REPORTER}} --reporter {{.TASK_CODECEPTJS_REPORTER}}{{end}}{{if .TASK_CODECEPTJS_VERBOSE}} --verbose{{end}}{{if .TASK_CODECEPTJS_OVERRIDE}} --override {{.TASK_CODECEPTJS_OVERRIDE}}{{end}}
+          {{.CLI_ARGS}}
+      - cmd: echo '🎉 CodeceptJS (npx) tests completed successfully.'
         silent: true
