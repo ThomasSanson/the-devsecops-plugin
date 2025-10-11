@@ -5,6 +5,7 @@ exclude = [
   'http://localhost',
   'http://proxy',
   'https://dl.k8s.io/release/',
+  'https://docker:8001',
   'https://localhost',
   'https://tidelift.com/funding/github/npm/parse-function',
   'tcp://*'
