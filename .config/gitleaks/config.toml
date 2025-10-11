@@ -9,5 +9,7 @@ useDefault = true
 description = "Files to ignore for secrets detection"
 paths = [
   '''.*/sealed-secrets\.yaml''',
-  '''.*/secrets\.yaml'''
+  '''.*/secrets\.yaml''',
+  '''.*\.env''',
+  '''.*\.env\.dev'''
 ]
