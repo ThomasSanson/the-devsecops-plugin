@@ -69,7 +69,7 @@ code:gitleaks:
   stage: code
   needs: []
   script:
-    - task gitleaks:ci
+    - task gitleaks:scan-branch
   <<: *code_rules
 
 code:megalinter:
