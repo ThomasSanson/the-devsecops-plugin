@@ -1,6 +1,7 @@
 .ansible
 .cache
 .config/**/roles
+.diagnostics
 .env
 .mega-linter.yml
 .task
@@ -10,12 +11,13 @@
 *.tar
 *.tar.gz
 *.tgz
+*.zip
+**/_output
 **/node_modules
+**/screenshots/diff
 *megalinter*.txt
 /*.sh
 megalinter-reports
 project/public/helm/index.yaml
-tests/e2e/codeceptjs/output
-tests/e2e/codeceptjs/screenshots/diff
 tmp
 venv
