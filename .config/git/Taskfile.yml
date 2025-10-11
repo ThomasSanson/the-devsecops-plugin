@@ -1,0 +1,28 @@
+---
+version: "3"
+
+vars:
+  GIT_CONFIG_DIR: .config/git
+
+tasks:
+  clean-secrets:
+    desc: "🧹 Clean exposed secrets from Git history (DESTRUCTIVE)"
+    summary: |
+      Removes a file from entire Git history.
+      ⚠️  WARNING: Destructive operation that rewrites history!
+      
+      Usage: task git:clean-secrets -- <path/to/file>
+      Example: task git:clean-secrets -- project/datawarehouse-db/sql/init_postgres_fdw.sql
+    cmds:
+      - |
+        if [ -z "{{.CLI_ARGS}}" ]; then
+          echo "❌ Error: No file specified"
+          echo "Usage: task git:clean-secrets -- <path/to/file>"
+          exit 1
+        fi
+        bash {{.GIT_CONFIG_DIR}}/clean-secrets.sh {{.CLI_ARGS}}
+
+  install:
+    desc: "📦 Install Git hooks"
+    cmds:
+      - bash {{.GIT_CONFIG_DIR}}/install.sh
