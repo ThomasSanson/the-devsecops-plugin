@@ -3,6 +3,9 @@ version: "3"
 
 vars:
   TASK_DEVSECOPS_TEST_ENABLED: '{{.TASK_DEVSECOPS_TEST_ENABLED | default "true"}}'
+  TASK_DEVSECOPS_TEST_BUILD_COVERAGE_ENABLED: '{{.TASK_DEVSECOPS_TEST_BUILD_COVERAGE_ENABLED | default "true"}}'
+  TASK_DEVSECOPS_TEST_BUILD_COVERAGE_TASK_PREFIX: '{{.TASK_DEVSECOPS_TEST_BUILD_COVERAGE_TASK_PREFIX | default "project"}}'
+  TASK_DEVSECOPS_TEST_BUILD_COVERAGE_TASK_BUILD_KEYWORD: '{{.TASK_DEVSECOPS_TEST_BUILD_COVERAGE_TASK_BUILD_KEYWORD | default "build"}}'
   TASK_DEVSECOPS_TEST_ANSIBLE_VIRTUALENV: '{{.TASK_DEVSECOPS_TEST_ANSIBLE_VIRTUALENV | default "./venv/ansible"}}'
   TASK_DEVSECOPS_TEST_KUBECONFIG_DIR: '{{.TASK_DEVSECOPS_TEST_KUBECONFIG_DIR | default ""}}'
   TASK_DEVSECOPS_TEST_KUBECONFIG_FILE: "{{.TASK_DEVSECOPS_TEST_KUBECONFIG_DIR}}/kubeconfig.yaml"
@@ -17,6 +20,7 @@ tasks:
     cmds:
       - cmd: echo "🔄 Starting test phase"
         silent: true
+      - task: check:build-coverage
       - task: :project:test
       - cmd: echo "🎉 Test phase completed successfully"
         silent: true
@@ -293,4 +297,42 @@ tasks:
       - task: side_effect
       - task: verify
       - cmd: echo "🎉 Resilience validation phase completed successfully"
+        silent: true
+
+  check:build-coverage:
+    desc: |
+      ℹ️ Description:
+        Verifies that each Docker Compose file in the project has
+        a corresponding build task in the Taskfiles.
+
+        This validation ensures all Docker services can be built
+        via appropriate Task tasks.
+
+      🔧 Variables:
+        - TASK_DEVSECOPS_TEST_BUILD_COVERAGE_ENABLED: Enable/disable validation (default: true)
+        - TASK_DEVSECOPS_TEST_BUILD_COVERAGE_TASK_PREFIX: Task prefix (default: "project")
+        - TASK_DEVSECOPS_TEST_BUILD_COVERAGE_TASK_BUILD_KEYWORD: Build keyword (default: "build")
+        - SCAN_DIR: Directory to scan (default: project/)
+        - PROJECT_ROOT: Project root (default: current directory)
+        - GITIGNORE_FILE: Path to .gitignore (default: .gitignore)
+
+      ⚙️ How it works:
+        1. Scans for docker-compose*.yml files in SCAN_DIR
+        2. Excludes paths from .gitignore automatically
+        3. Extracts tasks matching {prefix}:{component}:{keyword} or {prefix}:{keyword}:{component}
+        4. Verifies correspondence and displays a detailed report
+
+      📊 Exit codes:
+        - 0: All Docker Compose files have an associated build task
+        - 1: At least one Docker Compose file is missing a build task
+    status:
+      - test "{{.TASK_DEVSECOPS_TEST_BUILD_COVERAGE_ENABLED}}" = "false"
+    cmds:
+      - cmd: echo "🔄 Starting build coverage check"
+        silent: true
+      - |
+        TASK_PREFIX="{{.TASK_DEVSECOPS_TEST_BUILD_COVERAGE_TASK_PREFIX}}" \
+        TASK_BUILD_KEYWORD="{{.TASK_DEVSECOPS_TEST_BUILD_COVERAGE_TASK_BUILD_KEYWORD}}" \
+        bash .config/devsecops/scripts/check-build-coverage.sh
+      - cmd: echo "🎉 Build coverage check completed successfully"
         silent: true
