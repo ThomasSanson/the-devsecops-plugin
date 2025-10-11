@@ -54,7 +54,7 @@ tasks:
       - cmd: echo "🚀 Starting project TDD test phase"
         silent: true
       - task: :deploy
-      - task: :codeceptjs
+      - task: :codeceptjs:npx
         vars:
           TASK_CODECEPTJS_GREP: "{{.TASK_CODECEPTJS_GREP}}"
           TASK_CODECEPTJS_CONFIG: "project/plugin/tests/e2e/codeceptjs/codecept.conf.js"
