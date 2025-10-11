@@ -1,4 +1,5 @@
 exports.config = {
+  output: './_output',
   include: {
     I: '../../../../../.config/codeceptjs/steps_file.js'
   },
