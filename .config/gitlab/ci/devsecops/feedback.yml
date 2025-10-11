@@ -6,6 +6,7 @@ feedback:
       optional: true
   extends: .default-tags
   script:
+    - pipx install copier
     - task feedback
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_ALL_SCHEDULE == "1"'
