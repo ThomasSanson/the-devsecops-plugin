@@ -17,6 +17,7 @@ tasks:
     cmds:
       - cmd: echo "🔄 Starting development environment initialisation"
         silent: true
+      - task: setup-environment
       - task: setup-git-security
       - task: setup-permissions
       - task: setup-ssh
@@ -31,16 +32,14 @@ tasks:
     cmds:
       - cmd: echo "🔄 Starting development environment setup"
         silent: true
-      - task: bun
-      - task: docker-ce
-      - task: go
-      - task: helm
-      - task: k3d
-      - task: kubectl
-      - task: kubeseal
-      - task: lefthook
-      - task: nodejs
-      - task: podman
+      - .config/python3/install.sh
+      - .config/curl/install.sh
+      - .config/git/install.sh
+      - .config/unzip/install.sh
+      - .config/uv/install.sh
+      - .config/docker/install.sh
+      - .config/node/install.sh
+      - .config/pipx/install.sh
       - cmd: echo "🎉 Development environment setup completed successfully"
         silent: true
 
