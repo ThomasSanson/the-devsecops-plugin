@@ -31,7 +31,7 @@ tasks:
       - `playwright install-deps` may require sudo; keep it optional/commented if not available.
       - Browsers are cached in: {{.TASK_CODECEPTJS_CACHE_DIR}}
     env:
-      PLAYWRIGHT_BROWSERS_PATH: '{{.TASK_CODECEPTJS_CACHE_DIR}}'
+      PLAYWRIGHT_BROWSERS_PATH: "{{.TASK_CODECEPTJS_CACHE_DIR}}"
     cmds:
       - cmd: echo "🔧 Installing Playwright browsers (Chromium only) in {{.TASK_CODECEPTJS_CACHE_DIR}}"
         silent: true
