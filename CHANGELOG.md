@@ -2,6 +2,17 @@
 
 # Changelog
 
+## 14.1.0 (2025-10-14)
+
+### Feat
+
+- **setup-docker.sh**: add check and creation of docker group if it doesn't exist to enhance setup process
+- **megalinter**: add new variables and npx task for running MegaLinter locally without Docker
+
+### Fix
+
+- **megalinter**: update post commands to check for directory existence before changing permissions and ownership to prevent errors
+
 ## 14.0.0 (2025-10-11)
 
 ### Feat
