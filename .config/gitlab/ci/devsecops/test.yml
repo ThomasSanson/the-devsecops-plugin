@@ -1,7 +1,6 @@
 ---
 test:
   stage: test
-  image: ubuntu:24.04
   retry: 1
   needs: [] # Allows parallel execution
   extends: .default-tags
