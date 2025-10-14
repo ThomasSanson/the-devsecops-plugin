@@ -10,7 +10,7 @@ tasks:
     summary: |
       Removes a file from entire Git history.
       ⚠️  WARNING: Destructive operation that rewrites history!
-      
+
       Usage: task git:clean-secrets -- <path/to/file>
       Example: task git:clean-secrets -- project/datawarehouse-db/sql/init_postgres_fdw.sql
     cmds:
