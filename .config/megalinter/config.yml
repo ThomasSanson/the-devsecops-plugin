@@ -48,12 +48,12 @@ PRE_COMMANDS:
         @cspell/dict-software-terms
 
 POST_COMMANDS:
-  - command: chmod -R 777 /tmp/lint/.ansible
-  - command: chmod -R 777 /tmp/lint/.cache
-  - command: chmod -R 777 /tmp/lint/megalinter-reports
-  - command: chown -R 1000:1000 /tmp/lint/.ansible
-  - command: chown -R 1000:1000 /tmp/lint/.cache
-  - command: chown -R 1000:1000 /tmp/lint/megalinter-reports
+  - command: test ! -d /tmp/lint/.ansible || chmod -R 777 /tmp/lint/.ansible
+  - command: test ! -d /tmp/lint/.cache || chmod -R 777 /tmp/lint/.cache
+  - command: test ! -d /tmp/lint/megalinter-reports || chmod -R 777 /tmp/lint/megalinter-reports
+  - command: test ! -d /tmp/lint/.ansible || chown -R 1000:1000 /tmp/lint/.ansible
+  - command: test ! -d /tmp/lint/.cache || chown -R 1000:1000 /tmp/lint/.cache
+  - command: test ! -d /tmp/lint/megalinter-reports || chown -R 1000:1000 /tmp/lint/megalinter-reports
 
 # Ignore only import errors E0401
 PYTHON_PYLINT_ARGUMENTS:
