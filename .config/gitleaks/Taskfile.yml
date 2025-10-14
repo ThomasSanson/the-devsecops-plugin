@@ -149,7 +149,7 @@ tasks:
       - cmd: |
           MERGE_BASE=$(git merge-base origin/{{.BASE_BRANCH}} HEAD 2>/dev/null || echo "origin/{{.BASE_BRANCH}}")
           echo "🔍 Scanning commits from ${MERGE_BASE} to HEAD"
-          
+
           if ! docker run --rm \
             -v "{{.ROOT_DIR}}:/path" \
             -w /path \
