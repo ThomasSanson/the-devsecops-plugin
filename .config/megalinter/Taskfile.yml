@@ -53,6 +53,7 @@ tasks:
     cmds:
       - cmd: echo "🔄 Running MegaLinter via npx"
         silent: true
+      - defer: docker run --rm -v {{.USER_WORKING_DIR}}/megalinter-reports:/reports alpine chmod -R 777 /reports 2>/dev/null || true
       - cmd: >-
           npx -y -p {{.TASK_MEGALINTER_RELEASE}} mega-linter-runner
           --env 'MEGALINTER_CONFIG={{.TASK_MEGALINTER_CONFIG}}'
