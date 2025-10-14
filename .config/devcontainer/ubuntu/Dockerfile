@@ -1,9 +1,7 @@
-FROM codeceptjs/codeceptjs:3.7.5
+FROM ubuntu:24.04
 
 # 1. Copy dependency files and install them
 WORKDIR /app
-COPY .config/codeceptjs/package.json .config/codeceptjs/package-lock.json* ./
-RUN npm install --production=false
 
 # 2. Indicate to Node.js where to locate the installed modules
 ENV NODE_PATH=/app/node_modules
@@ -57,8 +55,8 @@ ENV USER=$USER
 # Add local bin to PATH (append, do not shadow system interpreters)
 ENV PATH="${PATH}:/home/${USER}/.local/bin"
 
-# Install uv/uvx for the non-root user before running Taskfile
-RUN ./.config/devcontainer/ubuntu/scripts/install-uv.sh
+# Install Taskfile
+RUN .config/task/install.sh
 
 # Run setup task with login shell to ensure .bashrc is sourced
 RUN --mount=type=secret,id=env_vars \
