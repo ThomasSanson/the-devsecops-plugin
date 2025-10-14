@@ -1,6 +1,11 @@
 ---
 variables:
+  # Terminal and color settings
   TERM: xterm
+  FORCE_COLOR: "1" # Force color output for tools supporting this standard (npm, npx, Python 3.13+, etc.)
+  PYTHON_COLORS: "1" # Force color for Python interpreter (takes precedence over FORCE_COLOR)
+  NPM_CONFIG_COLOR: "always" # Force color for npm/npx specifically
+
   GIT_STRATEGY: clone
   GIT_DEPTH: 0
   # When using dind service, you must instruct Docker to talk with
