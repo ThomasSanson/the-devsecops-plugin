@@ -6,6 +6,9 @@ vars:
   TASK_MEGALINTER_CONTAINER_NAME: '{{.TASK_MEGALINTER_CONTAINER_NAME | default "megalinter-container"}}'
   TASK_MEGALINTER_CONTAINER_VERSION: '{{.TASK_MEGALINTER_CONTAINER_VERSION | default "v8"}}'
   TASK_MEGALINTER_IMAGE_PREFIX: '{{.TASK_MEGALINTER_IMAGE_PREFIX | default ""}}'
+  TASK_MEGALINTER_CONFIG: '{{.TASK_MEGALINTER_CONFIG | default ".config/megalinter/config.yml"}}'
+  TASK_MEGALINTER_FLAVOR: '{{.TASK_MEGALINTER_FLAVOR | default ""}}'
+  TASK_MEGALINTER_RELEASE: '{{.TASK_MEGALINTER_RELEASE | default "mega-linter-runner@9.1.0"}}'
 
 tasks:
   default:
@@ -32,6 +35,28 @@ tasks:
     cmds:
       - cmd: echo "🔄 Running pnpm dlx megalinter..."
         silent: true
-      - pnpm dlx --package mega-linter-runner@latest mega-linter-runner -e MEGALINTER_CONFIG='.config/megalinter/config.yml'
+      - MEGALINTER_CONFIG=.config/megalinter/config.yml pnpm dlx --package {{.TASK_MEGALINTER_RELEASE}} mega-linter-runner
       - cmd: echo "🎉 All files correctly linted with megalinter!"
+        silent: true
+
+  npx:
+    desc: Run MegaLinter locally via npx (no Docker).
+    summary: |
+      Run MegaLinter locally via npx without Docker.
+
+      Variables: TASK_MEGALINTER_CONFIG, TASK_MEGALINTER_FLAVOR, TASK_MEGALINTER_RELEASE
+      Example: task megalinter:npx TASK_MEGALINTER_CONFIG=.config/megalinter/config.yml
+      Example with version: task megalinter:npx TASK_MEGALINTER_RELEASE=mega-linter-runner@9.2.0
+      Example with flavor: task megalinter:npx TASK_MEGALINTER_FLAVOR=javascript
+    status:
+      - test "{{.TASK_MEGALINTER_ENABLED}}" = "false"
+    cmds:
+      - cmd: echo "🔄 Running MegaLinter via npx"
+        silent: true
+      - cmd: >-
+          npx -y -p {{.TASK_MEGALINTER_RELEASE}} mega-linter-runner
+          --env 'MEGALINTER_CONFIG={{.TASK_MEGALINTER_CONFIG}}'
+          {{if .TASK_MEGALINTER_FLAVOR}}--env 'MEGALINTER_FLAVOR={{.TASK_MEGALINTER_FLAVOR}}'{{end}}
+          {{.CLI_ARGS}}
+      - cmd: echo '🎉 MegaLinter (npx) analysis completed successfully.'
         silent: true
