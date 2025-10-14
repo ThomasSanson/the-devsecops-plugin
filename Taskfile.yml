@@ -2,7 +2,7 @@
 # Taskfile.yml: Central hub for development operations.
 version: "3"
 
-dotenv: ['.env', '.env.dev', '.env.dist']
+dotenv: [".env", ".env.dev", ".env.dist"]
 
 vars:
   # Environment variables for task control
