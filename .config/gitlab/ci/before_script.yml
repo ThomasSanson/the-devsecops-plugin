@@ -1,27 +1,9 @@
 before_script:
-  # Install Python3 (external script, required for Ansible)
-  - .config/python3/install.sh
-
   # Install curl (external script)
   - .config/curl/install.sh
 
-  # Install git (external script)
-  - .config/git/install.sh
-
   # Install Taskfile (external script)
   - .config/task/install.sh
-
-  # Install unzip (external script)
-  - .config/unzip/install.sh
-
-  # Install UV (external script)
-  - .config/uv/install.sh
-
-  # Install Docker CLI (external script)
-  - .config/docker/install.sh
-
-  # Install Node.js (external script, required for CodeceptJS)
-  - .config/node/install.sh
 
   # Execute the initialization Taskfile
   - task dev:init
