@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 14.1.1 (2025-10-14)
+
+### Fix
+
+- **ci**: add color settings for terminal output in GitLab CI variables configuration
+
 ## 14.1.0 (2025-10-14)
 
 ### Feat
