@@ -44,6 +44,13 @@ RUN mkdir -p /home/$USER && \
     chown -R $USER:$USER /home/$USER && \
     chmod -R u+rw /home/$USER
 
+# Install Taskfile
+RUN .config/task/install.sh
+
+# Run setup task with login shell to ensure .bashrc is sourced
+RUN --mount=type=secret,id=env_vars \
+    bash -l -c 'task dev:setup-environment'
+
 # Switch to non-root user
 USER $USER
 
@@ -54,9 +61,6 @@ ENV USER=$USER
 
 # Add local bin to PATH (append, do not shadow system interpreters)
 ENV PATH="${PATH}:/home/${USER}/.local/bin"
-
-# Install Taskfile
-RUN .config/task/install.sh
 
 # Run setup task with login shell to ensure .bashrc is sourced
 RUN --mount=type=secret,id=env_vars \
