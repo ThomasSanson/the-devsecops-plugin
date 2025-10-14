@@ -19,7 +19,6 @@
 # One job per check (all in parallel thanks to same stage + needs: [])
 code:project:
   stage: code
-  image: ubuntu:24.04
   needs: []
   tags: [saas-linux-medium-amd64]
   script:
@@ -28,7 +27,6 @@ code:project:
 
 code:commitlint:
   stage: code
-  image: ubuntu:24.04
   needs: []
   script:
     - task commitlint
@@ -36,7 +34,6 @@ code:commitlint:
 
 code:commitizen-check:
   stage: code
-  image: ubuntu:24.04
   needs: []
   script:
     - task commitizen:check
@@ -44,7 +41,6 @@ code:commitizen-check:
 
 code:commitizen-bump-dry:
   stage: code
-  image: ubuntu:24.04
   needs: []
   script:
     - TASK_COMMITIZEN_BUMP_YES=true TASK_COMMITIZEN_BUMP_DRY_RUN=true task commitizen:bump
@@ -52,7 +48,6 @@ code:commitizen-bump-dry:
 
 code:lizard:
   stage: code
-  image: ubuntu:24.04
   needs: []
   script:
     - task lizard
@@ -112,7 +107,6 @@ code:megalinter:
 # (Optional) Aggregator waiting for all checks
 code:all:
   stage: code
-  image: ubuntu:24.04
   needs:
     - code:commitizen-bump-dry
     - code:commitizen-check
