@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 14.1.3 (2025-10-17)
+
+### Fix
+
+- **deps**: update dependency copier to v9.10.3
+
 ## 14.1.2 (2025-10-17)
 
 ### Fix
