@@ -14,7 +14,7 @@
     "@codeceptjs/configure": "^1.0.4",
     "@codeceptjs/examples": "^1.2.4",
     "@codeceptjs/ui": "^1.2.3",
-    "@types/node": "^22.14.0",
+    "@types/node": "^24.0.0",
     "codeceptjs-resemblehelper": "^1.9.7",
     "codeceptjs": "^3.7.3",
     "playwright": "^1.51.1",
