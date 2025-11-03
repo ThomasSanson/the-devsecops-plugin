@@ -9,7 +9,7 @@ _min_copier_version: "9.3.0"
 # Questions
 ansible:
   type: bool
-  help: Enable Ansible integration for infrastructure automation?
+  help: Do you need Ansible? (infrastructure automation & configuration management)
   default: true
 
 _exclude:
