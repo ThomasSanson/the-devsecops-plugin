@@ -121,14 +121,12 @@ function compareFileContent (filePath, expected) {
 
 function ensureProjectExists () {
   projectRoot = getProjectRoot()
-  if (!fs.existsSync(projectRoot) || !fs.statSync(projectRoot).isDirectory()) {
-    // Simulate the sequence: clean, generate, check
-    removeDirRecursive(BASE_TEST_PATH)
-    fs.mkdirSync(BASE_TEST_PATH, { recursive: true })
-    tempDir = BASE_TEST_PATH
-    executeCommand(`task copier -- copy . --vcs-ref=HEAD ${projectRoot}`)
-    assertDirExists(projectRoot, `Project directory does not exist after generation: ${projectRoot}`)
-  }
+  // Always regenerate to ensure consistent state with all features enabled
+  removeDirRecursive(BASE_TEST_PATH)
+  fs.mkdirSync(BASE_TEST_PATH, { recursive: true })
+  tempDir = BASE_TEST_PATH
+  executeCommand(`task copier -- copy . --vcs-ref=HEAD --defaults --overwrite ${projectRoot}`)
+  assertDirExists(projectRoot, `Project directory does not exist after generation: ${projectRoot}`)
 }
 
 // Step definitions
@@ -139,7 +137,7 @@ Given('a clean temporary directory for tests', () => { // eslint-disable-line no
 })
 
 When('the copier command is executed to generate a project from the template', () => { // eslint-disable-line no-undef
-  executeCommand(`task copier -- copy . --vcs-ref=HEAD ${getProjectRoot()}`)
+  executeCommand(`task copier -- copy . --vcs-ref=HEAD --defaults --overwrite ${getProjectRoot()}`)
 })
 
 Then('the generated project directory should exist', () => { // eslint-disable-line no-undef
