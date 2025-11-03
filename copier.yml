@@ -6,6 +6,12 @@ _skip_if_exists:
   - VERSION
 _min_copier_version: "9.3.0"
 
+# Questions
+ansible:
+  type: bool
+  help: Enable Ansible integration for infrastructure automation?
+  default: true
+
 _exclude:
   - .cache
   - .config/**/roles
@@ -19,6 +25,8 @@ _exclude:
   - project/plugin
   - tmp
   - venv
+  - "{% if not ansible %}.config/ansible{% endif %}"
+  - "{% if not ansible %}.config/ansible-lint{% endif %}"
 
 _message_after_copy: |
   Your DevSecOps project has been created successfully!
