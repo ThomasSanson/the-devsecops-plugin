@@ -1,12 +1,22 @@
+/**
+ * Step definitions for Ansible optional feature testing
+ *
+ * This module provides Cucumber step definitions to test the conditional
+ * inclusion/exclusion of Ansible integration in generated projects.
+ *
+ * Test isolation: Uses dedicated directory tmp/tests/copier/ansible/
+ * to avoid conflicts with other test suites.
+ */
+
 const fs = require('fs')
 const path = require('path')
 const { execSync } = require('child_process')
 
-// Constants
+// Test configuration constants
 const PROJECT_NAME = 'generated-project'
 const BASE_TEST_PATH = path.join('tmp', 'tests', 'copier', 'ansible')
 
-// Utility functions
+// Utility functions for test operations
 function getProjectRoot () {
   return path.join(BASE_TEST_PATH, PROJECT_NAME)
 }
