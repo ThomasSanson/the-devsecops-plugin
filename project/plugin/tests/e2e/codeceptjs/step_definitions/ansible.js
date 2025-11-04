@@ -89,9 +89,9 @@ Given('a clean temporary directory for Ansible tests', () => { // eslint-disable
   fs.mkdirSync(BASE_TEST_PATH, { recursive: true })
 })
 
-When('the copier command is executed with Ansible disabled', () => { // eslint-disable-line no-undef
+When('the copier command is executed with Ansible enabled', () => { // eslint-disable-line no-undef
   const projectRoot = getProjectRoot()
-  executeCommand(`task copier -- copy . --vcs-ref=HEAD --data ansible=false ${projectRoot}`)
+  executeCommand(`task copier -- copy . --vcs-ref=HEAD --data ansible=true ${projectRoot}`)
 })
 
 When('the copier command is executed with default settings', () => { // eslint-disable-line no-undef
@@ -142,14 +142,14 @@ Then('the Ansible {string} directory should NOT exist', (dirName) => { // eslint
 
 Then('the Taskfile should include the Ansible taskfile reference', () => { // eslint-disable-line no-undef
   const taskfilePath = resolveProjectPath('Taskfile.yml')
-  const ansibleTaskfileReference = 'ansible:\n    taskfile: .config/ansible/Taskfile.yml\n    optional: true'
+  const ansibleTaskfileReference = 'ansible: .config/ansible'
 
   assertFileContains(taskfilePath, ansibleTaskfileReference)
 })
 
 Then('the Taskfile should NOT include the Ansible taskfile reference', () => { // eslint-disable-line no-undef
   const taskfilePath = resolveProjectPath('Taskfile.yml')
-  const ansibleTaskfileReference = 'ansible:\n    taskfile: .config/ansible/Taskfile.yml\n    optional: true'
+  const ansibleTaskfileReference = 'ansible: .config/ansible'
 
   assertFileNotContains(taskfilePath, ansibleTaskfileReference)
 })
