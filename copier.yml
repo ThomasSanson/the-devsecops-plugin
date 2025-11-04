@@ -1,16 +1,12 @@
 ---
+!include .config/ansible/copier.yml
+---
 # Template configuration
 _answers_file: .config/devsecops/.copier-answers.yml
 _skip_if_exists:
   - iac/helm/Chart.yaml
   - VERSION
 _min_copier_version: "9.3.0"
-
-# Questions
-ansible:
-  type: bool
-  help: Do you need Ansible? (infrastructure automation & configuration management)
-  default: false
 
 _exclude:
   - .cache
@@ -25,8 +21,6 @@ _exclude:
   - project/plugin
   - tmp
   - venv
-  - "{% if not ansible %}.config/ansible{% endif %}"
-  - "{% if not ansible %}.config/ansible-lint{% endif %}"
 
 _message_after_copy: |
   Your DevSecOps project has been created successfully!
