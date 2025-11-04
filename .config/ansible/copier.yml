@@ -1,10 +1,10 @@
 ---
 # Questions
-ansible:
+ansible_enabled:
   type: bool
   help: Do you need Ansible? (infrastructure automation & configuration management)
   default: false
 
 _exclude:
-  - "{% if not ansible %}.config/ansible{% endif %}"
-  - "{% if not ansible %}.config/ansible-lint{% endif %}"
+  - "{% if not ansible_enabled %}.config/ansible{% endif %}"
+  - "{% if not ansible_enabled %}.config/ansible-lint{% endif %}"
