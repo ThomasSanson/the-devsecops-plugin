@@ -10,7 +10,7 @@ _min_copier_version: "9.3.0"
 ansible:
   type: bool
   help: Do you need Ansible? (infrastructure automation & configuration management)
-  default: true
+  default: false
 
 _exclude:
   - .cache
