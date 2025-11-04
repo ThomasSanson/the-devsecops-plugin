@@ -91,7 +91,7 @@ Given('a clean temporary directory for Ansible tests', () => { // eslint-disable
 
 When('the copier command is executed with Ansible enabled', () => { // eslint-disable-line no-undef
   const projectRoot = getProjectRoot()
-  executeCommand(`task copier -- copy . --vcs-ref=HEAD --data ansible=true ${projectRoot}`)
+  executeCommand(`task copier -- copy . --vcs-ref=HEAD --data ansible_enabled=true ${projectRoot}`)
 })
 
 When('the copier command is executed with default settings', () => { // eslint-disable-line no-undef
@@ -101,12 +101,12 @@ When('the copier command is executed with default settings', () => { // eslint-d
 
 Given('a project was generated with Ansible enabled', () => { // eslint-disable-line no-undef
   const projectRoot = getProjectRoot()
-  executeCommand(`task copier -- copy . --vcs-ref=HEAD --data ansible=true ${projectRoot}`)
+  executeCommand(`task copier -- copy . --vcs-ref=HEAD --data ansible_enabled=true ${projectRoot}`)
 })
 
 Given('a project was generated with Ansible disabled', () => { // eslint-disable-line no-undef
   const projectRoot = getProjectRoot()
-  executeCommand(`task copier -- copy . --vcs-ref=HEAD --data ansible=false ${projectRoot}`)
+  executeCommand(`task copier -- copy . --vcs-ref=HEAD --data ansible_enabled=false ${projectRoot}`)
 })
 
 When('the project is updated with Ansible disabled', () => { // eslint-disable-line no-undef
@@ -120,12 +120,12 @@ When('the project is updated with Ansible disabled', () => { // eslint-disable-l
   if (fs.existsSync(ansibleLintDir)) {
     removeDirRecursive(ansibleLintDir)
   }
-  executeCommand(`task copier -- copy . --vcs-ref=HEAD --data ansible=false --force ${projectRoot}`)
+  executeCommand(`task copier -- copy . --vcs-ref=HEAD --data ansible_enabled=false --force ${projectRoot}`)
 })
 
 When('the project is updated with Ansible enabled', () => { // eslint-disable-line no-undef
   const projectRoot = getProjectRoot()
-  executeCommand(`task copier -- copy . --vcs-ref=HEAD --data ansible=true --force ${projectRoot}`)
+  executeCommand(`task copier -- copy . --vcs-ref=HEAD --data ansible_enabled=true --force ${projectRoot}`)
 })
 
 Then('the Ansible project directory should exist', () => { // eslint-disable-line no-undef
