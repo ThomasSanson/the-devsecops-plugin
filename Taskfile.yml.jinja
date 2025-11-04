@@ -39,7 +39,7 @@ includes:
 {%- endraw %}
 
   # Optional includes (For dev, testing, linting, etc.)
-{%- if ansible %}
+{%- if ansible_enabled %}
   ansible: .config/ansible
 {%- endif -%}
 {% raw %}
