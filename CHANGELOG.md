@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 14.1.8 (2025-11-04)
+
+### Fix
+
+- **deps**: update dependency @types/node to v24.10.0
+
 ## 14.1.7 (2025-10-29)
 
 ### Fix
