@@ -1,4 +1,5 @@
-{% raw %}---
+{% raw -%}
+---
 # Taskfile.yml: Central hub for development operations.
 version: "3"
 
@@ -35,14 +36,12 @@ includes:
     taskfile: .config/devsecops/Taskfile.feedback.yml
   project:
     taskfile: project/Taskfile.yml
-{% endraw %}
+{%- endraw %}
 
   # Optional includes (For dev, testing, linting, etc.)
 {%- if ansible %}
-  ansible:
-    taskfile: .config/ansible/Taskfile.yml
-    optional: true
-{% endif -%}
+  ansible: .config/ansible
+{%- endif -%}
 {% raw %}
   bun:
     taskfile: .config/bun/Taskfile.yml
