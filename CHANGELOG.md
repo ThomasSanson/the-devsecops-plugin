@@ -2,6 +2,30 @@
 
 # Changelog
 
+## 14.2.0 (2025-11-04)
+
+### Feat
+
+- **ansible**: add copier configuration for Ansible setup questions and exclusions
+- **tests**: add default feature tests for project scaffolding with Copier to ensure correct project generation and configuration
+- **tests**: add Ansible integration feature tests for project generation and updates
+- **tests**: add scenarios for generating and updating projects with Ansible integration options
+- **ansible.js**: add new step definitions for Ansible project generation and validation in end-to-end tests
+- **entrypoint.js**: add ansible step definitions to enhance test coverage
+- **copier.yml**: add Ansible integration option to enable infrastructure automation
+- **tests**: add Ansible optional integration feature test for project generation without Ansible
+- **tests**: add end-to-end tests for Ansible optional feature in copier command
+- **Taskfile**: add a new Taskfile.yml.jinja for orchestrating development operations and DevSecOps workflows
+
+### Fix
+
+- **ansible.js**: update Ansible command data flags from ansible=true/false to ansible_enabled=true/false for consistency and clarity
+- **Taskfile**: update conditional check for ansible to ansible_enabled for clarity and accuracy
+- **copier.yml**: rename ansible key to ansible_enabled for clarity in configuration options
+- **ansible.js**: update test steps to reflect enabling Ansible and simplify taskfile reference assertions
+- **copier.yml**: update default value of ansible from true to false to reflect configuration needs
+- **copier.js**: always regenerate project directory to ensure consistent state with all features enabled
+
 ## 14.1.9 (2025-11-04)
 
 ### Fix
