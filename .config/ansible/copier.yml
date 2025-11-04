@@ -1,0 +1,10 @@
+---
+# Questions
+ansible:
+  type: bool
+  help: Do you need Ansible? (infrastructure automation & configuration management)
+  default: false
+
+_exclude:
+  - "{% if not ansible %}.config/ansible{% endif %}"
+  - "{% if not ansible %}.config/ansible-lint{% endif %}"
