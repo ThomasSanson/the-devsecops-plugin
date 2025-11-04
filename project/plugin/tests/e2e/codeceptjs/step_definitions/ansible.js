@@ -47,6 +47,20 @@ function assertDirNotExists (dirPath) {
   return true
 }
 
+function assertFileContains (filePath, expectedContent) {
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`File does not exist: ${filePath}`)
+  }
+
+  const actual = fs.readFileSync(filePath, 'utf8').replace(/\r\n/g, '\n')
+  const normalized = expectedContent.replace(/\r\n/g, '\n').trim()
+
+  if (!actual.includes(normalized)) {
+    throw new Error(`File should contain the following content: ${filePath}\n--- Expected content ---\n${normalized}`)
+  }
+  return true
+}
+
 function assertFileNotContains (filePath, unexpectedContent) {
   if (!fs.existsSync(filePath)) {
     throw new Error(`File does not exist: ${filePath}`)
@@ -80,19 +94,62 @@ When('the copier command is executed with Ansible disabled', () => { // eslint-d
   executeCommand(`task copier -- copy . --vcs-ref=HEAD --data ansible=false ${projectRoot}`)
 })
 
+When('the copier command is executed with default settings', () => { // eslint-disable-line no-undef
+  const projectRoot = getProjectRoot()
+  executeCommand(`task copier -- copy . --vcs-ref=HEAD --defaults ${projectRoot}`)
+})
+
+Given('a project was generated with Ansible enabled', () => { // eslint-disable-line no-undef
+  const projectRoot = getProjectRoot()
+  executeCommand(`task copier -- copy . --vcs-ref=HEAD --data ansible=true ${projectRoot}`)
+})
+
+Given('a project was generated with Ansible disabled', () => { // eslint-disable-line no-undef
+  const projectRoot = getProjectRoot()
+  executeCommand(`task copier -- copy . --vcs-ref=HEAD --data ansible=false ${projectRoot}`)
+})
+
+When('the project is updated with Ansible disabled', () => { // eslint-disable-line no-undef
+  const projectRoot = getProjectRoot()
+  // Remove Ansible directories before regeneration (Copier doesn't auto-delete excluded files)
+  const ansibleDir = resolveProjectPath('.config/ansible')
+  const ansibleLintDir = resolveProjectPath('.config/ansible-lint')
+  if (fs.existsSync(ansibleDir)) {
+    removeDirRecursive(ansibleDir)
+  }
+  if (fs.existsSync(ansibleLintDir)) {
+    removeDirRecursive(ansibleLintDir)
+  }
+  executeCommand(`task copier -- copy . --vcs-ref=HEAD --data ansible=false --force ${projectRoot}`)
+})
+
+When('the project is updated with Ansible enabled', () => { // eslint-disable-line no-undef
+  const projectRoot = getProjectRoot()
+  executeCommand(`task copier -- copy . --vcs-ref=HEAD --data ansible=true --force ${projectRoot}`)
+})
+
 Then('the Ansible project directory should exist', () => { // eslint-disable-line no-undef
   assertDirExists(getProjectRoot())
+})
+
+Then('the Ansible {string} directory should exist', (dirName) => { // eslint-disable-line no-undef
+  assertDirExists(resolveProjectPath(dirName))
 })
 
 Then('the Ansible {string} directory should NOT exist', (dirName) => { // eslint-disable-line no-undef
   assertDirNotExists(resolveProjectPath(dirName))
 })
 
+Then('the Taskfile should include the Ansible taskfile reference', () => { // eslint-disable-line no-undef
+  const taskfilePath = resolveProjectPath('Taskfile.yml')
+  const ansibleTaskfileReference = 'ansible:\n    taskfile: .config/ansible/Taskfile.yml\n    optional: true'
+
+  assertFileContains(taskfilePath, ansibleTaskfileReference)
+})
+
 Then('the Taskfile should NOT include the Ansible taskfile reference', () => { // eslint-disable-line no-undef
   const taskfilePath = resolveProjectPath('Taskfile.yml')
-  const ansibleTaskfileReference = `  ansible:
-    taskfile: .config/ansible/Taskfile.yml
-    optional: true`
+  const ansibleTaskfileReference = 'ansible:\n    taskfile: .config/ansible/Taskfile.yml\n    optional: true'
 
   assertFileNotContains(taskfilePath, ansibleTaskfileReference)
 })
