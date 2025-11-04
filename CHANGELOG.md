@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 14.1.9 (2025-11-04)
+
+### Fix
+
+- **deps**: update dependency lizard to v1.19.0
+
 ## 14.1.8 (2025-11-04)
 
 ### Fix
