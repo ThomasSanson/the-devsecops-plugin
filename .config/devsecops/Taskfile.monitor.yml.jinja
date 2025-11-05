@@ -1,0 +1,24 @@
+{% raw -%}
+---
+version: "3"
+
+vars:
+  TASK_DEVSECOPS_MONITOR_ENABLED: '{{.TASK_DEVSECOPS_MONITOR_ENABLED | default "true"}}'
+
+tasks:
+  default:
+    desc: Run all generic monitor tasks
+    status:
+      - test "{{.TASK_DEVSECOPS_MONITOR_ENABLED}}" = "false"
+    cmds:
+      - cmd: echo "🔄 Starting monitor phase"
+        silent: true
+{%- endraw %}
+{%- if project_enabled %}
+{% raw %}      - task: :project:monitor
+{%- endraw %}
+{%- endif %}
+{% raw %}
+      - cmd: echo "🎉 Monitor phase completed successfully"
+        silent: true
+{%- endraw %}
