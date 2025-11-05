@@ -12,8 +12,6 @@ tasks:
     cmds:
       - cmd: echo "🔄 Starting monitor phase"
         silent: true
-
       - task: :project:monitor
-
       - cmd: echo "🎉 Monitor phase completed successfully"
         silent: true
