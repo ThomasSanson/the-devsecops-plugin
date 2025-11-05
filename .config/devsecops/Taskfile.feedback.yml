@@ -1,3 +1,4 @@
+
 ---
 version: "3"
 
@@ -31,7 +32,12 @@ tasks:
     cmds:
       - cmd: echo "🔄 Starting feedback phase"
         silent: true
+
+
       - task: :project:feedback
+
+
+
       - task: renovate
       - cmd: echo "🎉 Feedback phase completed successfully"
         silent: true
@@ -48,3 +54,4 @@ tasks:
       - task: :renovate
         vars:
           TASK_RENOVATE_PLATFORM: '{{ if eq .TASK_GIT_IS_DEFAULT_BRANCH "false" }}local{{ else }}{{.TASK_RENOVATE_PLATFORM}}{{ end }}'
+
