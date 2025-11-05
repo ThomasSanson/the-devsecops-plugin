@@ -1,0 +1,108 @@
+{% raw -%}
+---
+version: "3"
+
+vars:
+  TASK_DEVSECOPS_RELEASE_ENABLED: '{{.TASK_DEVSECOPS_RELEASE_ENABLED | default "true"}}'
+  TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH: '{{.TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH | default "main"}}'
+  TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH:
+    sh: |
+      if [ -n "${TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH:-}" ]; then
+        echo "${TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH}"
+      else
+        # Check if we are in a Git repository
+        if git rev-parse --is-inside-work-tree &>/dev/null; then
+          git config --global --add safe.directory "${PWD}"
+          git rev-parse --abbrev-ref HEAD
+        else
+          # Default value if we are not in a Git repository
+          echo "main"
+        fi
+      fi
+  TASK_DEVSECOPS_RELEASE_ALLOW_PUSH: '{{.TASK_DEVSECOPS_RELEASE_ALLOW_PUSH | default "true"}}'
+  TASK_DEVSECOPS_RELEASE_DEPLOY_KEY: '{{.TASK_DEVSECOPS_RELEASE_DEPLOY_KEY | default ""}}'
+  TASK_DEVSECOPS_RELEASE_GIT_SERVER_HOST: '{{.TASK_DEVSECOPS_RELEASE_GIT_SERVER_HOST | default ""}}'
+  TASK_DEVSECOPS_RELEASE_PROJECT_PATH: '{{.TASK_DEVSECOPS_RELEASE_PROJECT_PATH | default "${PWD##*/}"}}'
+
+tasks:
+  default:
+    desc: Run all generic release tasks
+    status:
+      - test "{{.TASK_DEVSECOPS_RELEASE_ENABLED}}" = "false"
+    cmds:
+      - cmd: echo "🔄 Starting release phase"
+        silent: true
+      - task: commitizen
+      - task: push-release
+{%- endraw %}
+{%- if project_enabled %}
+{% raw %}      - task: :project:release
+{%- endraw %}
+{%- endif %}
+{% raw %}
+      - cmd: echo "🎉 Release phase completed successfully"
+        silent: true
+
+  commitizen:
+    status:
+      - test "{{.TASK_COMMITIZEN_ENABLED}}" = "false"
+    cmds:
+      - cmd: echo "🔄 Starting commitizen release bump"
+        silent: true
+      - task: :commitizen:bump
+        vars:
+          TASK_COMMITIZEN_BUMP_YES: "true"
+          TASK_COMMITIZEN_BUMP_CHANGELOG:
+            sh: |
+              if [[ "{{.TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH}}" == "{{.TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH}}" ]]; then
+                echo "true"
+                exit 0
+              fi
+              echo "false"
+          TASK_COMMITIZEN_BUMP_DRY_RUN:
+            sh: |
+              if [[ "{{.TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH}}" == "{{.TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH}}" ]]; then
+                echo "false"
+                exit 0
+              fi
+              echo "true"
+      - cmd: echo "🎉 Commitizen release bump completed successfully"
+        silent: true
+
+  push-release:
+    desc: Pushes release commit and tags to the remote repository, mirroring GitLab CI logic.
+    preconditions:
+      - sh: test -n "{{.TASK_DEVSECOPS_RELEASE_PROJECT_PATH}}"
+        msg: "PROJECT_PATH (TASK_DEVSECOPS_RELEASE_PROJECT_PATH) is not set. Set TASK_DEVSECOPS_RELEASE_PROJECT_PATH or CI_PROJECT_PATH env var."
+      - sh: test -n "{{.TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH}}"
+        msg: "CURRENT_BRANCH (TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH) is not set. Set TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH or ensure git setup is correct."
+    cmds:
+      - cmd: echo "🔄 Starting release push"
+        silent: true
+      - |
+        echo "Current branch: {{.TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH}}"
+        echo "Default branch: {{.TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH}}"
+        if [ "{{.TASK_DEVSECOPS_RELEASE_ALLOW_PUSH}}" = "true" ] && [ "{{.TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH}}" = "{{.TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH}}" ]; then
+          if [ -n "{{.TASK_DEVSECOPS_RELEASE_DEPLOY_KEY}}" ]; then
+            echo "Using DEPLOY_KEY (TASK_DEVSECOPS_RELEASE_DEPLOY_KEY) to push..."
+            git remote set-url origin git@{{.TASK_DEVSECOPS_RELEASE_GIT_SERVER_HOST}}:{{.TASK_DEVSECOPS_RELEASE_PROJECT_PATH}}.git
+          else
+            echo "Pushing with default credentials (no DEPLOY_KEY/TASK_DEVSECOPS_RELEASE_DEPLOY_KEY found)..."
+            # Assuming 'origin' is already configured for push
+          fi
+          echo "Pushing tags..."
+          git push origin --tags
+          # Check current branch against default again, mirroring the CI script's inner check
+          if [ "{{.TASK_DEVSECOPS_RELEASE_CURRENT_BRANCH}}" = "{{.TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH}}" ]; then
+            echo "Pushing commit to default branch ({{.TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH}})..."
+            git push origin HEAD:{{.TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH}}
+          else
+            # This part might not be strictly reachable if the outer condition holds
+            echo "Not on default branch ({{.TASK_DEVSECOPS_RELEASE_DEFAULT_BRANCH}}), skipping commit push."
+          fi
+        else
+          echo "Skip: Pushing is disabled (ALLOW_PUSH is not 'true' or not on default branch). Check TASK_DEVSECOPS_RELEASE_ALLOW_PUSH / OVERRIDE_ or CZ_ALLOW_PUSH env var."
+        fi
+      - cmd: echo "🎉 Release push completed successfully"
+        silent: true
+{%- endraw %}
