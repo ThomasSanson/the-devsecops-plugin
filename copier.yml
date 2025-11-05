@@ -8,6 +8,12 @@ _skip_if_exists:
   - VERSION
 _min_copier_version: "9.3.0"
 
+# Questions
+project_enabled:
+  type: bool
+  help: Would you like to enable the project workspace (backend, frontend, data, auth, analytics, tests) to manage component-specific tasks?
+  default: false
+
 _exclude:
   - .cache
   - .config/**/roles
@@ -21,6 +27,7 @@ _exclude:
   - project/plugin
   - tmp
   - venv
+  - "{% if not project_enabled %}project{% endif %}"
 
 _message_after_copy: |
   Your DevSecOps project has been created successfully!
