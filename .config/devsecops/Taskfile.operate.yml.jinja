@@ -1,0 +1,24 @@
+{% raw -%}
+---
+version: "3"
+
+vars:
+  TASK_DEVSECOPS_OPERATE_ENABLED: '{{.TASK_DEVSECOPS_OPERATE_ENABLED | default "true"}}'
+
+tasks:
+  default:
+    desc: Run all generic operate tasks
+    status:
+      - test "{{.TASK_DEVSECOPS_OPERATE_ENABLED}}" = "false"
+    cmds:
+      - cmd: echo "🔄 Starting operate phase"
+        silent: true
+{%- endraw %}
+{%- if project_enabled %}
+{% raw %}      - task: :project:operate
+{%- endraw %}
+{%- endif %}
+{% raw %}
+      - cmd: echo "🎉 Operate phase completed successfully"
+        silent: true
+{%- endraw %}
