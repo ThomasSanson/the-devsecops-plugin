@@ -1,4 +1,3 @@
-
 ---
 version: "3"
 
@@ -14,11 +13,7 @@ tasks:
       - cmd: echo "🔄 Starting operate phase"
         silent: true
 
-
       - task: :project:operate
-
-
 
       - cmd: echo "🎉 Operate phase completed successfully"
         silent: true
-
