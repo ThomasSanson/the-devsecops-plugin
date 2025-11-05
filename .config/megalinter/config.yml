@@ -30,7 +30,7 @@ SPELL_CSPELL_CONFIG_FILE: .config/cspell/config.json
 SPELL_LYCHEE_CONFIG_FILE: .config/lychee/config.toml
 SPELL_LYCHEE_FILTER_REGEX_EXCLUDE: '(package-lock\.json)'
 YAML_YAMLLINT_CONFIG_FILE: .config/yamllint/config.yml
-REPOSITORY_DUSTILOCK_ARGUMENTS: "--path project"
+REPOSITORY_DUSTILOCK_ARGUMENTS: "--path ."
 
 SHOW_ELAPSED_TIME: true
 SARIF_REPORTER: true
