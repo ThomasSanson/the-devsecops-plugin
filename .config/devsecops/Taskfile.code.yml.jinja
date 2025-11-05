@@ -1,0 +1,43 @@
+{% raw -%}
+---
+version: "3"
+
+vars:
+  TASK_DEVSECOPS_CODE_ENABLED: '{{.TASK_DEVSECOPS_CODE_ENABLED | default "true"}}'
+
+tasks:
+  default:
+    desc: Run all generic code tasks
+    status:
+      - test "{{.TASK_DEVSECOPS_CODE_ENABLED}}" = "false"
+    cmds:
+      - cmd: echo "🔄 Starting code phase"
+        silent: true
+{%- endraw %}
+{%- if project_enabled %}
+{% raw %}      - task: :project:code
+{%- endraw %}
+{%- endif %}
+{% raw %}
+      - task: :gitleaks:scan-branch
+      - task: :commitlint
+      - task: :commitizen:check
+      - task: :commitizen:bump
+        vars:
+          TASK_COMMITIZEN_BUMP_YES: "true"
+          TASK_COMMITIZEN_BUMP_DRY_RUN: "true"
+      - task: :lizard
+      - task: :renovate:validate
+      - task: :megalinter:npx
+      - cmd: echo "🎉 Code phase completed successfully"
+        silent: true
+{%- endraw %}
+
+{% raw -%}
+  sync-templates:
+    desc: "Syncs the project templates using the specific answers file."
+    cmds:
+      - task: :copier:update
+        vars:
+          TASK_COPIER_ANSWER_FILE: ".config/devsecops/.copier-answers.yml"
+{%- endraw %}
