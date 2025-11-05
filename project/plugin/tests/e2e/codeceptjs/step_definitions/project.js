@@ -193,3 +193,43 @@ Then('the following DevSecOps Taskfiles should NOT call any project tasks:', (ta
     assertFileNotContains(taskfilePath, projectTaskReference)
   })
 })
+
+Then('the test taskfile should contain build coverage enabled', () => { // eslint-disable-line no-undef
+  const taskfilePath = resolveProjectPath('.config/devsecops/Taskfile.test.yml')
+  assertFileContains(taskfilePath, 'TASK_DEVSECOPS_TEST_BUILD_COVERAGE_ENABLED: \'{{.TASK_DEVSECOPS_TEST_BUILD_COVERAGE_ENABLED | default "true"}}\'')
+})
+
+Then('the test taskfile should contain build coverage disabled', () => { // eslint-disable-line no-undef
+  const taskfilePath = resolveProjectPath('.config/devsecops/Taskfile.test.yml')
+  assertFileContains(taskfilePath, 'TASK_DEVSECOPS_TEST_BUILD_COVERAGE_ENABLED: \'{{.TASK_DEVSECOPS_TEST_BUILD_COVERAGE_ENABLED | default "false"}}\'')
+})
+
+Then('the test taskfile should contain build coverage task prefix {string}', (prefix) => { // eslint-disable-line no-undef
+  const taskfilePath = resolveProjectPath('.config/devsecops/Taskfile.test.yml')
+  assertFileContains(taskfilePath, `TASK_DEVSECOPS_TEST_BUILD_COVERAGE_TASK_PREFIX: '{{.TASK_DEVSECOPS_TEST_BUILD_COVERAGE_TASK_PREFIX | default "${prefix}"}}'`)
+})
+
+Then('the test taskfile should contain build coverage task prefix empty', () => { // eslint-disable-line no-undef
+  const taskfilePath = resolveProjectPath('.config/devsecops/Taskfile.test.yml')
+  assertFileContains(taskfilePath, 'TASK_DEVSECOPS_TEST_BUILD_COVERAGE_TASK_PREFIX: \'{{.TASK_DEVSECOPS_TEST_BUILD_COVERAGE_TASK_PREFIX | default ""}}\'')
+})
+
+Then('the test taskfile should call project test task', () => { // eslint-disable-line no-undef
+  const taskfilePath = resolveProjectPath('.config/devsecops/Taskfile.test.yml')
+  assertFileContains(taskfilePath, '- task: :project:test')
+})
+
+Then('the test taskfile should call project test tdd task', () => { // eslint-disable-line no-undef
+  const taskfilePath = resolveProjectPath('.config/devsecops/Taskfile.test.yml')
+  assertFileContains(taskfilePath, '- task: :project:test:tdd')
+})
+
+Then('the test taskfile should NOT call project test task', () => { // eslint-disable-line no-undef
+  const taskfilePath = resolveProjectPath('.config/devsecops/Taskfile.test.yml')
+  assertFileNotContains(taskfilePath, '- task: :project:test')
+})
+
+Then('the test taskfile should NOT call project test tdd task', () => { // eslint-disable-line no-undef
+  const taskfilePath = resolveProjectPath('.config/devsecops/Taskfile.test.yml')
+  assertFileNotContains(taskfilePath, '- task: :project:test:tdd')
+})
