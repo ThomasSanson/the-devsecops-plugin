@@ -1,0 +1,57 @@
+{% raw -%}
+---
+version: "3"
+
+vars:
+  TASK_DEVSECOPS_FEEDBACK_ENABLED: '{{.TASK_DEVSECOPS_FEEDBACK_ENABLED | default "true"}}'
+  TASK_DEVSECOPS_FEEDBACK_RENOVATE_ENABLED: '{{.TASK_DEVSECOPS_FEEDBACK_RENOVATE_ENABLED | default "true"}}'
+  TASK_GIT_DEFAULT_BRANCH: '{{.TASK_GIT_DEFAULT_BRANCH | default "main"}}'
+  TASK_GIT_IS_DEFAULT_BRANCH:
+    sh: |
+      # Resolve current branch with CI variables first, then fallback to git
+      if [ -n "${CI_COMMIT_BRANCH:-}" ]; then
+        CURRENT_BRANCH="$CI_COMMIT_BRANCH"
+      elif [ -n "${CI_COMMIT_REF_NAME:-}" ]; then
+        CURRENT_BRANCH="$CI_COMMIT_REF_NAME"
+      elif [ -n "${GITHUB_REF_NAME:-}" ]; then
+        CURRENT_BRANCH="$GITHUB_REF_NAME"
+      elif [ -n "${GIT_BRANCH:-}" ]; then
+        CURRENT_BRANCH="$GIT_BRANCH"
+      elif git rev-parse --is-inside-work-tree &>/dev/null; then
+        CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+      else
+        CURRENT_BRANCH="main"
+      fi
+      if [ "$CURRENT_BRANCH" = "{{.TASK_GIT_DEFAULT_BRANCH}}" ]; then echo true; else echo false; fi
+
+tasks:
+  default:
+    desc: Run all generic feedback tasks
+    status:
+      - test "{{.TASK_DEVSECOPS_FEEDBACK_ENABLED}}" = "false"
+    cmds:
+      - cmd: echo "🔄 Starting feedback phase"
+        silent: true
+{%- endraw %}
+{%- if project_enabled %}
+{% raw %}      - task: :project:feedback
+{%- endraw %}
+{%- endif %}
+{% raw %}
+      - task: renovate
+      - cmd: echo "🎉 Feedback phase completed successfully"
+        silent: true
+
+  renovate:
+    desc: Run Renovate as part of feedback (skipped unless enabled)
+    status:
+      - test "{{.TASK_DEVSECOPS_FEEDBACK_RENOVATE_ENABLED}}" != "true"
+    cmds:
+      - cmd: |
+          echo "TASK_GIT_DEFAULT_BRANCH={{.TASK_GIT_DEFAULT_BRANCH}}"
+          echo "TASK_GIT_IS_DEFAULT_BRANCH={{.TASK_GIT_IS_DEFAULT_BRANCH}}"
+          echo "TASK_RENOVATE_PLATFORM={{.TASK_RENOVATE_PLATFORM}}"
+      - task: :renovate
+        vars:
+          TASK_RENOVATE_PLATFORM: '{{ if eq .TASK_GIT_IS_DEFAULT_BRANCH "false" }}local{{ else }}{{.TASK_RENOVATE_PLATFORM}}{{ end }}'
+{%- endraw %}
