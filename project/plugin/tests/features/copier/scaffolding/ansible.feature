@@ -4,9 +4,10 @@ Feature: Ansible Optional Integration
   I want to generate a project without Ansible integration
   So that I can use the DevSecOps plugin in projects that don't require Ansible
 
+  @default
   Scenario: Generate project without Ansible integration (default behaviour)
     Given a clean temporary directory for Ansible tests
-    When the copier command is executed with default settings
+    When the copier command is executed with default settings for Ansible
     Then the Ansible project directory should exist
     And the Ansible ".config/ansible" directory should NOT exist
     And the Ansible ".config/ansible-lint" directory should NOT exist
