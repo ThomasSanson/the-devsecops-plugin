@@ -1,0 +1,23 @@
+{% raw -%}
+---
+version: "3"
+
+vars:
+  TASK_DEVSECOPS_PLAN_ENABLED: '{{.TASK_DEVSECOPS_PLAN_ENABLED | default "true"}}'
+
+tasks:
+  default:
+    desc: Run all generic plan tasks
+    status:
+      - test "{{.TASK_DEVSECOPS_PLAN_ENABLED}}" = "false"
+    cmds:
+      - cmd: echo "🔄 Starting plan phase"
+        silent: true
+{%- endraw %}
+{%- if project_enabled %}
+{% raw %}      - task: :project:plan
+{%- endraw %}
+{%- endif %}
+{% raw %}      - cmd: echo "🎉 Plan phase completed successfully"
+        silent: true
+{%- endraw %}
