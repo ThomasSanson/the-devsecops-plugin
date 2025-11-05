@@ -2,6 +2,30 @@
 
 # Changelog
 
+## 14.3.0 (2025-11-05)
+
+### Feat
+
+- **entrypoint.js**: add project.js step definition to enhance test coverage
+- **copier.yml**: add project_enabled question to configure project workspace management during setup
+- **tests**: add feature tests for project mode integration in copier functionality to ensure expected behavior with and without project mode
+- **tests**: add step definitions for Project mode optional feature testing to enhance test coverage and isolation
+- **linter**: add initial Megalinter configuration file for improved code quality checks
+- **devsecops**: add Taskfile for managing test infrastructure and tasks
+- **devsecops**: add Taskfile.release.yml.jinja for managing release tasks and configurations
+- **devsecops**: add Taskfile.plan.yml.jinja for managing DevSecOps planning tasks
+- **devsecops**: add Taskfile for operate tasks to streamline DevSecOps processes
+- **devsecops**: add Taskfile.monitor.yml.jinja for monitoring tasks configuration
+- **devsecops**: add Taskfile.feedback.yml.jinja for managing feedback tasks in the DevSecOps pipeline
+- **devsecops**: add Taskfile.deploy.yml.jinja for deployment automation tasks
+- **devsecops**: add Taskfile for managing code tasks and project templates in DevSecOps environment
+- **devsecops**: add Taskfile.build.yml.jinja for managing build tasks in the DevSecOps pipeline
+
+### Fix
+
+- **ansible.js**: update copier command to include --defaults for consistency in Ansible tests
+- **Taskfile.yml.jinja**: conditionally include project taskfile based on project_enabled flag to enhance configurability
+
 ## 14.2.1 (2025-11-05)
 
 ### Fix

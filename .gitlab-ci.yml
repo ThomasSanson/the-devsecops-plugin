@@ -1,5 +1,5 @@
 ---
-image: registry.gitlab.com/digital-commons/devsecops/tools/the-devsecops-plugin:14.2.1
+image: registry.gitlab.com/digital-commons/devsecops/tools/the-devsecops-plugin:14.3.0
 
 include:
   - local: .config/gitlab/ci/before_script.yml
