@@ -1,0 +1,38 @@
+{% raw -%}
+---
+version: "3"
+
+vars:
+  TASK_DEVSECOPS_DEPLOY_ENABLED: '{{.TASK_DEVSECOPS_DEPLOY_ENABLED | default "true"}}'
+
+tasks:
+  default:
+    desc: Run all generic deploy tasks
+    status:
+      - test "{{.TASK_DEVSECOPS_DEPLOY_ENABLED}}" = "false"
+    cmds:
+      - cmd: echo "🔄 Starting deploy phase"
+        silent: true
+{%- endraw %}
+{%- if project_enabled %}
+{% raw %}      - task: :project:deploy
+{%- endraw %}
+{%- endif %}
+{% raw %}
+      - cmd: echo "🎉 Deploy phase completed successfully"
+        silent: true
+
+  bootstrap:
+    desc: |
+      ℹ️ Description:
+        Prepares the infrastructure with required components
+    cmds:
+      - cmd: echo "🔄 Starting deploy bootstrap"
+        silent: true
+      - task: :helm:dependency:update
+      - task: :helm:package
+      - task: :sealed-secrets:install
+      - task: :kubeseal:seal
+      - cmd: echo "🎉 Deploy bootstrap completed successfully"
+        silent: true
+{%- endraw %}
