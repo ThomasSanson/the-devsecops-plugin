@@ -12,9 +12,7 @@ tasks:
     cmds:
       - cmd: echo "🔄 Starting deploy phase"
         silent: true
-
       - task: :project:deploy
-
       - cmd: echo "🎉 Deploy phase completed successfully"
         silent: true
 
