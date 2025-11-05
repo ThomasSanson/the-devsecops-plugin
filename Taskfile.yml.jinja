@@ -34,13 +34,18 @@ includes:
     taskfile: .config/devsecops/Taskfile.monitor.yml
   devsecops:feedback:
     taskfile: .config/devsecops/Taskfile.feedback.yml
-  project:
+{%- endraw %}
+{%- if project_enabled %}
+{% raw %}  project:
     taskfile: project/Taskfile.yml
 {%- endraw %}
-
+{%- endif %}
+{% raw %}
   # Optional includes (For dev, testing, linting, etc.)
+{%- endraw %}
 {%- if ansible_enabled %}
-  ansible: .config/ansible
+{% raw %}  ansible: .config/ansible
+{%- endraw %}
 {%- endif -%}
 {% raw %}
   bun:
