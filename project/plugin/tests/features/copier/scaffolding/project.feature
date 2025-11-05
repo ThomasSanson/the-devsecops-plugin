@@ -78,3 +78,19 @@ Feature: Project Mode Optional Integration
       | operate  |
       | monitor  |
       | feedback |
+
+  Scenario: Test taskfile contains correct variables with project mode enabled
+    Given a clean temporary directory for project mode tests
+    When the copier command is executed with project mode enabled
+    Then the test taskfile should contain build coverage enabled
+    And the test taskfile should contain build coverage task prefix "project"
+    And the test taskfile should call project test task
+    And the test taskfile should call project test tdd task
+
+  Scenario: Test taskfile contains correct variables with project mode disabled
+    Given a clean temporary directory for project mode tests
+    When the copier command is executed with default settings for project mode
+    Then the test taskfile should contain build coverage disabled
+    And the test taskfile should contain build coverage task prefix empty
+    And the test taskfile should NOT call project test task
+    And the test taskfile should NOT call project test tdd task
