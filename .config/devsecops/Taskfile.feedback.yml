@@ -31,9 +31,7 @@ tasks:
     cmds:
       - cmd: echo "🔄 Starting feedback phase"
         silent: true
-
       - task: :project:feedback
-
       - task: renovate
       - cmd: echo "🎉 Feedback phase completed successfully"
         silent: true
