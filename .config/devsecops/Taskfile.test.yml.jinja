@@ -1,0 +1,355 @@
+{% raw -%}
+---
+version: "3"
+
+vars:
+  TASK_DEVSECOPS_TEST_ENABLED: '{{.TASK_DEVSECOPS_TEST_ENABLED | default "true"}}'
+{%- endraw %}
+{%- if project_enabled %}{%- raw %}
+  TASK_DEVSECOPS_TEST_BUILD_COVERAGE_ENABLED: '{{.TASK_DEVSECOPS_TEST_BUILD_COVERAGE_ENABLED | default "true"}}'
+  TASK_DEVSECOPS_TEST_BUILD_COVERAGE_TASK_PREFIX: '{{.TASK_DEVSECOPS_TEST_BUILD_COVERAGE_TASK_PREFIX | default "project"}}'
+{%- endraw %}{%- else %}{%- raw %}
+  TASK_DEVSECOPS_TEST_BUILD_COVERAGE_ENABLED: '{{.TASK_DEVSECOPS_TEST_BUILD_COVERAGE_ENABLED | default "false"}}'
+  TASK_DEVSECOPS_TEST_BUILD_COVERAGE_TASK_PREFIX: '{{.TASK_DEVSECOPS_TEST_BUILD_COVERAGE_TASK_PREFIX | default ""}}'
+{%- endraw %}{%- endif %}
+{%- raw %}
+  TASK_DEVSECOPS_TEST_BUILD_COVERAGE_TASK_BUILD_KEYWORD: '{{.TASK_DEVSECOPS_TEST_BUILD_COVERAGE_TASK_BUILD_KEYWORD | default "build"}}'
+  TASK_DEVSECOPS_TEST_ANSIBLE_VIRTUALENV: '{{.TASK_DEVSECOPS_TEST_ANSIBLE_VIRTUALENV | default "./venv/ansible"}}'
+  TASK_DEVSECOPS_TEST_KUBECONFIG_DIR: '{{.TASK_DEVSECOPS_TEST_KUBECONFIG_DIR | default ""}}'
+  TASK_DEVSECOPS_TEST_KUBECONFIG_FILE: "{{.TASK_DEVSECOPS_TEST_KUBECONFIG_DIR}}/kubeconfig.yaml"
+  TASK_DEVSECOPS_TEST_DESTROY_ENABLED: '{{.TASK_DEVSECOPS_TEST_DESTROY_ENABLED | default "true"}}'
+  TASK_DEVSECOPS_TEST_CLEANUP_ENABLED: '{{.TASK_DEVSECOPS_TEST_CLEANUP_ENABLED | default "true"}}'
+
+tasks:
+  default:
+    desc: Run all tests tasks
+    status:
+      - test "{{.TASK_DEVSECOPS_TEST_ENABLED}}" = "false"
+    cmds:
+      - cmd: echo "🔄 Starting test phase"
+        silent: true
+      - task: check:build-coverage
+{%- endraw %}
+{%- if project_enabled %}
+      - task: :project:test
+{%- endif %}
+{%- raw %}
+      - cmd: echo "🎉 Test phase completed successfully"
+        silent: true
+
+  tdd:
+    desc: Run all tdd tests tasks
+    status:
+      - test "{{.TASK_DEVSECOPS_TEST_ENABLED}}" = "false"
+    cmds:
+      - cmd: echo "🔄 Starting tdd phase"
+        silent: true
+{%- endraw %}
+{%- if project_enabled %}{% raw %}
+      - task: :project:test:tdd
+{%- endraw %}{%- endif %}
+{%- raw %}
+      - cmd: echo "🎉 Tdd phase completed successfully"
+        silent: true
+
+  bootstrap:infrastructure:
+    desc: |
+      ℹ️ Description:
+        Bootstraps the test infrastructure by running the preparation tasks
+        in the correct order
+    cmds:
+      - cmd: echo "🔄 Starting infrastructure bootstrap phase"
+        silent: true
+      - task: dependency
+      - task: destroy
+        vars:
+          TASK_DEVSECOPS_TEST_DESTROY_ENABLED: "{{.TASK_DEVSECOPS_TEST_DESTROY_ENABLED}}"
+      - task: cleanup
+        vars:
+          TASK_DEVSECOPS_TEST_CLEANUP_ENABLED: "{{.TASK_DEVSECOPS_TEST_CLEANUP_ENABLED}}"
+      - task: syntax
+      - task: create
+      - task: prepare
+      - cmd: echo "🎉 Infrastructure bootstrap phase completed successfully"
+        silent: true
+
+  teardown:infrastructure:
+    desc: |
+      ℹ️ Description:
+        Tears down and cleans up the test infrastructure
+    cmds:
+      - cmd: echo "🔄 Starting infrastructure teardown phase"
+        silent: true
+      - task: destroy
+      - task: cleanup
+      - cmd: echo "🎉 Infrastructure teardown phase completed successfully"
+        silent: true
+
+  destroy:
+    desc: |
+      ℹ️ Description:
+        Destroys the test infrastructure
+    status:
+      - test "{{.TASK_DEVSECOPS_TEST_DESTROY_ENABLED}}" = "false"
+    cmds:
+      - cmd: echo "🔄 Starting destroy phase"
+        silent: true
+      - task: :k3d:destroy:cluster
+      - cmd: echo "🎉 Destroy phase completed successfully"
+        silent: true
+
+  dependency:
+    desc: Verify and install required dependencies tools for testing
+    cmds:
+      - cmd: echo "🔄 Starting dependency phase"
+        silent: true
+      # Install Ansible and its dependencies first
+      - task: :ansible:install
+      # Verify Go installation
+      - task: :go:install
+      # Verify kubectl installation
+      - task: :kubectl:install
+      # Verify k3d installation
+      - task: :k3d:install
+      # Verify kubeseal installation
+      - task: :kubeseal:install
+      # Verify helm installation
+      - task: :helm:install
+      - task: :helm:dependency:update
+      # Install infrastructure test collections
+      - task: :ansible:galaxy:collection:install
+        vars:
+          TASK_ANSIBLE_COLLECTIONS_REQUIREMENTS_FILE: tests/infra/kube/ansible/requirements.yml
+      - cmd: echo "🎉 Dependency phase completed successfully"
+        silent: true
+
+  cleanup:
+    desc: |
+      ℹ️ Description:
+        Performs cleanup operations in the following order:
+        1. Removes kubeconfig files
+        2. Removes sealed secrets files
+        3. Removes Helm chart archives
+    cmds:
+      - cmd: echo "🔄 Starting cleanup phase"
+        silent: true
+      - task: cleanup:kubeconfig
+      - task: cleanup:sealed-secrets
+      - task: cleanup:helm
+      - cmd: echo "🎉 Cleanup phase completed successfully"
+        silent: true
+
+  cleanup:kubeconfig:
+    desc: |
+      ℹ️ Description:
+        Removes the kubeconfig file if it exists
+
+      🔧 Variables:
+        - TASK_DEVSECOPS_TEST_KUBECONFIG_FILE: Path to kubeconfig file
+    status:
+      - test ! -f {{.TASK_DEVSECOPS_TEST_KUBECONFIG_FILE}}
+    cmds:
+      - cmd: echo "🔄 Starting kubeconfig cleanup"
+        silent: true
+      - rm -f {{.TASK_DEVSECOPS_TEST_KUBECONFIG_FILE}}
+      - cmd: echo "🎉 Kubeconfig cleanup completed successfully"
+        silent: true
+
+  cleanup:sealed-secrets:
+    desc: |
+      ℹ️ Description:
+        Removes sealed secrets files from the environment directory
+
+      🔧 Variables:
+        - TASK_DEVSECOPS_TEST_KUBECONFIG_DIR: Environment directory containing sealed secrets
+    status:
+      - test ! -f {{.TASK_DEVSECOPS_TEST_KUBECONFIG_DIR}}/sealed-secrets.yaml
+      - test ! -f {{.TASK_DEVSECOPS_TEST_KUBECONFIG_DIR}}/.secrets.hash
+    cmds:
+      - cmd: echo "🔄 Starting sealed secrets cleanup"
+        silent: true
+      - rm -f {{.TASK_DEVSECOPS_TEST_KUBECONFIG_DIR}}/sealed-secrets.yaml
+      - rm -f {{.TASK_DEVSECOPS_TEST_KUBECONFIG_DIR}}/.secrets.hash
+      - cmd: echo "🎉 Sealed secrets cleanup completed successfully"
+        silent: true
+
+  cleanup:helm:
+    desc: |
+      ℹ️ Description:
+        Removes downloaded Helm chart archives (*.tgz files)
+
+      🔧 Variables:
+        None - Removes all .tgz files from iac/helm directory
+    status:
+      - test -z "$(find iac/helm -name '*.tgz' 2>/dev/null)"
+    cmds:
+      - cmd: echo "🔄 Starting Helm chart cleanup"
+        silent: true
+      - rm -f iac/helm/**/*.tgz
+      - cmd: echo "🎉 Helm chart cleanup completed successfully"
+        silent: true
+
+  syntax:
+    desc: Perform syntax checks and linting
+    cmds:
+      - cmd: echo "🔄 Starting syntax phase"
+        silent: true
+      - task: :helm:lint
+      - task: :ansible:syntax-check
+        vars: { TASK_ANSIBLE_PLAYBOOK_DIR: "tests/infra/kube/ansible" }
+      - cmd: echo "🎉 Syntax phase completed successfully"
+        silent: true
+
+  create:
+    desc: |
+      ℹ️ Description:
+        Creates and verifies the test infrastructure
+
+      🔄 Execution:
+        1. Creates k3d cluster
+        2. Verifies all components are running
+    cmds:
+      - cmd: echo "🔄 Starting create phase"
+        silent: true
+      - task: :k3d:create:ensure:kubeconfig
+      - task: :k3d:create:cluster
+      - task: :k3d:create:cluster:verify
+      - cmd: echo "🎉 Create phase completed successfully"
+        silent: true
+
+  prepare:
+    desc: |
+      ℹ️ Description:
+        Prepares the test infrastructure with required components
+    cmds:
+      - cmd: echo "🔄 Starting prepare phase"
+        silent: true
+      - task: :devsecops:deploy:bootstrap
+      - cmd: echo "🎉 Prepare phase completed successfully"
+        silent: true
+
+  check-testing-environment:
+    internal: true
+    desc: Check if any of the KUBECONFIG variables contain "testing" and run TDD tests if so
+    status:
+      - test -v ENV && test -n "$ENV"
+    cmds:
+      - cmd: echo "🔄 Starting check-testing-environment phase"
+        silent: true
+      - task: dependency
+      - task: create
+      - cmd: echo "🎉 Check-testing-environment phase completed successfully"
+        silent: true
+
+  side_effect:
+    desc: |
+      ℹ️ Description:
+        Simulates side effects to test system resilience in the following order:
+        1. Executes Ansible playbooks that disrupt normal operation
+        2. Waits for automatic recovery mechanisms to engage
+    cmds:
+      - cmd: echo "🔄 Starting side effect simulation phase"
+        silent: true
+      - task: side_effect:ansible
+      - cmd: echo "🎉 Side effect simulation phase completed successfully"
+        silent: true
+
+  side_effect:ansible:
+    desc: |
+      ℹ️ Description:
+        Executes infrastructure disruption playbooks
+
+      🔧 Variables:
+        - TASK_DEVSECOPS_TEST_ANSIBLE_VIRTUALENV: Path to Ansible virtual environment
+    cmds:
+      - cmd: echo "🔄 Starting ansible side effect disruption"
+        silent: true
+      - |
+        find tests/infra/kube/ansible/side_effects -type f \( -name "*.yml" -o -name "*.yaml" \) | while read playbook; do
+          echo "⚠️ Executing side effect playbook: $playbook"
+          {{.TASK_DEVSECOPS_TEST_ANSIBLE_VIRTUALENV}}/bin/ansible-playbook "$playbook"
+        done
+      - cmd: echo "🎉 Ansible side effect disruption completed successfully"
+        silent: true
+
+  verify:
+    desc: |
+      ℹ️ Description:
+        Performs verification operations in the following order:
+        1. Executes Ansible verification playbooks
+    cmds:
+      - cmd: echo "🔄 Starting verification phase"
+        silent: true
+      - task: verify:ansible
+      - cmd: echo "🎉 Verification phase completed successfully"
+        silent: true
+
+  verify:ansible:
+    desc: |
+      ℹ️ Description:
+        Executes infrastructure verification playbooks
+
+      🔧 Variables:
+        - TASK_DEVSECOPS_TEST_ANSIBLE_VIRTUALENV: Path to Ansible virtual environment
+    cmds:
+      - cmd: echo "🔄 Starting ansible verification"
+        silent: true
+      - |
+        find tests/infra/kube/ansible/verify -type f \( -name "*.yml" -o -name "*.yaml" \) | while read playbook; do
+          echo "🔎 Executing verification playbook: $playbook"
+          {{.TASK_DEVSECOPS_TEST_ANSIBLE_VIRTUALENV}}/bin/ansible-playbook "$playbook"
+        done
+      - cmd: echo "🎉 Ansible verification completed successfully"
+        silent: true
+
+  validate:resilience:
+    desc: |
+      ℹ️ Description:
+        Tests and validates infrastructure resilience by simulating disruptions
+        and verifying recovery mechanisms
+    cmds:
+      - cmd: echo "🔄 Starting resilience validation phase"
+        silent: true
+      - task: side_effect
+      - task: verify
+      - cmd: echo "🎉 Resilience validation phase completed successfully"
+        silent: true
+
+  check:build-coverage:
+    desc: |
+      ℹ️ Description:
+        Verifies that each Docker Compose file in the project has
+        a corresponding build task in the Taskfiles.
+
+        This validation ensures all Docker services can be built
+        via appropriate Task tasks.
+
+      🔧 Variables:
+        - TASK_DEVSECOPS_TEST_BUILD_COVERAGE_ENABLED: Enable/disable validation (default: true)
+        - TASK_DEVSECOPS_TEST_BUILD_COVERAGE_TASK_PREFIX: Task prefix (default: "project")
+        - TASK_DEVSECOPS_TEST_BUILD_COVERAGE_TASK_BUILD_KEYWORD: Build keyword (default: "build")
+        - SCAN_DIR: Directory to scan (default: project/)
+        - PROJECT_ROOT: Project root (default: current directory)
+        - GITIGNORE_FILE: Path to .gitignore (default: .gitignore)
+
+      ⚙️ How it works:
+        1. Scans for docker-compose*.yml files in SCAN_DIR
+        2. Excludes paths from .gitignore automatically
+        3. Extracts tasks matching {prefix}:{component}:{keyword} or {prefix}:{keyword}:{component}
+        4. Verifies correspondence and displays a detailed report
+
+      📊 Exit codes:
+        - 0: All Docker Compose files have an associated build task
+        - 1: At least one Docker Compose file is missing a build task
+    status:
+      - test "{{.TASK_DEVSECOPS_TEST_BUILD_COVERAGE_ENABLED}}" = "false"
+    cmds:
+      - cmd: echo "🔄 Starting build coverage check"
+        silent: true
+      - |
+        TASK_PREFIX="{{.TASK_DEVSECOPS_TEST_BUILD_COVERAGE_TASK_PREFIX}}" \
+        TASK_BUILD_KEYWORD="{{.TASK_DEVSECOPS_TEST_BUILD_COVERAGE_TASK_BUILD_KEYWORD}}" \
+        bash .config/devsecops/scripts/check-build-coverage.sh
+      - cmd: echo "🎉 Build coverage check completed successfully"
+        silent: true
+{%- endraw %}
