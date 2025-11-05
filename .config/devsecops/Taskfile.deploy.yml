@@ -1,3 +1,4 @@
+
 ---
 version: "3"
 
@@ -12,7 +13,12 @@ tasks:
     cmds:
       - cmd: echo "🔄 Starting deploy phase"
         silent: true
+
+
       - task: :project:deploy
+
+
+
       - cmd: echo "🎉 Deploy phase completed successfully"
         silent: true
 
@@ -29,3 +35,4 @@ tasks:
       - task: :kubeseal:seal
       - cmd: echo "🎉 Deploy bootstrap completed successfully"
         silent: true
+
