@@ -1,0 +1,23 @@
+{% raw -%}
+---
+version: "3"
+
+vars:
+  TASK_DEVSECOPS_BUILD_ENABLED: '{{.TASK_DEVSECOPS_BUILD_ENABLED | default "true"}}'
+
+tasks:
+  default:
+    desc: Run all generic build tasks
+    status:
+      - test "{{.TASK_DEVSECOPS_BUILD_ENABLED}}" = "false"
+    cmds:
+      - cmd: echo "🔄 Starting build phase"
+        silent: true
+{%- endraw %}
+{%- if project_enabled %}
+{% raw %}      - task: :project:build
+{%- endraw %}
+{%- endif %}
+{% raw %}      - cmd: echo "🎉 Build phase completed successfully"
+        silent: true
+{%- endraw %}
