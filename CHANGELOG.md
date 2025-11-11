@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 14.3.1 (2025-11-11)
+
+### Fix
+
+- **deps**: update dependency commitizen to v4.10.0
+
 ## 14.3.0 (2025-11-05)
 
 ### Feat
