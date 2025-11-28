@@ -40,7 +40,7 @@ tasks:
       - .config/docker/install.sh
       - .config/node/install.sh
       - .config/pipx/install.sh
-      - .config/go/install.sh
+      - sudo .config/go/install.sh
       - task: lefthook
       - cmd: echo "🎉 Development environment setup completed successfully"
         silent: true
