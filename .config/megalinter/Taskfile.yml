@@ -12,6 +12,10 @@ vars:
 
 tasks:
   default:
+    cmds:
+      - task: npx
+
+  docker:
     desc: Run MegaLinter for comprehensive code analysis.
     status:
       - test "{{.TASK_MEGALINTER_ENABLED}}" = "false"
