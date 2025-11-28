@@ -238,3 +238,22 @@ Then('the test taskfile should NOT call project test tdd task', () => { // eslin
   const taskfilePath = resolveProjectPath('.config/devsecops/Taskfile.test.yml')
   assertFileNotContains(taskfilePath, '- task: :project:test:tdd')
 })
+
+Then('the root Taskfile should include the project taskfile as flatten', () => { // eslint-disable-line no-undef
+  const taskfilePath = resolveProjectPath('Taskfile.yml')
+  // Check that the project taskfile include has flatten: true
+  const flattenInclude = 'project:\n    taskfile: project/Taskfile.yml\n    flatten: true'
+
+  assertFileContains(taskfilePath, flattenInclude)
+})
+
+Then('the project Taskfile should have the following prefixed tasks:', (table) => { // eslint-disable-line no-undef
+  const taskfilePath = resolveProjectPath('project/Taskfile.yml')
+  const tasks = table.rows.slice(1).map(row => row.cells[0].value)
+
+  tasks.forEach(taskName => {
+    // Each task should be defined with the prefix, e.g., 'project:plan:'
+    const taskDefinition = `${taskName}:`
+    assertFileContains(taskfilePath, taskDefinition)
+  })
+})
