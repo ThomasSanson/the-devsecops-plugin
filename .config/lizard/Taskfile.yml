@@ -52,6 +52,17 @@ tasks:
       - cmd: echo "🔄 Starting lizard analysis phase"
         silent: true
       - |
-        {{.TASK_LIZARD_COMMAND}} $(grep -v '^#' .gitignore | grep -v '^$' | awk '{if ($0 ~ /\./) print "-x"$0; else print "-x./"$0"/*"}' | tr '\n' ' ') {{.TASK_LIZARD_CLI_OPTS}} {{.TASK_LIZARD_PATH_TO_ANALYSE}}
+        # Build exclusion arguments from .gitignore, handling spaces in patterns
+        EXCLUDE_ARGS=""
+        while IFS= read -r line; do
+          [ -z "$line" ] && continue
+          case "$line" in \#*) continue ;; esac
+          if echo "$line" | grep -q '\.'; then
+            EXCLUDE_ARGS="$EXCLUDE_ARGS -x\"$line\""
+          else
+            EXCLUDE_ARGS="$EXCLUDE_ARGS -x\"./$line/*\""
+          fi
+        done < .gitignore
+        eval {{.TASK_LIZARD_COMMAND}} $EXCLUDE_ARGS {{.TASK_LIZARD_CLI_OPTS}} {{.TASK_LIZARD_PATH_TO_ANALYSE}}
       - cmd: echo "🎉 Lizard analysis phase completed successfully"
         silent: true
