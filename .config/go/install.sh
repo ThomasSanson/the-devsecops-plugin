@@ -60,7 +60,7 @@ if command -v go >/dev/null 2>&1; then
   # Add Go environment to profile.d for all shells
   if [ -d "/etc/profile.d" ]; then
     log "Adding Go environment to /etc/profile.d/go.sh"
-    cat > /etc/profile.d/go.sh <<EOF
+    cat >/etc/profile.d/go.sh <<EOF
 # Go environment
 export GOROOT=/usr/local/go
 export GOPATH=\${HOME}/go
