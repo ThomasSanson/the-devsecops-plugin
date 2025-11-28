@@ -45,6 +45,31 @@ fi
 # Verify installation
 if command -v go >/dev/null 2>&1; then
   log "go installed successfully: $(go version)"
+  # Determine the actual GOROOT (where Go was installed by the package manager)
+  ACTUAL_GOROOT=$(dirname "$(dirname "$(readlink -f "$(which go)")")")
+  log "Detected GOROOT: ${ACTUAL_GOROOT}"
+  # Create symlink to /usr/local/go if Go was installed elsewhere
+  # This ensures compatibility with tools expecting Go in /usr/local/go
+  if [ "${ACTUAL_GOROOT}" != "/usr/local/go" ] && [ ! -e "/usr/local/go" ]; then
+    log "Creating symlink: /usr/local/go -> ${ACTUAL_GOROOT}"
+    ln -s "${ACTUAL_GOROOT}" /usr/local/go
+  fi
+  # Configure Go environment
+  GOPATH="${HOME}/go"
+  mkdir -p "${GOPATH}/bin"
+  # Add Go environment to profile.d for all shells
+  if [ -d "/etc/profile.d" ]; then
+    log "Adding Go environment to /etc/profile.d/go.sh"
+    cat > /etc/profile.d/go.sh <<EOF
+# Go environment
+export GOROOT=/usr/local/go
+export GOPATH=\${HOME}/go
+export PATH=\${PATH}:\${GOROOT}/bin:\${GOPATH}/bin
+EOF
+    chmod +x /etc/profile.d/go.sh
+  fi
+  log "GOROOT=/usr/local/go (symlinked to ${ACTUAL_GOROOT})"
+  log "GOPATH=${GOPATH}"
 else
   log "Error: Failed to install go."
   exit 1
