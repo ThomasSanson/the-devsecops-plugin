@@ -12,7 +12,7 @@ _min_copier_version: "9.3.0"
 project_enabled:
   type: bool
   help: Would you like to enable the project workspace (backend, frontend, data, auth, analytics, tests) to manage component-specific tasks?
-  default: false
+  default: true
 
 _exclude:
   - .cache

@@ -113,6 +113,11 @@ When('the copier command is executed with default settings for project mode', ()
   executeCommand(`task copier -- copy . --vcs-ref=HEAD --defaults ${projectRoot}`)
 })
 
+When('the copier command is executed with project mode disabled', () => { // eslint-disable-line no-undef
+  const projectRoot = getProjectRoot()
+  executeCommand(`task copier -- copy . --vcs-ref=HEAD --defaults --data project_enabled=false ${projectRoot}`)
+})
+
 Given('a project was generated with project mode enabled', () => { // eslint-disable-line no-undef
   const projectRoot = getProjectRoot()
   executeCommand(`task copier -- copy . --vcs-ref=HEAD --defaults --data project_enabled=true ${projectRoot}`)
