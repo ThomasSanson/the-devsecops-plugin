@@ -117,6 +117,13 @@ tasks:
     internal: true
     status:
       - test "{{.TASK_LEFTHOOK_ENABLED}}" = "false"
+    env:
+      GOROOT:
+        sh: "go env GOROOT"
+      GOPATH:
+        sh: "echo ${HOME}/go"
+      PATH:
+        sh: "echo ${PATH}:$(go env GOROOT)/bin:${HOME}/go/bin"
     cmds:
       - task: :lefthook:lefthook:install
 
