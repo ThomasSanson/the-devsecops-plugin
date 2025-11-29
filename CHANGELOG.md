@@ -2,6 +2,24 @@
 
 # Changelog
 
+## 14.4.0 (2025-11-29)
+
+### Feat
+
+- **install.sh**: enhance Go installation script to configure GOROOT and GOPATH with symlink creation for compatibility
+- **Taskfile**: add environment variables for GOROOT, GOPATH, and PATH to enhance Go development setup
+- **dev**: add Go installation script to development setup tasks for improved environment configuration
+- **Taskfile**: add flatten option for project taskfile and prefix tasks for better organization and clarity
+- **copier**: enable project workspace by default and update related tests and scenarios for project mode integration
+
+### Fix
+
+- **install.sh**: remove space before output redirection to ensure correct file creation
+- **Taskfile.yml**: improve exclusion argument handling in lizard analysis to support spaces in patterns
+- **Taskfile.yml**: update go installation command to use sudo for proper permissions
+- **Taskfile**: add lefthook task to the development environment setup for improved pre-commit checks
+- **ci**: update Docker-in-Docker service version from 24.0.5 to 29 to ensure compatibility and improvements
+
 ## 14.3.1 (2025-11-11)
 
 ### Fix
