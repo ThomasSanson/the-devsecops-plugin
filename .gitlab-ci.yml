@@ -1,5 +1,19 @@
+spec:
+  inputs:
+    TASK_DEVSECOPS_RELEASE_ENABLED:
+      default: true
+      type: boolean
+      description: "Enable the DevSecOps release task."
+    RUN_FEEDBACK_SCHEDULE:
+      default: 1
+      type: number
+      description: "Feedback schedule configuration."
 ---
 image: registry.gitlab.com/digital-commons/devsecops/tools/the-devsecops-plugin:15.0.0
+
+variables:
+  TASK_DEVSECOPS_RELEASE_ENABLED: $[[ inputs.TASK_DEVSECOPS_RELEASE_ENABLED ]]
+  RUN_FEEDBACK_SCHEDULE: $[[ inputs.RUN_FEEDBACK_SCHEDULE ]]
 
 include:
   - local: .config/gitlab/ci/before_script.yml
