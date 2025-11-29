@@ -26,7 +26,7 @@
       "commitMessageTopic": "DevSecOps plugin",
       "postUpgradeTasks": {
         "commands": [
-          "git checkout -- . && git clean -fd && task copier:update TASK_COPIER_CLI_OPTS='--trust --skip-answered --defaults --vcs-ref {{{newVersion}}}'"
+          "git checkout -- . && git clean -fd && task copier:update TASK_COPIER_CLI_OPTS='--trust --skip-answered --defaults --vcs-ref {% raw %}{{{newVersion}}}{% endraw %}'"
         ],
         "fileFilters": ["**/*"],
         "executionMode": "branch"

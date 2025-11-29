@@ -15,5 +15,9 @@ Feature: Renovate plugin-only configuration
       """
     And the content of the file ".config/renovate/config.json" should contain:
       """
-      "matchPaths": ["project/**"]
+      "matchFileNames": ["project/**"]
+      """
+    And the content of the file ".config/renovate/config.json" should contain:
+      """
+      "git checkout -- . && git clean -fd && task copier:update TASK_COPIER_CLI_OPTS='--trust --skip-answered --defaults --vcs-ref {{{newVersion}}}'"
       """
