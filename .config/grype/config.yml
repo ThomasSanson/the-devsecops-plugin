@@ -4,3 +4,4 @@ exclude:
   - "./vendor"
   - "./venv"
   - "./.git"
+  - "**/node_modules/**"
