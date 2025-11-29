@@ -226,7 +226,7 @@ Then('the content of the file {string} should contain:', function (filePath, con
   assertFileContains(absPath, contentBlock)
 })
 
-Given('a project has been generated with the DevSecOps plugin', function () { // eslint-disable-line no-undef
+Given('a project has been generated with the DevSecOps toolbox', function () { // eslint-disable-line no-undef
   ensureProjectExists()
 
   // Diagnostic logging to validate git configuration
