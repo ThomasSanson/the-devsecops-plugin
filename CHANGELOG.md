@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 14.4.1 (2025-11-29)
+
+### Fix
+
+- **Taskfile.yml**: remove sudo from go installation command for better compatibility
+
 ## 14.4.0 (2025-11-29)
 
 ### Feat
