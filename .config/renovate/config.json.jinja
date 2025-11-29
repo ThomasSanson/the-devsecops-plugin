@@ -13,31 +13,33 @@
   "semanticCommitScope": "deps",
   "dependencyDashboard": true,
   "includePaths": [".config/devsecops/.copier-answers.yml", "project/**"],
-  "allowedPostUpgradeCommands": [
-    "^git restore \\.config/devsecops/\\.copier-answers\\.yml && task copier:update$"
+  "allowedCommands": [
+    "^git checkout -- \\. && git clean -fd && task copier:update TASK_COPIER_CLI_OPTS='--trust --skip-answered --defaults --vcs-ref .+'$"
   ],
   "packageRules": [
     {
       "description": "DevSecOps plugin: update .copier-answers.yml and run task copier:update to regenerate all files",
       "matchManagers": ["copier"],
-      "matchPaths": [".config/devsecops/.copier-answers.yml"],
+      "matchFileNames": [".config/devsecops/.copier-answers.yml"],
       "semanticCommitType": "feat",
       "semanticCommitScope": "devsecops",
       "commitMessageTopic": "DevSecOps plugin",
       "postUpgradeTasks": {
-        "commands": ["git restore .config/devsecops/.copier-answers.yml && task copier:update"],
+        "commands": [
+          "git checkout -- . && git clean -fd && task copier:update TASK_COPIER_CLI_OPTS='--trust --skip-answered --defaults --vcs-ref {{{newVersion}}}'"
+        ],
         "fileFilters": ["**/*"],
         "executionMode": "branch"
       }
     },
     {
       "description": "Auto-detect dependencies in project/",
-      "matchPaths": ["project/**"],
+      "matchFileNames": ["project/**"],
       "automerge": true,
       "platformAutomerge": true,
       "automergeType": "pr",
       "automergeStrategy": "fast-forward",
-      "prCreation": "immediate",
+      "prCreation": "immediate"
     }
   ]
 }
