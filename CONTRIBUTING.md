@@ -1,6 +1,6 @@
 # 👋 Contributing Guide
 
-We're thrilled that you're interested in contributing to this project! 🎉 This document outlines the contribution process and conventions to follow when participating in the development of this repository using the DevSecOps Plugin.
+We're thrilled that you're interested in contributing to this project! 🎉 This document outlines the contribution process and conventions to follow when participating in the development of this repository using the DevSecOps Toolbox.
 
 ## 🔧️ Prerequisites
 
@@ -21,8 +21,8 @@ Other dependencies will be automatically installed by the development tasks (via
 ### 1. Clone the Repository
 
 ```bash
-git clone https://gitlab.com/digital-commons/devsecops/tools/the-devsecops-plugin.git
-cd the-devsecops-plugin
+git clone https://gitlab.com/digital-commons/devsecops/the-devsecops-toolbox.git
+cd the-devsecops-toolbox
 ```
 
 ### 2. Create a Branch for Your Changes
@@ -165,7 +165,7 @@ When working with this repository, adhere to the following DevSecOps principles:
 Before contributing, familiarize yourself with the project structure:
 
 - `.config/` : Tool-specific configurations
-  - `devsecops/` : DevSecOps plugin configuration
+  - `devsecops/` : DevSecOps Toolbox configuration
   - `commitizen/` : Commit message standardization
   - `megalinter/` : Code quality and security scanning
   - `docker-ce/` : Docker configuration
@@ -177,7 +177,7 @@ Before contributing, familiarize yourself with the project structure:
 
 ### DevSecOps Pipeline Structure
 
-The DevSecOps Plugin implements a complete DevSecOps lifecycle through distinct stages:
+The DevSecOps Toolbox implements a complete DevSecOps lifecycle through distinct stages:
 
 1. 🎯 **Plan**: Initial planning and requirements
 - Automated preparation tasks
@@ -252,11 +252,11 @@ This project follows **Semantic Versioning (SemVer)** principles. Version number
 If you have questions or need help contributing:
 
 1. 📖 Check the existing documentation in the `docs/` folder
-2. 💬 [Create an issue](https://gitlab.com/digital-commons/devsecops/tools/the-devsecops-plugin/-/issues) describing your problem or question
+2. 💬 [Create an issue](https://gitlab.com/digital-commons/devsecops/the-devsecops-toolbox/-/issues) describing your problem or question
 
 ## 👊 Continuous Improvement
 
-We value continuous improvement and feedback. If you have suggestions for making the DevSecOps Plugin better, please share them through issues or merge requests.
+We value continuous improvement and feedback. If you have suggestions for making the DevSecOps Toolbox better, please share them through issues or merge requests.
 
 ## 📖 Additional Resources
 
@@ -270,4 +270,4 @@ We value continuous improvement and feedback. If you have suggestions for making
 By contributing to this project, you agree that your contributions will be covered by the [European Union Public License (EUPL)](LICENSE).
 
 ---
-🙏 Thank you for contributing to the DevSecOps Plugin!
+🙏 Thank you for contributing to the DevSecOps Toolbox!
