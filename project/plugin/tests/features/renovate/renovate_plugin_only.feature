@@ -2,7 +2,7 @@
 Feature: Renovate plugin-only configuration
   As a DevSecOps engineer
   I want the generated project to include a minimal Renovate configuration
-  So that only the DevSecOps plugin version is updated via Copier answers
+  So that only the DevSecOps toolbox version is updated via Copier answers
 
   Scenario: Generated project includes Renovate plugin-only config
     Given a clean temporary directory for tests
