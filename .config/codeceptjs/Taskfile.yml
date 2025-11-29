@@ -72,7 +72,7 @@ tasks:
       - cmd: >-
           CODECEPTJS_BASE_URL={{._FINAL_BASE_URL}}
           PLAYWRIGHT_BROWSERS_PATH={{.TASK_CODECEPTJS_CACHE_DIR}}
-          npx -y -p codeceptjs -p playwright -p codeceptjs-resemblehelper
+          npx -y -p codeceptjs -p playwright -p @digital-commons-official/codeceptjs-visual-helper
           codeceptjs run --config {{.TASK_CODECEPTJS_CONFIG}}{{if .TASK_CODECEPTJS_GREP}} --grep {{.TASK_CODECEPTJS_GREP}}{{end}}{{if .TASK_CODECEPTJS_DEBUG}} --debug{{end}}{{if .TASK_CODECEPTJS_STEPS}} --steps{{end}}{{if .TASK_CODECEPTJS_REPORTER}} --reporter {{.TASK_CODECEPTJS_REPORTER}}{{end}}{{if .TASK_CODECEPTJS_VERBOSE}} --verbose{{end}}{{if .TASK_CODECEPTJS_OVERRIDE}} --override {{.TASK_CODECEPTJS_OVERRIDE}}{{end}}
           {{.CLI_ARGS}}
       - cmd: echo '🎉 CodeceptJS (npx) tests completed successfully.'
