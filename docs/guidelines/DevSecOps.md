@@ -342,7 +342,7 @@ Renovate is provided under `/.config/renovate/` to automate dependency upkeep. U
   - `TASK_RENOVATE_REPOSITORY`: repository root to scan (default: `.`).
 
 Notes:
-- Projects generated via Copier utilise the minimal template `config.json.jinja` to update only the DevSecOps plugin version through `regexManagers`.
+- Projects generated via Copier utilise the minimal template `config.json.jinja` to update only the DevSecOps toolbox version through `regexManagers`.
 - This repository itself uses the full configuration `config.json`.
 
 ## 5. Task: Code
