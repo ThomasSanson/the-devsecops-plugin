@@ -2,7 +2,7 @@
 Feature: Ansible Optional Integration
   As a DevSecOps engineer
   I want to generate a project without Ansible integration
-  So that I can use the DevSecOps plugin in projects that don't require Ansible
+  So that I can use the DevSecOps toolbox in projects that don't require Ansible
 
   @default
   Scenario: Generate project without Ansible integration (default behaviour)
