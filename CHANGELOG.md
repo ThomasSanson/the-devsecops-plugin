@@ -2,6 +2,14 @@
 
 # Changelog
 
+## 15.1.1 (2025-11-29)
+
+### Fix
+
+- **renovate_plugin_only.feature**: update feature description to reflect correct versioning terminology for clarity
+- **default.feature**: update scenario step to reflect correct terminology for DevSecOps tool
+- **copier.js**: update step definition to reflect correct terminology from 'plugin' to 'toolbox' for clarity
+
 ## 15.1.0 (2025-11-29)
 
 ### Feat
