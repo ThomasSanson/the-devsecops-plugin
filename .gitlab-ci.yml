@@ -5,8 +5,8 @@ spec:
       type: boolean
       description: "Enable the DevSecOps release task."
     RUN_FEEDBACK_SCHEDULE:
-      default: 1
-      type: number
+      default: true
+      type: boolean
       description: "Feedback schedule configuration."
 ---
 image: registry.gitlab.com/digital-commons/devsecops/tools/the-devsecops-plugin:15.0.0
