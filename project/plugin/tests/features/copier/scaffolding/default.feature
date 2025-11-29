@@ -41,6 +41,6 @@ Feature: Project Scaffolding
     And the commitizen "version_files" configuration should NOT contain ".gitlab-ci.yml"
 
   Scenario: Running a DevSecOps task in the generated project
-    Given a project has been generated with the DevSecOps plugin
+    Given a project has been generated with the DevSecOps toolbox
     When I execute the DevSecOps task
     Then the DevSecOps task should complete successfully
