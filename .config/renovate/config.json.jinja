@@ -18,12 +18,12 @@
   ],
   "packageRules": [
     {
-      "description": "DevSecOps plugin: update .copier-answers.yml and run task copier:update to regenerate all files",
+      "description": "DevSecOps Toolbox: update .copier-answers.yml and run task copier:update to regenerate all files",
       "matchManagers": ["copier"],
       "matchFileNames": [".config/devsecops/.copier-answers.yml"],
       "semanticCommitType": "feat",
       "semanticCommitScope": "devsecops",
-      "commitMessageTopic": "DevSecOps plugin",
+      "commitMessageTopic": "DevSecOps Toolbox",
       "postUpgradeTasks": {
         "commands": [
           "git checkout -- . && git clean -fd && task copier:update TASK_COPIER_CLI_OPTS='--trust --skip-answered --defaults --vcs-ref {% raw %}{{{newVersion}}}{% endraw %}'"
