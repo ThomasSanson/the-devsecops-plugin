@@ -2,7 +2,7 @@
 Feature: Project Mode Optional Integration
   As a DevSecOps engineer
   I want to generate a project with or without project mode integration
-  So that I can use the DevSecOps plugin with or without custom project-specific tasks
+  So that I can use the DevSecOps toolbox with or without custom project-specific tasks
 
   @default
   Scenario: Generate project with project mode integration (default behaviour)
