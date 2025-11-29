@@ -2,6 +2,18 @@
 
 # Changelog
 
+## 15.1.0 (2025-11-29)
+
+### Feat
+
+- **ci**: add input variables for DevSecOps release task and feedback schedule in GitLab CI configuration
+
+### Fix
+
+- **ci**: update RUN_FEEDBACK_SCHEDULE variable type to boolean and adjust its default value for consistency in feedback configuration
+- **renovate**: update task command syntax and correct matchPaths to matchFileNames in configuration tests
+- **renovate**: update allowed commands and match paths for better dependency management and automation
+
 ## 15.0.0 (2025-11-29)
 
 ### Feat
