@@ -1,4 +1,4 @@
-# ∞ The DevSecOps Plugin
+# 🧰 The DevSecOps Toolbox
 
 <div align="center">
 
@@ -41,7 +41,7 @@
 
 ## About
 
-The DevSecOps Plugin is a comprehensive toolset designed to streamline and enforce DevSecOps practices in your development workflow. It integrates various tools and best practices for continuous integration, security scanning, code quality analysis, and deployment automation.
+The DevSecOps Toolbox is a comprehensive toolset designed to streamline and enforce DevSecOps practices in your development workflow. It integrates various tools and best practices for continuous integration, security scanning, code quality analysis, and deployment automation.
 
 ### Key Features
 
@@ -80,7 +80,7 @@ The DevSecOps Plugin is a comprehensive toolset designed to streamline and enfor
 
 ### Pipeline Stages
 
-The plugin implements a complete DevSecOps lifecycle through distinct stages:
+The Toolbox implements a complete DevSecOps lifecycle through distinct stages:
 
 1. 🎯 **Plan**: Initial planning and setup
 2. 💻 **Code**: Development with integrated security checks
@@ -114,7 +114,7 @@ The plugin implements a complete DevSecOps lifecycle through distinct stages:
 
 ### Prerequisites
 
-Before using the DevSecOps Plugin, ensure you have the following installed:
+Before using the DevSecOps Toolbox, ensure you have the following installed:
 
 - Git
 - [pipx](https://pipx.pypa.io/) – to install Python CLI applications (e.g., Copier and uv)
@@ -155,14 +155,14 @@ cd ~/workspace/path/to/your/new/project
 
 
 ```bash
-copier copy -a .config/devsecops/.copier-answers.yml https://gitlab.com/digital-commons/devsecops/tools/the-devsecops-plugin.git .
+copier copy -a .config/devsecops/.copier-answers.yml https://gitlab.com/digital-commons/devsecops/the-devsecops-toolbox.git .
 ```
 
 Replace `/path/to/your/new/project` with your desired project location.
 Use `.` to create in the current directory
 
 
-4. Commit the plugin
+4. Commit the toolbox
 
 ```bash
 task dev:up
@@ -174,7 +174,7 @@ git commit -m"feat(devsecops): init"
 
 ### Task Control
 
-The plugin uses Task for operation control. Configuration is managed through environment variables defined in `.env` or `.env.dist` files.
+The toolbox uses Task for operation control. Configuration is managed through environment variables defined in `.env` or `.env.dist` files.
 
 Copy the template file and customize as needed:
 ```bash
@@ -212,7 +212,7 @@ Key environment variables are automatically loaded by Task. See [`.env.dist`](.e
 
 ### Project Customization
 
-The plugin is designed to be easily customizable for specific project needs. Each project can define its own tasks in `project/Taskfile.yml` following the same lifecycle stages:
+The toolbox is designed to be easily customizable for specific project needs. Each project can define its own tasks in `project/Taskfile.yml` following the same lifecycle stages:
 
 ```yaml
 # project/Taskfile.yml
@@ -272,7 +272,7 @@ task commitlint         # Commit message validation
 ## Environment Variables
 
 ### Task Control Variables
-You can customize the behavior of the plugin by setting environment variables in your `.env` file.
+You can customize the behavior of the toolbox by setting environment variables in your `.env` file.
 
 **Setup:**
 ```bash
@@ -301,8 +301,8 @@ The following variables need to be configured in your GitLab CI/CD settings:
 
 1. Clone the repository:
 ```bash
-git clone https://gitlab.gitlab.com/digital-commons/devsecops/tools/the-devsecops-plugin.git
-cd the-devsecops-plugin
+git clone https://gitlab.com/digital-commons/devsecops/the-devsecops-toolbox.git
+cd the-devsecops-toolbox
 ```
 
 2. Install Task:
@@ -322,7 +322,7 @@ task devsecops
 
 ## Architecture
 
-The plugin follows a modular architecture:
+The toolbox follows a modular architecture:
 
 ```bash
 .
@@ -356,11 +356,11 @@ which are automatically integrated into the main pipeline while preserving the c
 - 📝 **Standardization**: Enforced commit message formatting
 - 🔍 **Monitoring**: Built-in monitoring capabilities
 - 🚀 **Project Customization**: Extensible framework allowing projects to define custom tasks for each lifecycle stage
-  🔌 **Plugin Architecture**: Clear separation between core DevSecOps features and project-specific implementations
+  🔌 **Toolbox Architecture**: Clear separation between core DevSecOps features and project-specific implementations
 
 ## Security
 
-The plugin implements multiple security measures:
+The toolbox implements multiple security measures:
 
 - Automated vulnerability scanning with Grype and Trivy
 - Code quality checks with MegaLinter
