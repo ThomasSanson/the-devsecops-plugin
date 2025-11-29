@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 15.0.0 (2025-11-29)
+
+### Feat
+
+- **Taskfile**: update codeceptjs visual helper package to use official version from digital-commons-official
+
 ## 14.4.4 (2025-11-29)
 
 ### Fix
