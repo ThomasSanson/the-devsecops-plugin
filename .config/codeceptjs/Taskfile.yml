@@ -21,6 +21,17 @@ vars:
   # Cache configuration
   TASK_CODECEPTJS_CACHE_DIR: '{{.TASK_CODECEPTJS_CACHE_DIR | default ".cache/codeceptjs/playwright"}}'
 
+  # Versions from package.json
+  TASK_CODECEPTJS_VERSION_CODECEPTJS:
+    sh: node -p "require('./.config/codeceptjs/package.json').devDependencies.codeceptjs"
+  TASK_CODECEPTJS_VERSION_PLAYWRIGHT:
+    sh: node -p "require('./.config/codeceptjs/package.json').devDependencies.playwright"
+  TASK_CODECEPTJS_VERSION_VISUAL_HELPER:
+    sh: node -p "require('./.config/codeceptjs/package.json').devDependencies['@digital-commons-official/codeceptjs-visual-helper']"
+
+  # Packages to install via npx
+  TASK_CODECEPTJS_PACKAGES: '{{.TASK_CODECEPTJS_PACKAGES | default (printf "-p codeceptjs@%s -p playwright@%s -p @digital-commons-official/codeceptjs-visual-helper@%s" .TASK_CODECEPTJS_VERSION_CODECEPTJS .TASK_CODECEPTJS_VERSION_PLAYWRIGHT .TASK_CODECEPTJS_VERSION_VISUAL_HELPER)}}'
+
 tasks:
   playwright:install:
     desc: Install Playwright browsers locally (Chromium, Firefox, WebKit).
@@ -66,22 +77,13 @@ tasks:
       - task: playwright:install
     vars:
       _FINAL_BASE_URL: '{{if and (eq .TASK_CODECEPTJS_CI "true") .CODECEPTJS_BASE_URL_CI}}{{.CODECEPTJS_BASE_URL_CI}}{{else}}{{.CODECEPTJS_BASE_URL | default .TASK_CODECEPTJS_ENV_BASE_URL}}{{end}}'
-      VERSION_CODECEPTJS:
-        sh: node -p "require('./.config/codeceptjs/package.json').devDependencies.codeceptjs"
-      VERSION_PLAYWRIGHT:
-        sh: node -p "require('./.config/codeceptjs/package.json').devDependencies.playwright"
-      VERSION_VISUAL_HELPER:
-        sh: node -p "require('./.config/codeceptjs/package.json').devDependencies['@digital-commons-official/codeceptjs-visual-helper']"
     cmds:
       - cmd: echo "🔄 Running CodeceptJS tests via npx (Playwright)"
         silent: true
       - cmd: >-
           CODECEPTJS_BASE_URL={{._FINAL_BASE_URL}}
           PLAYWRIGHT_BROWSERS_PATH={{.TASK_CODECEPTJS_CACHE_DIR}}
-          npx -y
-          -p codeceptjs@{{.VERSION_CODECEPTJS}}
-          -p playwright@{{.VERSION_PLAYWRIGHT}}
-          -p @digital-commons-official/codeceptjs-visual-helper@{{.VERSION_VISUAL_HELPER}}
+          npx -y {{.TASK_CODECEPTJS_PACKAGES}}
           codeceptjs run --config {{.TASK_CODECEPTJS_CONFIG}}{{if .TASK_CODECEPTJS_GREP}} --grep {{.TASK_CODECEPTJS_GREP}}{{end}}{{if .TASK_CODECEPTJS_DEBUG}} --debug{{end}}{{if .TASK_CODECEPTJS_STEPS}} --steps{{end}}{{if .TASK_CODECEPTJS_REPORTER}} --reporter {{.TASK_CODECEPTJS_REPORTER}}{{end}}{{if .TASK_CODECEPTJS_VERBOSE}} --verbose{{end}}{{if .TASK_CODECEPTJS_OVERRIDE}} --override {{.TASK_CODECEPTJS_OVERRIDE}}{{end}}
           {{.CLI_ARGS}}
       - cmd: echo '🎉 CodeceptJS (npx) tests completed successfully.'
