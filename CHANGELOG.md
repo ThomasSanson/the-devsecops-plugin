@@ -2,6 +2,19 @@
 
 # Changelog
 
+## 15.2.0 (2025-12-01)
+
+### Feat
+
+- **Taskfile.yml**: refactor task variables to improve package management and installation process for CodeceptJS and Playwright
+- **Taskfile.yml**: update playwright installation commands to use version variable for consistency in CI environments
+- **Taskfile.yml**: streamline package version retrieval and installation commands for CodeceptJS and Playwright
+- **Taskfile.yml**: add version variables for CodeceptJS and dependencies to ensure consistent package usage
+
+### Fix
+
+- **package.json**: update devDependencies for CodeceptJS and TypeScript to latest versions for improved stability and features
+
 ## 15.1.1 (2025-11-29)
 
 ### Fix
