@@ -54,11 +54,11 @@ tasks:
           export NPM_CONFIG_FETCH_RETRY_MINTIMEOUT="${NPM_CONFIG_FETCH_RETRY_MINTIMEOUT:-20000}"
           export NPM_CONFIG_FETCH_RETRY_MAXTIMEOUT="${NPM_CONFIG_FETCH_RETRY_MAXTIMEOUT:-120000}"
           export NPM_CONFIG_REGISTRY="${NPM_CONFIG_REGISTRY:-https://registry.npmjs.org}"
-          npx -y -p playwright playwright install chromium
+          npx -y -p playwright@{{.TASK_CODECEPTJS_VERSION_PLAYWRIGHT}} playwright install chromium
       - cmd: |
           # install-deps requires root privileges; skip in CI runners
           if [ "{{.TASK_CODECEPTJS_CI}}" == "true" ]; then
-            npx -y -p playwright playwright install-deps || true
+            npx -y -p playwright@{{.TASK_CODECEPTJS_VERSION_PLAYWRIGHT}} playwright install-deps || true
           else
             echo "ℹ️ Skipping install-deps in CI."
           fi
