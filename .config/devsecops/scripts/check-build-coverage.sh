@@ -122,19 +122,46 @@ echo -e "${BLUE}🔍 Extracting build tasks from Taskfiles...${NC}"
 
 # First, extract includes/namespaces from main Taskfile
 declare -A namespace_map
+declare -A flatten_map
 if [ -f "$PROJECT_ROOT/Taskfile.yml" ]; then
+  in_includes=false
   current_namespace=""
+  current_flatten="false"
+  last_taskfile_path=""
   while IFS= read -r line; do
-    # Match lines like "  project:" or "  namespace:"
-    if [[ "$line" =~ ^[[:space:]]+([a-zA-Z0-9_-]+):[[:space:]]*$ ]]; then
-      current_namespace="${BASH_REMATCH[1]}"
-    fi
-    # Match lines like "    taskfile: path/to/Taskfile.yml"
-    if [[ "$line" =~ ^[[:space:]]+taskfile:[[:space:]]+(.+)$ ]]; then
-      taskfile_path="${BASH_REMATCH[1]}"
-      if [ -n "$current_namespace" ]; then
-        namespace_map["$PROJECT_ROOT/$taskfile_path"]="$current_namespace"
-        current_namespace="" # Reset after mapping
+    [[ "$line" =~ ^includes: ]] && {
+      in_includes=true
+      continue
+    }
+    if $in_includes; then
+      # Leave includes block when a new top-level key starts
+      if [[ "$line" =~ ^[^[:space:]] && ! "$line" =~ ^includes: ]]; then
+        break
+      fi
+
+      if [[ "$line" =~ ^[[:space:]]+([a-zA-Z0-9_-]+):[[:space:]]*$ ]]; then
+        current_namespace="${BASH_REMATCH[1]}"
+        current_flatten="false"
+        last_taskfile_path=""
+        continue
+      fi
+
+      if [[ "$line" =~ ^[[:space:]]+taskfile:[[:space:]]+(.+)$ ]]; then
+        taskfile_path="${BASH_REMATCH[1]}"
+        if [ -n "$current_namespace" ]; then
+          full_path="$PROJECT_ROOT/$taskfile_path"
+          namespace_map["$full_path"]="$current_namespace"
+          flatten_map["$full_path"]="$current_flatten"
+          last_taskfile_path="$full_path"
+        fi
+        continue
+      fi
+
+      if [[ "$line" =~ ^[[:space:]]+flatten:[[:space:]]+(true|false)[[:space:]]*$ ]]; then
+        current_flatten="${BASH_REMATCH[1]}"
+        if [ -n "$last_taskfile_path" ]; then
+          flatten_map["$last_taskfile_path"]="$current_flatten"
+        fi
       fi
     fi
   done <"$PROJECT_ROOT/Taskfile.yml"
@@ -145,33 +172,50 @@ declare -a build_tasks
 
 for taskfile in $(find "$PROJECT_ROOT" -type f \( -name "Taskfile.yml" -o -name "Taskfile.*.yml" \) "${find_excludes[@]}" | sort); do
   namespace="${namespace_map[$taskfile]:-}"
+  flatten_include="${flatten_map[$taskfile]:-false}"
 
-  # Extract exact "build:" task
-  if grep -qE "^[[:space:]]+${TASK_BUILD_KEYWORD}:[[:space:]]*$" "$taskfile" 2>/dev/null; then
-    if [ -n "$namespace" ]; then
-      build_tasks+=("${namespace}:${TASK_BUILD_KEYWORD}")
-    else
-      build_tasks+=("${TASK_BUILD_KEYWORD}")
-    fi
-  fi
+  mapfile -t task_names < <(awk '
+    BEGIN { in_tasks=0 }
+    /^tasks:/ { in_tasks=1; next }
+    in_tasks {
+      if ($0 ~ /^[[:space:]]{2}[A-Za-z0-9._:-]+:[[:space:]]*$/) {
+        line=$0
+        sub(/^[[:space:]]+/, "", line)
+        sub(/:[[:space:]]*$/, "", line)
+        print line
+      } else if ($0 ~ /^[^[:space:]]/ && $0 !~ /^#/) {
+        exit
+      }
+    }
+  ' "$taskfile" 2>/dev/null)
 
-  # Extract "build:component:" tasks (e.g., build:backend:, build:redis:)
-  while IFS= read -r component; do
-    if [ -n "$namespace" ]; then
-      build_tasks+=("${namespace}:${TASK_BUILD_KEYWORD}:${component}")
-    else
-      build_tasks+=("${TASK_BUILD_KEYWORD}:${component}")
-    fi
-  done < <(grep -hE "^[[:space:]]+${TASK_BUILD_KEYWORD}:[^:]+:" "$taskfile" 2>/dev/null | sed "s/^[[:space:]]*${TASK_BUILD_KEYWORD}://;s/:.*$//")
+  for task_name in "${task_names[@]}"; do
+    [ -z "$task_name" ] && continue
 
-  # Extract "component:build:" tasks (e.g., backend:build:, redis:build:)
-  while IFS= read -r component; do
-    if [ -n "$namespace" ]; then
-      build_tasks+=("${namespace}:${TASK_BUILD_KEYWORD}:${component}")
-    else
-      build_tasks+=("${TASK_BUILD_KEYWORD}:${component}")
+    accessible_name="$task_name"
+    if [ -n "$namespace" ] && "${flatten_include}" != "true" && [[ "$task_name" != "$namespace:"* ]]; then
+      accessible_name="${namespace}:${task_name}"
     fi
-  done < <(grep -hE "^[[:space:]]+[^:]+:${TASK_BUILD_KEYWORD}:[[:space:]]*$" "$taskfile" 2>/dev/null | sed "s/^[[:space:]]*//;s/:${TASK_BUILD_KEYWORD}:.*$//")
+
+    if [[ "$accessible_name" =~ ^${TASK_BUILD_KEYWORD}(:[A-Za-z0-9._-]+)?$ ]]; then
+      build_tasks+=("$accessible_name")
+      continue
+    fi
+
+    if [[ "$accessible_name" =~ ^${TASK_PREFIX}:${TASK_BUILD_KEYWORD}(:[A-Za-z0-9._-]+)?$ ]]; then
+      build_tasks+=("$accessible_name")
+      continue
+    fi
+
+    if [[ "$accessible_name" =~ ^${TASK_PREFIX}:[A-Za-z0-9._-]+:${TASK_BUILD_KEYWORD}$ ]]; then
+      build_tasks+=("$accessible_name")
+      continue
+    fi
+
+    if [[ "$accessible_name" =~ ^[A-Za-z0-9._-]+:${TASK_BUILD_KEYWORD}(:[A-Za-z0-9._-]+)?$ ]]; then
+      build_tasks+=("$accessible_name")
+    fi
+  done
 done
 
 # Remove duplicates and sort
@@ -202,6 +246,7 @@ extract_expected_tasks() {
   local filename
   dir=$(dirname "$relative_path")
   filename=$(basename "$relative_path")
+  # shellcheck disable=SC2034
   component=$(echo "$dir" | cut -d'/' -f1)
 
   if [[ "$filename" == "docker-compose.yml" ]]; then
@@ -215,10 +260,16 @@ extract_expected_tasks() {
 echo -e "${BLUE}🔍 Verifying build coverage...${NC}\n"
 
 for compose_file in "${compose_files[@]}"; do
-  ((total_compose_files++)) || true
-
   relative_path="${compose_file#"$PROJECT_ROOT"/}"
   mapfile -t expected_tasks < <(extract_expected_tasks "$compose_file")
+
+  # Skip compose files (e.g. *.dev) that do not produce any expected task pattern
+  if [ ${#expected_tasks[@]} -eq 0 ]; then
+    echo -e "${YELLOW}⚠${NC} Skipping $relative_path (no expected build task pattern)\n"
+    continue
+  fi
+
+  ((total_compose_files++)) || true
 
   # Search for matching task
   task_found=false
