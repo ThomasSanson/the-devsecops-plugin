@@ -92,3 +92,44 @@ tasks:
           {{.CLI_ARGS}}
       - cmd: echo '🎉 CodeceptJS (npx) tests completed successfully.'
         silent: true
+
+  docker:
+    desc: Run CodeceptJS via Docker with Playwright.
+    summary: |
+      Run CodeceptJS inside a Docker container using the official Playwright image.
+      This ensures identical rendering on macOS, Linux, and CI.
+
+      Variables: TASK_CODECEPTJS_CONFIG, CODECEPTJS_TESTS_PATH
+    vars:
+      _CODECEPTJS_CONFIG: '{{.TASK_CODECEPTJS_CONFIG | default ".config/codeceptjs/codecept.conf.sample.js"}}'
+      _CODECEPTJS_TESTS_PATH_HOST: '{{.TASK_CODECEPTJS_TESTS_PATH_HOST | default "."}}'
+      _CODECEPTJS_TESTS_PATH_CONTAINER: '{{.TASK_CODECEPTJS_TESTS_PATH_CONTAINER | default "/app"}}'
+      _CODECEPTJS_SERVICE_NAME: '{{.TASK_CODECEPTJS_SERVICE_NAME | default "codeceptjs"}}'
+      _CODECEPTJS_COMPOSE_COMMAND: '{{.TASK_CODECEPTJS_COMPOSE_COMMAND | default "docker compose -f .config/codeceptjs/docker-compose.sample.yml"}}'
+    cmds:
+      # 1. Start the container and wait for healthcheck
+      - cmd: |
+          {{._CODECEPTJS_COMPOSE_COMMAND}} up -d {{._CODECEPTJS_SERVICE_NAME}} --wait
+      # 2. Cleanup: Wipe the target directory inside the container first.
+      # This prevents "zombie files" (files deleted on host but remaining in container) from corrupting the run.
+      - cmd: |
+          {{._CODECEPTJS_COMPOSE_COMMAND}} exec -T {{._CODECEPTJS_SERVICE_NAME}} rm -rf {{._CODECEPTJS_TESTS_PATH_CONTAINER}}
+        ignore_error: true
+      # 3. Create the directory structure inside container
+      - cmd: |
+          {{._CODECEPTJS_COMPOSE_COMMAND}} exec -T {{._CODECEPTJS_SERVICE_NAME}} mkdir -p {{._CODECEPTJS_TESTS_PATH_CONTAINER}}
+      # 4. Sync Code: Host -> Container
+      - cmd: |
+          {{._CODECEPTJS_COMPOSE_COMMAND}} cp {{._CODECEPTJS_TESTS_PATH_HOST}}/. {{._CODECEPTJS_SERVICE_NAME}}:{{._CODECEPTJS_TESTS_PATH_CONTAINER}}/
+      # 5. Schedule Sync Back with defer: Container -> Host (Artifacts retrieval)
+      # This runs at the end, regardless of test success/failure.
+      - defer: |
+          echo "📥 Syncing artifacts (reports/screenshots) back to host..."
+          {{._CODECEPTJS_COMPOSE_COMMAND}} cp {{._CODECEPTJS_SERVICE_NAME}}:{{._CODECEPTJS_TESTS_PATH_CONTAINER}}/. {{._CODECEPTJS_TESTS_PATH_HOST}}/
+        ignore_error: true
+      # 6. Run Tests
+      # Note: Added '-T' to disable TTY allocation, ensuring stability in CI environments (Jenkins/GitLab).
+      - cmd: |
+          {{._CODECEPTJS_COMPOSE_COMMAND}} exec -T {{._CODECEPTJS_SERVICE_NAME}} /usr/local/bin/codeceptjs run --config {{._CODECEPTJS_CONFIG}} {{.CLI_ARGS}}
+      - cmd: echo '🎉 CodeceptJS (Docker) tests completed successfully.'
+        silent: true
