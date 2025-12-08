@@ -1,0 +1,24 @@
+# kics-scan disable=698ed579-b239-4f8f-a388-baa4bcb13ef8
+---
+services:
+  codeceptjs:
+    init: true
+    # kics-scan ignore-line
+    build:
+      context: ../..
+      dockerfile: .config/codeceptjs/Dockerfile
+    working_dir: /app
+    environment:
+      - FORCE_COLOR=1
+      - TERM=xterm-256color
+    command: sleep infinity
+    profiles: ["test"]
+    # Drop NET_RAW capability (safe for most apps, satisfies linter)
+    cap_drop:
+      - NET_RAW
+    # Prevent privilege escalation (satisfies security_opt rule)
+    security_opt:
+      - no-new-privileges:true
+    # Explicitly disable healthcheck for this test container
+    healthcheck:
+      disable: true
