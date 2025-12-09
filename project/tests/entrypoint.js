@@ -1,0 +1,29 @@
+/**
+ * Test Entrypoint
+ *
+ * Loads step definitions and registers hooks to capture test metadata.
+ */
+
+const { setCurrentTest, clearCurrentTest } = require('./steps/support/testContext')
+
+// Register Before hook to capture test metadata
+// The 'test' parameter contains feature/scenario information
+Before((test) => { // eslint-disable-line no-undef
+  const scenario = test.title || 'default'
+  const feature = test.parent?.title || 'default'
+  setCurrentTest(feature, scenario)
+})
+
+// Clear metadata after each test
+After(() => { // eslint-disable-line no-undef
+  clearCurrentTest()
+})
+
+// Load step definitions
+const givenSteps = require('./steps/given')
+const whenSteps = require('./steps/when')
+const thenSteps = require('./steps/then')
+
+givenSteps.register()
+whenSteps.register()
+thenSteps.register()

@@ -42,7 +42,7 @@ REPOSITORY_DUSTILOCK_ARGUMENTS: "--path ."
 SHOW_ELAPSED_TIME: true
 SARIF_REPORTER: true
 CLEAR_REPORT_FOLDER: true
-PARALLEL_PROCESS_NUMBER: 2 # Limiting to 2 cores is necessary to prevent Dustilock or Checkov from crashing.
+# PARALLEL_PROCESS_NUMBER: 2 # Limiting to 2 cores is necessary to prevent Dustilock or Checkov from crashing.
 
 PRE_COMMANDS:
   # - command: cd /tmp/lint && mkdir -p /usr/share/ansible && find . -type f \( -iname 'requirements.yml' -o -iname 'requirements.yaml' \) -print0 | xargs -0 -I{} sh -c 'grep -Eq "^[[:space:]]*collections[[:space:]]*:" "{}" && ansible-galaxy collection install -r "{}" -p /usr/share/ansible/collections || ansible-galaxy role install -r "{}" --roles-path /usr/share/ansible/roles'

@@ -111,3 +111,16 @@ Feature: Project Mode Optional Integration
       | project:operate  |
       | project:monitor  |
       | project:feedback |
+
+  Scenario: Generated project has complete DevSecOps Taskfile structure
+    Given a generated project from the Copier template
+    Then the "Taskfile.yml" file should exist
+    And the ".config/devsecops/Taskfile.plan.yml" file should exist
+    And the ".config/devsecops/Taskfile.code.yml" file should exist
+    And the ".config/devsecops/Taskfile.build.yml" file should exist
+    And the ".config/devsecops/Taskfile.test.yml" file should exist
+    And the ".config/devsecops/Taskfile.release.yml" file should exist
+    And the ".config/devsecops/Taskfile.deploy.yml" file should exist
+    And the ".config/devsecops/Taskfile.operate.yml" file should exist
+    And the ".config/devsecops/Taskfile.monitor.yml" file should exist
+    And the ".config/devsecops/Taskfile.feedback.yml" file should exist
