@@ -1,3 +1,4 @@
+---
 # .gitlab-ci.yml
 .code-rules: &code_rules
   rules:

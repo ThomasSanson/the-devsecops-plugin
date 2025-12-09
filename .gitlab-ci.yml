@@ -1,3 +1,4 @@
+---
 spec:
   inputs:
     TASK_DEVSECOPS_RELEASE_ENABLED:

@@ -1,3 +1,4 @@
+---
 before_script:
   # Install curl (external script)
   - .config/curl/install.sh
