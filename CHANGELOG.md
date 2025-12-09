@@ -2,6 +2,25 @@
 
 # Changelog
 
+## 16.0.0 (2025-12-09)
+
+### Feat
+
+- **gitlab**: add script to list GitLab projects in a tree format with output options
+- **megalinter**: update TASK_MEGALINTER_VERSION to use grep and sed for better compatibility with package.json format
+- **megalinter**: update Taskfile.yml to use dynamic versioning for mega-linter-runner and add package.json for dependency management
+- **Taskfile**: add init task to streamline development environment setup process
+- **codeceptjs**: add Docker task for running CodeceptJS with Playwright to ensure consistent test environments across platforms
+- **create-issues.sh**: add script for idempotent GitLab issue creation and update with dry-run support
+- **docker-compose**: add sample docker-compose configuration for CodeceptJS to streamline testing setup
+- **codeceptjs**: add Dockerfile for setting up CodeceptJS environment with Bun for faster dependency management
+- upgrade lock file
+
+### Fix
+
+- **create-issues.sh**: update French messages to English for consistency and clarity
+- **check-build-coverage.sh**: enhance task extraction logic to support flattening and improve namespace handling in build tasks
+
 ## 15.2.2 (2025-12-09)
 
 ### Fix
