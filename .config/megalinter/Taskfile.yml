@@ -2,13 +2,18 @@
 version: "3"
 
 vars:
+  # Versioning (Source of truth from package.json)
+  TASK_MEGALINTER_VERSION:
+    sh: node -p "require('./.config/megalinter/package.json').dependencies['mega-linter-runner']"
+
+  # Configuration
   TASK_MEGALINTER_ENABLED: '{{.TASK_MEGALINTER_ENABLED | default "true"}}'
-  TASK_MEGALINTER_CONTAINER_NAME: '{{.TASK_MEGALINTER_CONTAINER_NAME | default "megalinter-container"}}'
-  TASK_MEGALINTER_CONTAINER_VERSION: '{{.TASK_MEGALINTER_CONTAINER_VERSION | default "v8"}}'
-  TASK_MEGALINTER_IMAGE_PREFIX: '{{.TASK_MEGALINTER_IMAGE_PREFIX | default ""}}'
   TASK_MEGALINTER_CONFIG: '{{.TASK_MEGALINTER_CONFIG | default ".config/megalinter/config.yml"}}'
   TASK_MEGALINTER_FLAVOR: '{{.TASK_MEGALINTER_FLAVOR | default ""}}'
-  TASK_MEGALINTER_RELEASE: '{{.TASK_MEGALINTER_RELEASE | default "mega-linter-runner@9.1.0"}}'
+
+  # Docker Advanced Settings
+  TASK_MEGALINTER_CONTAINER_NAME: '{{.TASK_MEGALINTER_CONTAINER_NAME | default "megalinter-container"}}'
+  TASK_MEGALINTER_IMAGE_PREFIX: '{{.TASK_MEGALINTER_IMAGE_PREFIX | default ""}}'
 
 tasks:
   default:
@@ -23,12 +28,12 @@ tasks:
       - sh: "command -v docker &> /dev/null"
         msg: "❌ Docker is not installed. Please run the 'docker-ce:install' task first."
     cmds:
-      - cmd: echo "🔄 Running megalinter..."
+      - cmd: echo "🔄 Running megalinter (v{{.TASK_MEGALINTER_VERSION}})..."
         silent: true
       - docker rm -f {{.TASK_MEGALINTER_CONTAINER_NAME}}
       - rm -rf ./megalinter-reports
       - defer: (docker cp {{.TASK_MEGALINTER_CONTAINER_NAME}}:/tmp/lint/megalinter-reports ./megalinter-reports && chown -R $(id -u):$(id -g) megalinter-reports) || true; docker rm -f {{.TASK_MEGALINTER_CONTAINER_NAME}}
-      - docker run --rm -d --name {{.TASK_MEGALINTER_CONTAINER_NAME}} -e MEGALINTER_CONFIG='.config/megalinter/config.yml' -v /var/run/docker.sock:/var/run/docker.sock:rw --entrypoint sleep {{.TASK_MEGALINTER_IMAGE_PREFIX}}oxsecurity/megalinter:{{.TASK_MEGALINTER_CONTAINER_VERSION}} infinity
+      - docker run --rm -d --name {{.TASK_MEGALINTER_CONTAINER_NAME}} -e MEGALINTER_CONFIG='.config/megalinter/config.yml' -v /var/run/docker.sock:/var/run/docker.sock:rw --entrypoint sleep {{.TASK_MEGALINTER_IMAGE_PREFIX}}oxsecurity/megalinter:v{{.TASK_MEGALINTER_VERSION}} infinity
       - docker cp {{.USER_WORKING_DIR}} {{.TASK_MEGALINTER_CONTAINER_NAME}}:/tmp/lint
       - docker exec {{.TASK_MEGALINTER_CONTAINER_NAME}} /bin/bash /entrypoint.sh
       - cmd: echo "🎉 All files correctly linted with megalinter!"
@@ -37,9 +42,9 @@ tasks:
   pnpm:dlx:
     desc: Run pnpm dlx megalinter
     cmds:
-      - cmd: echo "🔄 Running pnpm dlx megalinter..."
+      - cmd: echo "🔄 Running pnpm dlx megalinter (v{{.TASK_MEGALINTER_VERSION}})..."
         silent: true
-      - MEGALINTER_CONFIG=.config/megalinter/config.yml pnpm dlx --package {{.TASK_MEGALINTER_RELEASE}} mega-linter-runner
+      - MEGALINTER_CONFIG=.config/megalinter/config.yml pnpm dlx --package mega-linter-runner@{{.TASK_MEGALINTER_VERSION}} mega-linter-runner
       - cmd: echo "🎉 All files correctly linted with megalinter!"
         silent: true
 
@@ -48,18 +53,18 @@ tasks:
     summary: |
       Run MegaLinter locally via npx without Docker.
 
-      Variables: TASK_MEGALINTER_CONFIG, TASK_MEGALINTER_FLAVOR, TASK_MEGALINTER_RELEASE
+      Variables: TASK_MEGALINTER_CONFIG, TASK_MEGALINTER_FLAVOR
       Example: task megalinter:npx TASK_MEGALINTER_CONFIG=.config/megalinter/config.yml
-      Example with version: task megalinter:npx TASK_MEGALINTER_RELEASE=mega-linter-runner@9.2.0
       Example with flavor: task megalinter:npx TASK_MEGALINTER_FLAVOR=javascript
     status:
       - test "{{.TASK_MEGALINTER_ENABLED}}" = "false"
     cmds:
-      - cmd: echo "🔄 Running MegaLinter via npx"
+      - cmd: echo "🔄 Running MegaLinter via npx (v{{.TASK_MEGALINTER_VERSION}})"
         silent: true
       - defer: docker run --rm -v {{.USER_WORKING_DIR}}/megalinter-reports:/reports alpine chmod -R 777 /reports 2>/dev/null || true
       - cmd: >-
-          npx -y -p {{.TASK_MEGALINTER_RELEASE}} mega-linter-runner
+          npx -y -p mega-linter-runner@{{.TASK_MEGALINTER_VERSION}} mega-linter-runner
+          --release v{{.TASK_MEGALINTER_VERSION}}
           --env 'MEGALINTER_CONFIG={{.TASK_MEGALINTER_CONFIG}}'
           {{if .TASK_MEGALINTER_FLAVOR}}--env 'MEGALINTER_FLAVOR={{.TASK_MEGALINTER_FLAVOR}}'{{end}}
           {{.CLI_ARGS}}
