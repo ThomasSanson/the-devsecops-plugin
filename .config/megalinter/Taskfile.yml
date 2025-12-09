@@ -4,7 +4,8 @@ version: "3"
 vars:
   # Versioning (Source of truth from package.json)
   TASK_MEGALINTER_VERSION:
-    sh: node -p "require('./.config/megalinter/package.json').dependencies['mega-linter-runner']"
+    sh: |
+      grep '"mega-linter-runner":' .config/megalinter/package.json | sed -E 's/.*"mega-linter-runner": "([^"]+)".*/\1/'
 
   # Configuration
   TASK_MEGALINTER_ENABLED: '{{.TASK_MEGALINTER_ENABLED | default "true"}}'
