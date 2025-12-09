@@ -16,15 +16,15 @@ Feature: Project Scaffolding
       | File Path  |
       | copier.yml |
     And the following directories should NOT exist:
-      | Directory Path         |
-      | .cache                 |
-      | .config/**/roles       |
-      | .vscode                |
-      | megalinter-reports     |
-      | node_modules           |
-      | project/plugin         |
-      | tmp                    |
-      | venv                   |
+      | Directory Path     |
+      | .cache             |
+      | .config/**/roles   |
+      | .vscode            |
+      | megalinter-reports |
+      | node_modules       |
+      | project/tests      |
+      | tmp                |
+      | venv               |
     # Commitizen configuration
     And the commitizen configuration file ".config/commitizen/cz.yaml" should exist
     And the commitizen configuration should have the version "0.1.0"
