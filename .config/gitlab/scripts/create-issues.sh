@@ -22,7 +22,7 @@ for arg in "$@"; do
   fi
 done
 
-[ "$DRY_RUN" = true ] && echo "Mode dry-run activé - aucune issue ne sera créée/modifiée"
+[ "$DRY_RUN" = true ] && echo "Dry-run mode enabled - no issues will be created/modified"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -33,16 +33,16 @@ if [ -n "$TARGET_FILE" ]; then
     TARGET_FILE="$SCRIPT_DIR/$TARGET_FILE"
   fi
   if [ ! -f "$TARGET_FILE" ]; then
-    echo "❌ Fichier non trouvé : $TARGET_FILE"
+    echo "❌ File not found: $TARGET_FILE"
     exit 1
   fi
   FILES=("$TARGET_FILE")
-  echo "📄 Traitement d'un seul fichier : $(basename "$TARGET_FILE")"
+  echo "📄 Processing single file: $(basename "$TARGET_FILE")"
   echo ""
 else
   # All .md files
   FILES=("$SCRIPT_DIR"/*.md)
-  echo "📁 Traitement de tous les fichiers .md"
+  echo "📁 Processing all .md files"
   echo ""
 fi
 # Function to insert issue_id in front matter
@@ -58,13 +58,13 @@ for file in "${FILES[@]}"; do
   [ -e "$file" ] || continue
 
   filename=$(basename "$file")
-  echo "=== Traitement de $filename ==="
+  echo "=== Processing $filename ==="
 
   # Extract title from YAML front matter
   title=$(grep -A1 "^---$" "$file" | grep "^title:" | sed 's/title: *"\(.*\)"/\1/' | sed "s/title: *'\(.*\)'/\1/")
 
   if [ -z "$title" ]; then
-    echo "⚠️  Pas de titre trouvé, skip"
+    echo "⚠️  No title found, skipping"
     continue
   fi
 
@@ -83,15 +83,15 @@ for file in "${FILES[@]}"; do
     description=""
   fi
 
-  echo "Titre: $title"
+  echo "Title: $title"
   echo "Labels: $labels"
-  [ -n "$existing_id" ] && echo "Issue ID existant: #$existing_id"
+  [ -n "$existing_id" ] && echo "Existing issue ID: #$existing_id"
   echo "---"
 
   if [ "$DRY_RUN" = true ]; then
     # Description preview (first 5 non-empty lines)
     desc_preview=$(echo "$description" | grep -v '^$' | head -5)
-    echo "Description (aperçu) :"
+    echo "Description (preview):"
     echo "$desc_preview"
     echo "[...]"
     echo ""
@@ -108,7 +108,7 @@ for file in "${FILES[@]}"; do
         --label "$labels" \
         --description "$description"
 
-      echo "🔄 Issue #$existing_id mise à jour"
+      echo "🔄 Issue #$existing_id updated"
     else
       # Create issue and retrieve ID
       output=$(glab issue create \
@@ -121,9 +121,9 @@ for file in "${FILES[@]}"; do
 
       if [ -n "$new_id" ]; then
         insert_issue_id "$file" "$new_id"
-        echo "✅ Issue #$new_id créée et ID ajouté au fichier"
+        echo "✅ Issue #$new_id created and ID added to file"
       else
-        echo "✅ Issue créée (ID non récupéré)"
+        echo "✅ Issue created (ID not retrieved)"
         echo "   Output: $output"
       fi
     fi
@@ -132,4 +132,4 @@ for file in "${FILES[@]}"; do
   echo ""
 done
 
-echo "=== Terminé ==="
+echo "=== Done ==="
