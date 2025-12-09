@@ -24,7 +24,7 @@ _exclude:
   - megalinter-reports
   - node_modules
   - README.md
-  - project/plugin
+  - project/tests
   - tmp
   - venv
   - "{% if not project_enabled %}project{% endif %}"
