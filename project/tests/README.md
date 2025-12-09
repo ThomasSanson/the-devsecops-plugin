@@ -6,7 +6,7 @@ Cette suite de tests est organisée selon les principes du **Domain-Driven Desig
 
 ## Structure
 
-```
+```bash
 project/tests/
 ├── codecept.conf.js          # Configuration racine CodeceptJS
 ├── entrypoint.js             # Point d'entrée chargeant tous les domaines
@@ -70,11 +70,11 @@ task test:tdd
 
 ## Tags disponibles
 
-| Tag | Description |
-|-----|-------------|
-| `@copier` | Tests de génération Copier |
-| `@ansible` | Tests d'intégration Ansible |
-| `@renovate` | Tests de configuration Renovate |
-| `@project` | Tests du mode project |
-| `@scaffolding` | Tests de scaffolding |
-| `@default` | Tests avec paramètres par défaut |
+| Tag            | Description                      |
+|----------------|----------------------------------|
+| `@copier`      | Tests de génération Copier       |
+| `@ansible`     | Tests d'intégration Ansible      |
+| `@renovate`    | Tests de configuration Renovate  |
+| `@project`     | Tests du mode project            |
+| `@scaffolding` | Tests de scaffolding             |
+| `@default`     | Tests avec paramètres par défaut |

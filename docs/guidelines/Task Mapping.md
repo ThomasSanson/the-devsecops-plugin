@@ -12,7 +12,7 @@
 ## Environment Variables
 
 ### Loading Order
-```
+```txt
 1. .env (user-specific, gitignored)
 2. .env.dev (local/CI/test specific values)
 3. .env.dist (defaults for all services)
@@ -20,19 +20,19 @@
 
 ### Key Variables
 
-| Variable | Purpose | Default |
-|----------|---------|---------|
-| `TASK_FLAGS` | Global task flags | `""` |
-| `TASK_DEVSECOPS_ICON` | DevSecOps phase icon | `♾️` |
-| `TASK_*_ENABLED` | Enable/disable specific tools | `true` |
-| `TASK_DEVSECOPS_*_ENABLED` | Enable/disable DevSecOps phases | `true` |
-| `CODECEPTJS_BASE_URL` | Base URL for E2E tests | `http://localhost:8080` |
+| Variable                   | Purpose                         | Default                 |
+|----------------------------|---------------------------------|-------------------------|
+| `TASK_FLAGS`               | Global task flags               | `""`                    |
+| `TASK_DEVSECOPS_ICON`      | DevSecOps phase icon            | `♾️`                    |
+| `TASK_*_ENABLED`           | Enable/disable specific tools   | `true`                  |
+| `TASK_DEVSECOPS_*_ENABLED` | Enable/disable DevSecOps phases | `true`                  |
+| `CODECEPTJS_BASE_URL`      | Base URL for E2E tests          | `http://localhost:8080` |
 
 ---
 
 ## Project Structure
 
-```
+```bash
 .
 ├── .config/                    # Tool-specific configurations (30+ tools)
 │   ├── ansible/               # Ansible playbooks and roles
@@ -191,21 +191,21 @@ task copier:update             # Update from template
 
 **Features Location**: `project/plugin/tests/features/`
 
-| Feature File | Purpose |
-|--------------|---------|
-| `copier/scaffolding/default.feature` | Core scaffolding validation |
-| `copier/scaffolding/project.feature` | Project mode integration |
-| `copier/scaffolding/ansible.feature` | Ansible configuration |
-| `renovate/renovate_plugin_only.feature` | Renovate validation |
+| Feature File                            | Purpose                     |
+|-----------------------------------------|-----------------------------|
+| `copier/scaffolding/default.feature`    | Core scaffolding validation |
+| `copier/scaffolding/project.feature`    | Project mode integration    |
+| `copier/scaffolding/ansible.feature`    | Ansible configuration       |
+| `renovate/renovate_plugin_only.feature` | Renovate validation         |
 
 **Step Definitions**: `project/plugin/tests/e2e/codeceptjs/step_definitions/`
 
-| File | Purpose |
-|------|---------|
-| `copier.js` | Copier scaffolding steps |
-| `project.js` | Project mode steps |
-| `ansible.js` | Ansible steps |
-| `entrypoint.js` | Main entrypoint |
+| File            | Purpose                  |
+|-----------------|--------------------------|
+| `copier.js`     | Copier scaffolding steps |
+| `project.js`    | Project mode steps       |
+| `ansible.js`    | Ansible steps            |
+| `entrypoint.js` | Main entrypoint          |
 
 ### Test Execution
 ```bash
@@ -243,11 +243,12 @@ task codeceptjs:npx TASK_CODECEPTJS_GREP="@copier"
 **Base Image**: `registry.gitlab.com/digital-commons/devsecops/the-devsecops-toolbox:15.2.1`
 
 ### CI Variables Required
-| Variable | Purpose |
-|----------|---------|
-| `CZ_DEPLOY_KEY` | Base64 SSH key for git push |
-| `GITLAB_USER_LOGIN` | GitLab username (auto) |
-| `GITLAB_USER_EMAIL` | GitLab email (auto) |
+
+| Variable            | Purpose                     |
+|---------------------|-----------------------------|
+| `CZ_DEPLOY_KEY`     | Base64 SSH key for git push |
+| `GITLAB_USER_LOGIN` | GitLab username (auto)      |
+| `GITLAB_USER_EMAIL` | GitLab email (auto)         |
 
 ---
 
@@ -276,11 +277,11 @@ Files ending in `.jinja` are Copier templates:
 
 ## Docker Services
 
-| Service | Dockerfile | Purpose |
-|---------|------------|---------|
-| `ubuntu` | `.config/devcontainer/ubuntu/Dockerfile` | DevContainer |
-| `codeceptjs` | `.config/codeceptjs/Dockerfile` | E2E testing |
-| `kaniko` | `.config/kaniko/Dockerfile` | CI image builds |
+| Service      | Dockerfile                               | Purpose         |
+|--------------|------------------------------------------|-----------------|
+| `ubuntu`     | `.config/devcontainer/ubuntu/Dockerfile` | DevContainer    |
+| `codeceptjs` | `.config/codeceptjs/Dockerfile`          | E2E testing     |
+| `kaniko`     | `.config/kaniko/Dockerfile`              | CI image builds |
 
 ### DevContainer (docker-compose.yml)
 - **Image**: Ubuntu 24.04
@@ -291,25 +292,25 @@ Files ending in `.jinja` are Copier templates:
 
 ## Security Tools Integrated
 
-| Tool | Purpose | Config |
-|------|---------|--------|
-| **Gitleaks** | Secret scanning | `.config/gitleaks/config.toml` |
-| **MegaLinter** | Multi-linter | `.config/megalinter/config.yml` |
-| **Grype** | Vulnerability scan | `.config/grype/config.yml` |
-| **Trivy** | Container security | `.config/trivy/config.yml` |
-| **KICS** | IaC security | `.config/kics/config.yml` |
-| **DevSkim** | Security linter | `.config/devskim/config.json` |
-| **Lefthook** | Git hooks | `lefthook.yml` |
+| Tool           | Purpose            | Config                          |
+|----------------|--------------------|---------------------------------|
+| **Gitleaks**   | Secret scanning    | `.config/gitleaks/config.toml`  |
+| **MegaLinter** | Multi-linter       | `.config/megalinter/config.yml` |
+| **Grype**      | Vulnerability scan | `.config/grype/config.yml`      |
+| **Trivy**      | Container security | `.config/trivy/config.yml`      |
+| **KICS**       | IaC security       | `.config/kics/config.yml`       |
+| **DevSkim**    | Security linter    | `.config/devskim/config.json`   |
+| **Lefthook**   | Git hooks          | `lefthook.yml`                  |
 
 ---
 
 ## Quality Tools Integrated
 
-| Tool | Purpose | Config |
-|------|---------|--------|
-| **Commitlint** | Commit validation | `.config/commitlint/config.yml` |
-| **Commitizen** | Version bump | `.config/commitizen/cz.yaml` |
-| **Lizard** | Complexity analysis | Taskfile |
-| **CSpell** | Spell check | `.config/cspell/config.json` |
-| **Prettier** | Code formatting | Auto-fix enabled |
-| **YAMLLint** | YAML linting | `.config/yamllint/config.yml` |
+| Tool           | Purpose             | Config                          |
+|----------------|---------------------|---------------------------------|
+| **Commitlint** | Commit validation   | `.config/commitlint/config.yml` |
+| **Commitizen** | Version bump        | `.config/commitizen/cz.yaml`    |
+| **Lizard**     | Complexity analysis | Taskfile                        |
+| **CSpell**     | Spell check         | `.config/cspell/config.json`    |
+| **Prettier**   | Code formatting     | Auto-fix enabled                |
+| **YAMLLint**   | YAML linting        | `.config/yamllint/config.yml`   |
