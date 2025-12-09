@@ -11,15 +11,33 @@
  * @returns {string[]} Array of values
  */
 function getTableRows (table, columnName = null) {
-  const rows = table.rows.map(row => {
-    if (columnName && row[columnName]) {
-      return row[columnName]
-    }
-    return row[0] || ''
-  }).filter(Boolean)
+  if (!table.rows || table.rows.length === 0) return []
 
-  // Skip header row if it matches the column name
-  return columnName && rows[0] === columnName ? rows.slice(1) : rows
+  // If column name is provided, find its index in the header
+  if (columnName) {
+    const headers = table.rows[0].cells.map(c => c.value)
+    const colIndex = headers.indexOf(columnName)
+
+    if (colIndex === -1) {
+      console.warn(`Column '${columnName}' not found in table headers: ${headers.join(', ')}`)
+      return []
+    }
+
+    // Return values from that column, skipping the header row
+    return table.rows.slice(1).map(row => {
+      const cell = row.cells[colIndex]
+      return cell ? cell.value : ''
+    }).filter(val => val !== '')
+  }
+
+  // Fallback: return first column values if no column name specified
+  return table.rows.map(row => {
+    const cell = row.cells[0]
+    // If it looks like a header row (matches 'Directory Path' e.g.), we might want to skip it?
+    // But without columnName we don't know what is header.
+    // Standardize to always return strings.
+    return cell ? cell.value : ''
+  }).filter(val => val !== '')
 }
 
 /**
