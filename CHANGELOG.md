@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 16.0.1 (2025-12-09)
+
+### Fix
+
+- **deps**: update dependency ansible-core to v2.20.1
+
 ## 16.0.0 (2025-12-09)
 
 ### Feat
