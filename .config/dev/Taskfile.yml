@@ -41,15 +41,23 @@ tasks:
       - .config/node/install.sh
       - .config/pipx/install.sh
       - .config/go/install.sh
-      - task: lefthook
       - cmd: echo "🎉 Development environment setup completed successfully"
+        silent: true
+
+  init:
+    cmds:
+      - cmd: echo "🔄 Init dev environment"
+        silent: true
+      - task: setup-environment
+      - task: lefthook
+      - cmd: echo "🎉 Init dev environment completed successfully"
         silent: true
 
   up:
     cmds:
       - cmd: echo "🔄 Starting project launch sequence"
         silent: true
-      - task: setup-environment
+      - task: init
       - task: :deploy
       - cmd: echo "=> Run 'task dev:reset to destroy and cleanup"
         silent: true
