@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 16.0.4 (2025-12-10)
+
+### Fix
+
+- **deps**: update dependency @digital-commons-official/codeceptjs-visual-helper to v1.2.3
+
 ## 16.0.3 (2025-12-10)
 
 ### Fix
