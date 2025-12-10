@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 16.0.3 (2025-12-10)
+
+### Fix
+
+- **tables.js**: enhance getTableRows function to handle empty tables and improve column value extraction logic
+
 ## 16.0.2 (2025-12-09)
 
 ### Fix
