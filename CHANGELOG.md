@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 16.0.8 (2025-12-30)
+
+### Fix
+
+- **deps**: update dependency commitizen to v4.11.0
+
 ## 16.0.7 (2025-12-14)
 
 ### Fix
